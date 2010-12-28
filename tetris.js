@@ -64,7 +64,7 @@ var Arrays = {
 
 
 /**
- * A point representing a location in (x, y) coordinate space.
+ * Point representing a location in (x, y) coordinate space.
  *
  * Use Point.of() instead of new Point() to create an instance
  * if you want to use cached objects.
@@ -103,7 +103,7 @@ Point.of = (function () {
 
 
 /**
- * A tetromino with a specific shape and rotation.
+ * Tetromino with a specific shape and rotation.
  *
  * Use Tetromino.of() instead of new Tetromino() to create an instance
  * for convenience and performance.
@@ -307,6 +307,9 @@ Color.fromHSL = (function () {
 })();
 
 
+/**
+ * Static simulator without timings.
+ */
 function SimulatorBase(simulator) {
 
     var cols;
@@ -970,13 +973,7 @@ function Controller() {
 }
 
 
-function Painter(cols, rows, size) {
-
-    var width = cols * size;
-    var height = rows * size;
-
-    var small = .875;
-    var smaller = .75;
+function Painter(cols, rows) {
 
     var block_colors = {
         'I': Color.fromHSL(180, 100, 47.5),
@@ -988,19 +985,11 @@ function Painter(cols, rows, size) {
         'L': Color.fromHSL(35, 100, 47.5)
     };
 
-    var colors = {
-        gray     : Color.fromHSL( 0,   0, 80),
-        yellow_0 : Color.fromHSL(50, 100, 50, 0),
+    var effect_colors = {
+        gray: Color.fromHSL(0, 0, 80),
+        yellow_0: Color.fromHSL(50, 100, 50, 0),
         orange_25: Color.fromHSL(25, 100, 50, .25),
-        red_50   : Color.fromHSL( 0, 100, 50, .50)
-    };
-
-    var blocks = {
-        normal: createBlocks(),
-        light : createBlocks({bright: 1.15}),
-        ghost : createBlocks({
-            bright: 1.125, line_width: 2, margin: 1.5, no_fill: true
-        })
+        red_50: Color.fromHSL(0, 100, 50, .50)
     };
 
     var texts = {
@@ -1010,93 +999,33 @@ function Painter(cols, rows, size) {
         b2b: 'BACK-TO-BACK'
     };
 
-    var canvas = {};
-    var ctx = {};
-    var ctx_preview = [];
-    var labels = {};
+    var size;  // grid size
+    var width;
+    var height;
 
+    // used for scaling block images in the preview panel
+    var small = .875;
+    var smaller = .75;
+
+    var blocks = {};  // pre-rendered block images
+
+    // cached DOM elements
+    var canvases = {};
+    var labels = {};
     var action_label;
     var score_label;
 
-    var cache = {};
+    // canvas contexts
+    var ctx = {};
+    var ctx_preview = [];
 
-    this.init = function () {
-        var width_side = 6 * size;
-        var height_blind = 1.5 * size;
+    var state = {};
 
-        var screen_width = width + 2 * (width_side + size);
-        var screen_height = height - height_blind;
-        $('#screen')
-            .css('margin', '0 auto')
-            .css('margin-top', px(-(.5 * screen_height + size)))
-            .css('border-width', px(size))
-            .width(screen_width)
-            .height(screen_height);
-
-        $('#left').width(width_side).height(screen_height);
-        $('#right').width(width_side).height(screen_height);
-        $('#center')
-            .css('margin-top', px(-height_blind))
-            .width(width)
-            .height(height);
-
-        $('#left').css('margin-right', px(size));
-        $('#right').css('margin-left', px(size));
-        $('#hold-tag').css('top', px(1.5 * size));
-        $('#hold-piece').css('top', px(2 * size)).css('left', px(.5 * size));
-        $('#action')
-            .css('top', px(.5 * height - 3.5 * size))
-            .css('line-height', px(size));
-        $('#combo').css('margin-bottom', px(size));
-        $('#action .placeholder').height(size);
-        $('#level-tag, #level').css('top', px(.5 * height + 4 * size));
-        $('#lines-tag, #lines').css('top', px(.5 * height + 5 * size));
-        $('#score-tag, #score').css('top', px(.5 * height + 6 * size));
-        $('#time-tag, #time').css('top', px(.5 * height + 7.5 * size));
-        $('#next-tag').css('top', px(1.5 * size));
-        var t = 2.0;
-        $('.preview').each(function (i) {
-            $(this).css('top', px(t * size)).css('left', px(.5 * size));
-            var f = $(this).hasClass('small')
-                ? small
-                : $(this).hasClass('smaller') ? smaller
-                                              : 1;
-            t += 3.3 * f;
-        });
-        $('#playfield, #playfield-background').each(function () {
-            this.width = width;
-            this.height = height;
-        });
-        $('#falling-piece, #ghost-piece, #hold-piece, .preview')
-            .each(function () { this.width = this.height = 5 * size; });
-
-        canvas.falling_piece = $('#falling-piece')[0];
-        canvas.ghost_piece = $('#ghost-piece')[0];
-
-        ctx.playfield = getContext2D('playfield');
-        ctx.falling_piece = getContext2D('falling-piece');
-        ctx.ghost_piece = getContext2D('ghost-piece');
-        ctx.hold_piece = getContext2D('hold-piece');
-        $('.preview').each(function (i) {
-            return ctx_preview[i] = this.getContext('2d');
-        });
-
-        labels.combo = $('#combo');
-        labels.points = $('#points');
-        labels.b2b = $('#b2b');
-        labels.tspin = $('#t-spin');
-        labels.line_clear = $('#line-clear');
-
-        labels.level = $('#level');
-        labels.lines = $('#lines');
-        labels.score = $('#score');
-
-        labels.minute = $('#minute');
-        labels.second = $('#second');
-
-        action_label = $('#action');
-        score_label = $('#score-tag, #score');
-
+    this.init = function (size_) {
+        setDimensions(size_);
+        cacheDOMElements();
+        renderBlockImages();
+        getCanvasContexts();
         drawGrid();
     };
 
@@ -1104,34 +1033,34 @@ function Painter(cols, rows, size) {
         Utils.forEach(ctx, clear);
         Utils.forEach(labels, clearText);
         ctx_preview.forEach(clear);
-        for (var key in cache)
-            delete cache[key];
+        for (var key in state)
+            delete state[key];
     };
 
     this.drawFallingPiece = function (falling_piece, falling_point, ghost_point, landed) {
-        if (cache.falling_piece !== falling_piece || cache.landed !== landed) {
+        if (state.falling_piece !== falling_piece || state.landed !== landed) {
             drawPiece(ctx.falling_piece, falling_piece, landed ? blocks.light : blocks.normal);
             drawPiece(ctx.ghost_piece, falling_piece, blocks.ghost);
         }
-        setPosition(canvas.falling_piece, falling_point);
-        setPosition(canvas.ghost_piece, ghost_point);
+        setPosition(canvases.falling_piece, falling_point);
+        setPosition(canvases.ghost_piece, ghost_point);
 
-        cache.falling_piece = falling_piece;
-        cache.falling_point = falling_point;
-        cache.ghost_point = ghost_point;
-        cache.landed = landed;
+        state.falling_piece = falling_piece;
+        state.falling_point = falling_point;
+        state.ghost_point = ghost_point;
+        state.landed = landed;
     };
 
     this.drawLockedPiece = function () {
-        if (!cache.falling_piece)
+        if (!state.falling_piece)
             return;
         clear(ctx.falling_piece);
         clear(ctx.ghost_piece);
-        drawPiece(ctx.playfield, cache.falling_piece, blocks.normal, cache.falling_point);
-        cache.falling_piece = null;
-        cache.falling_point = null;
-        cache.ghost_point = null;
-        cache.landed = null;
+        drawPiece(ctx.playfield, state.falling_piece, blocks.normal, state.falling_point);
+        state.falling_piece = null;
+        state.falling_point = null;
+        state.ghost_point = null;
+        state.landed = null;
     };
 
     this.drawPreview = (function () {
@@ -1189,11 +1118,11 @@ function Painter(cols, rows, size) {
         }
         return function (figures, ignore_cache) {
             flag = ignore_cache;
-            setFigure(labels.level, figures.level, cache.level);
-            setFigure(labels.lines, figures.lines, cache.lines);
-            setFigure(labels.score, figures.score, cache.score);
+            setFigure(labels.level, figures.level, state.level);
+            setFigure(labels.lines, figures.lines, state.lines);
+            setFigure(labels.score, figures.score, state.score);
             for (var key in figures)
-                cache[key] = figures[key];
+                state[key] = figures[key];
         };
     })();
 
@@ -1218,6 +1147,89 @@ function Painter(cols, rows, size) {
         animate(fps, frames, gameOverAnimation, null, callback);
     };
 
+    function setDimensions(size_) {
+        size = size_;
+        width = cols * size;
+        height = rows * size;
+
+        var width_side = 6 * size;
+        var height_blind = 1.5 * size;
+        var screen_width = width + 2 * (width_side + size);
+        var screen_height = height - height_blind;
+        var t = 2.0;
+
+        $('#screen')
+            .css('margin', '0 auto')
+            .css('margin-top', px(-(.5 * screen_height + size)))
+            .css('border-width', px(size))
+            .width(screen_width)
+            .height(screen_height);
+        $('#left')
+            .css('margin-right', px(size))
+            .width(width_side).height(screen_height);
+        $('#right')
+            .css('margin-left', px(size))
+            .width(width_side).height(screen_height);
+        $('#center')
+            .css('margin-top', px(-height_blind))
+            .width(width)
+            .height(height);
+        $('#hold-tag').css('top', px(1.5 * size));
+        $('#hold-piece').css('top', px(2 * size)).css('left', px(.5 * size));
+        $('#action')
+            .css('top', px(.5 * height - 3.5 * size))
+            .css('line-height', px(size));
+        $('#combo').css('margin-bottom', px(size));
+        $('#action .placeholder').height(size);
+        $('#level-tag, #level').css('top', px(.5 * height + 4 * size));
+        $('#lines-tag, #lines').css('top', px(.5 * height + 5 * size));
+        $('#score-tag, #score').css('top', px(.5 * height + 6 * size));
+        $('#time-tag, #time').css('top', px(.5 * height + 7.5 * size));
+        $('#next-tag').css('top', px(1.5 * size));
+        $('#playfield, #playfield-background').each(function () {
+            this.width = width;
+            this.height = height;
+        });
+        $('#falling-piece, #ghost-piece, #hold-piece, .preview').each(function () {
+            this.width = this.height = 5 * size;
+        });
+        $('.preview').each(function (i) {
+            $(this).css('top', px(t * size)).css('left', px(.5 * size));
+            var f = $(this).hasClass('small')
+                ? small
+                : $(this).hasClass('smaller') ? smaller
+                                              : 1;
+            t += 3.3 * f;
+        });
+    }
+
+    function px(n) {
+        return n + 'px';
+    }
+
+    function cacheDOMElements() {
+        canvases.falling_piece = $('#falling-piece')[0];
+        canvases.ghost_piece = $('#ghost-piece')[0];
+        labels.combo = $('#combo');
+        labels.points = $('#points');
+        labels.b2b = $('#b2b');
+        labels.tspin = $('#t-spin');
+        labels.line_clear = $('#line-clear');
+        labels.level = $('#level');
+        labels.lines = $('#lines');
+        labels.score = $('#score');
+        labels.minute = $('#minute');
+        labels.second = $('#second');
+        action_label = $('#action');
+        score_label = $('#score-tag, #score');
+    }
+
+    function renderBlockImages() {
+        blocks.normal = createBlocks();
+        blocks.light = createBlocks({bright: 1.15});
+        blocks.ghost = createBlocks({bright: 1.125, line_width: 2, margin: 1.5, no_fill: true});
+    }
+
     function createBlocks(options) {
         var options = options || {};
         var context = document.createElement('canvas').getContext('2d');
@@ -1241,8 +1253,14 @@ function Painter(cols, rows, size) {
         return blocks;
     }
 
-    function px(n) {
-        return n + 'px';
+    function getCanvasContexts() {
+        ctx.playfield = getContext2D('playfield');
+        ctx.falling_piece = getContext2D('falling-piece');
+        ctx.ghost_piece = getContext2D('ghost-piece');
+        ctx.hold_piece = getContext2D('hold-piece');
+        $('.preview').each(function (i) {
+            return ctx_preview[i] = this.getContext('2d');
+        });
     }
 
     function getContext2D(id) {
@@ -1251,7 +1269,7 @@ function Painter(cols, rows, size) {
 
     function drawGrid() {
         var c = getContext2D('playfield-background');
-        c.strokeStyle = colors.gray.toString();
+        c.strokeStyle = effect_colors.gray.toString();
         c.lineWidth = 1;
         for (var x = 1; x < cols; ++x) {
             c.beginPath();
@@ -1269,18 +1287,6 @@ function Painter(cols, rows, size) {
         }
     }
 
-    function drawPlayfield(playfield) {
-        for (var y = 0; y < rows; ++y) {
-            var row = playfield[y];
-            for (var x = 0; x < cols; ++x) {
-                var piece_name = row[x];
-                clearBlock(ctx.playfield, x, y);
-                if (piece_name)
-                    drawBlock(ctx.playfield, x, y, piece_name, blocks.normal);
-            }
-        }
-    }
-
     function drawPiece(c, piece, blocks, point, center) {
         if (!point) {
             clear(c);
@@ -1291,6 +1297,18 @@ function Painter(cols, rows, size) {
             if (center)
                 q = q.sub(piece.center);
             drawBlock(c, q.x, q.y, piece.name, blocks);
+        }
+    }
+
+    function drawPlayfield(playfield) {
+        for (var y = 0; y < rows; ++y) {
+            var row = playfield[y];
+            for (var x = 0; x < cols; ++x) {
+                var piece_name = row[x];
+                clearBlock(ctx.playfield, x, y);
+                if (piece_name)
+                    drawBlock(ctx.playfield, x, y, piece_name, blocks.normal);
+            }
         }
     }
 
@@ -1313,12 +1331,12 @@ function Painter(cols, rows, size) {
     }
 
     var setPosition = (function () {
-        cache = {};
+        str_cache = {};  // e.g. '10px'
         return function (canvas, p) {
             var x = (p.x - 2) * size;
             var y = (p.y - 2) * size;
-            canvas.style.left = cache[x] || (cache[x] = px(x));
-            canvas.style.bottom = cache[y] || (cache[y] = px(y));
+            canvas.style.left = str_cache[x] || (str_cache[x] = px(x));
+            canvas.style.bottom = str_cache[y] || (str_cache[y] = px(y));
         };
     })();
 
@@ -1337,15 +1355,15 @@ function Painter(cols, rows, size) {
         c.save();
         c.globalCompositeOperation = 'source-atop';
         var solid = height / frames / frames * i * (i + 1);
-        c.fillStyle = colors.gray.toString();
+        c.fillStyle = effect_colors.gray.toString();
         c.fillRect(0, height - solid, width, solid);
         var h = height - solid;
         var grad = solid * 3;
         var g = c.createLinearGradient(0, h - grad, 0, h);
-        g.addColorStop(0, colors.yellow_0.toString());
-        g.addColorStop(.3, colors.orange_25.toString());
-        g.addColorStop(.6, colors.red_50.toString());
-        g.addColorStop(1, colors.gray.toString());
+        g.addColorStop(0, effect_colors.yellow_0.toString());
+        g.addColorStop(.3, effect_colors.orange_25.toString());
+        g.addColorStop(.6, effect_colors.red_50.toString());
+        g.addColorStop(1, effect_colors.gray.toString());
         c.fillStyle = g;
         c.fillRect(0, h - grad, width, grad);
         c.restore();
@@ -1387,7 +1405,7 @@ function UserInterface() {
 
     var simulator = new Simulator(10, 22, Point.of(4, 20), this);
     var controller = new Controller();
-    var painter = new Painter(10, 22, 20);
+    var painter = new Painter(10, 22);
 
     var screen = $('#screen');
     var panels = $('#left, #right, #center');
@@ -1395,17 +1413,38 @@ function UserInterface() {
     var play_menu = $('#play-menu');
 
     this.init = function () {
-        painter.init();
+        painter.init(20);
         simulator.setController(controller);
         simulator.setPainter(painter);
         controller.setSimulator(simulator);
+        makeMenuButtons();
+        setEventListeners();
+        show(main_menu);
+    };
 
+    this.onGameOver = function (game_mode, record) {
+        if (console)
+            console.log(game_mode, record);
+        show(main_menu);
+    };
+
+    function makeMenuButtons() {
         $('.menu').each(function () {
             $(this).find('li').wrapInner(menuButton);
             $(this)
                 .css('top', .5 * (screen.height() - $(this).height()) + 'px')
                 .data('focus', $(this).find('li:first button'));
         });
+    }
+
+    function menuButton() {
+        return $('<button />')
+            .keydown(keydown)
+            .focus(focus)
+            .attr('value', $(this).attr('id'));
+    }
+
+    function setEventListeners() {
         $('button').click(function () { $(this).focus(); });
         $('.return button').click(function () { show(main_menu); });
         $('#play button').click(function () { show(play_menu); });
@@ -1416,21 +1455,6 @@ function UserInterface() {
             screen.removeClass().addClass($(this).attr('value'));
             last_focus = this;
         });
-
-        show(main_menu);
-    };
-
-    this.onGameOver = function (game_mode, record) {
-        if (console)
-            console.log(game_mode, record);
-        show(main_menu);
-    };
-
-    function menuButton() {
-        return $('<button />')
-            .keydown(keydown)
-            .focus(focus)
-            .attr('value', $(this).attr('id'));
     }
 
     function show(menu) {
