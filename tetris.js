@@ -525,7 +525,7 @@ function SimulatorBase(simulator) {
 
     function lock() {
         var rawTspin = false;
-        if (fallingPiece.name == 'T' && lastSuccessfulMove === rotate) {
+        if (fallingPiece.name === 'T' && lastSuccessfulMove === rotate) {
             var count = 0;
             for (var i = 0; i < 4; ++i) {
                 var q = fallingPoint.add(diagonalPoints[i]);
@@ -605,7 +605,7 @@ function Simulator(cols, rows, spawnPoint, ui) {
         },
         lockDelay: function () { return 725 - 15 * figures.level; },
         lineClear: function () {
-            return gameMode == 'sprint' ? 0 : defaultTimings.lineClear;
+            return gameMode === 'marathon' ? defaultTimings.lineClear : 0;
         }
     };
     var infinityLimit = 16;
@@ -744,7 +744,8 @@ function Simulator(cols, rows, spawnPoint, ui) {
         blockedOut = false;
 
         painter.start();
-        painter.setScoreVisible(gameMode != 'sprint');
+        painter.setLevelVisible(gameMode === 'marathon');
+        painter.setScoreVisible(gameMode !== 'sprint');
         painter.setFigures(figures, true);
         simulatorBase.start(cols, rows, spawnPoint);
         controller.start();
@@ -841,7 +842,7 @@ function Simulator(cols, rows, spawnPoint, ui) {
                         gravityDistance = 0;
                         break;
                     }
-                    if (softDropping && gameMode != 'sprint') {
+                    if (softDropping && gameMode !== 'sprint') {
                         figures.score += baseScores.softDrop;
                         painter.setFigures(figures);
                     }
@@ -862,7 +863,7 @@ function Simulator(cols, rows, spawnPoint, ui) {
         var d = currentTime - startTime;
         timer = setTimeout(time, 1000 - d % 1000);
         var seconds = Math.round(d / 1000);
-        if (gameMode != 'ultra') {
+        if (gameMode !== 'ultra') {
             painter.setTime(seconds);
             return;
         }
@@ -1014,6 +1015,7 @@ function Painter(cols, rows) {
     var canvases = {};
     var labels = {};
     var actionLabel;
+    var levelLabel;
     var scoreLabel;
 
     // Canvas contexts
@@ -1127,6 +1129,13 @@ function Painter(cols, rows) {
         };
     })();
 
+    this.setLevelVisible = function (visible) {
+        if (visible)
+            levelLabel.show();
+        else
+            levelLabel.hide();
+    };
+
     this.setScoreVisible = function (visible) {
         if (visible)
             scoreLabel.show();
@@ -1222,6 +1231,7 @@ function Painter(cols, rows) {
         labels.minute = $('#minute');
         labels.second = $('#second');
         actionLabel = $('#action');
+        levelLabel = $('#level-tag, #level');
         scoreLabel = $('#score-tag, #score');
     }
 
@@ -1496,7 +1506,7 @@ function UserInterface() {
     }
 
     function focusout() {
-        if (this == lastFocus[0]) {
+        if (this === lastFocus[0]) {
             restoreFocus();
             return false;
         }
