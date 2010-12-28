@@ -603,7 +603,7 @@ function Simulator(cols, rows, spawnPoint, ui) {
             var t = Math.pow(.8 - n * .007, n);
             return 1 / t / fps;
         },
-        lockDelay: function () { return 725 - 15 * figures.level; },
+        lockDelay: function () { return 725 - 10 * figures.level; },
         lineClear: function () {
             return gameMode === 'marathon' ? defaultTimings.lineClear : 0;
         }
