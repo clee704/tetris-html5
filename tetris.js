@@ -314,41 +314,41 @@ function SimulatorBase(simulator) {
 
     var cols;
     var rows;
-    var spawn_point;
+    var spawnPoint;
 
     var playfield;
     var bag = [];
 
-    var falling_piece;
-    var falling_point;
-    var ghost_point;
-    var hold_piece;
-    var ready_to_hold;
+    var fallingPiece;
+    var fallingPoint;
+    var ghostPoint;
+    var holdPiece;
+    var readyToHold;
 
     // needed to implement IRS, IHS
-    var charged_operations = [];
+    var chargedOperations = [];
     var uncharging;
 
     // needed to implement T-spin detection
-    var diagonal = Utils.points([1, 1, 1,-1,-1, 1,-1,-1]);
-    var last_attempted_move;
-    var last_successful_move;
+    var diagonalPoints = Utils.points([1, 1, 1,-1,-1, 1,-1,-1]);
+    var lastAttemptedMove;
+    var lastSuccessfulMove;
     var kick;
 
     var stopped = true;
 
-    this.start = function (cols_, rows_, spawn_point_) {
+    this.start = function (cols_, rows_, spawnPoint_) {
         cols = cols_;
         rows = rows_;
-        spawn_point = spawn_point_;
+        spawnPoint = spawnPoint_;
         playfield = Arrays.repeats(rows + 4, cols).map(function (cols) {
             return Arrays.repeats(cols, 0);
         });
         bag.length = 0;
         fillBag(bag);
-        falling_piece = falling_point = ghost_point = hold_piece = null;
-        ready_to_hold = true;
-        charged_operations.length = 0;
+        fallingPiece = fallingPoint = ghostPoint = holdPiece = null;
+        readyToHold = true;
+        chargedOperations.length = 0;
         uncharging = false;
         stopped = false;
     };
@@ -368,14 +368,14 @@ function SimulatorBase(simulator) {
     this.softDrop = function () { return drop(false); };
 
     this.hardDrop = function () {
-        last_attempted_move = drop;
+        lastAttemptedMove = drop;
         if (!active())
             return 0;
-        var distance = falling_point.y - ghost_point.y;
+        var distance = fallingPoint.y - ghostPoint.y;
         if (distance > 0)
-            last_successful_move = last_attempted_move;
-        falling_point = ghost_point;
-        simulator.onPieceMove(falling_piece, falling_point, ghost_point, true);
+            lastSuccessfulMove = lastAttemptedMove;
+        fallingPoint = ghostPoint;
+        simulator.onPieceMove(fallingPiece, fallingPoint, ghostPoint, true);
         lock();
         return distance;
     };
@@ -383,25 +383,25 @@ function SimulatorBase(simulator) {
     this.hold = hold;
 
     function spawn() {
-        if (!(!falling_piece && !stopped))
+        if (!(!fallingPiece && !stopped))
             return;
-        falling_piece = bag.shift();
-        falling_point = spawn_point;
-        ghost_point = computeGhost();
-        ready_to_hold = true;
+        fallingPiece = bag.shift();
+        fallingPoint = spawnPoint;
+        ghostPoint = computeGhost();
+        readyToHold = true;
         if (bag.length < 7)
             fillBag(bag);
         if (uncharging)
             return;
-        if (charged_operations.length > 0) {
+        if (chargedOperations.length > 0) {
             uncharging = true;
-            for (var i = 0, n = charged_operations.length; i < n; ++i)
-                (charged_operations.shift())();
+            for (var i = 0, n = chargedOperations.length; i < n; ++i)
+                (chargedOperations.shift())();
             uncharging = false;
         }
         simulator.onPreviewUpdate(bag);
-        simulator.onPieceSpawn(falling_piece, falling_point, ghost_point);
-        move(falling_piece, falling_point, stop, false);
+        simulator.onPieceSpawn(fallingPiece, fallingPoint, ghostPoint);
+        move(fallingPiece, fallingPoint, stop, false);
     }
 
     function rotateLeft() { rotate(-1); }
@@ -409,29 +409,29 @@ function SimulatorBase(simulator) {
     function rotateRight() { rotate(1); }
 
     var rotate = (function () {
-        var rotated_piece;
+        var rotatedPiece;
         var offset = [];
         function resolve() {
             kick = true;
             for (var i = 1, n = offset.length; i < n; ++i) {
-                var p = falling_point.add(offset[i]);
-                if (!pieceCollides(rotated_piece, p))
+                var p = fallingPoint.add(offset[i]);
+                if (!pieceCollides(rotatedPiece, p))
                     return p;
             }
         }
         return function (dir) {
-           last_attempted_move = rotate;
+           lastAttemptedMove = rotate;
            if (!active()) {
-               charged_operations.push(dir === -1 ? rotateLeft : rotateRight);
+               chargedOperations.push(dir === -1 ? rotateLeft : rotateRight);
                return;
            }
-           rotated_piece = dir === 1 ? falling_piece.rotateRight()
-                                     : falling_piece.rotateLeft();
-           for (var i = 0, n = falling_piece.offset.length; i < n; ++i)
-               offset[i] = falling_piece.offset[i].sub(rotated_piece.offset[i]);
+           rotatedPiece = dir === 1 ? fallingPiece.rotateRight()
+                                    : fallingPiece.rotateLeft();
+           for (var i = 0, n = fallingPiece.offset.length; i < n; ++i)
+               offset[i] = fallingPiece.offset[i].sub(rotatedPiece.offset[i]);
            offset.length = n;
            kick = false;
-           move(rotated_piece, falling_point.add(offset[0]), resolve, true);
+           move(rotatedPiece, fallingPoint.add(offset[0]), resolve, true);
         };
     })();
 
@@ -440,60 +440,60 @@ function SimulatorBase(simulator) {
     function shiftRight() { shift(1); }
 
     function shift(dir) {
-        last_attempted_move = shift;
+        lastAttemptedMove = shift;
         if (!active())
             return;
-        move(falling_piece, falling_point.addX(dir), null, true);
+        move(fallingPiece, fallingPoint.addX(dir), null, true);
     }
 
-    function drop(should_lock) {
-        last_attempted_move = drop;
+    function drop(shouldLock) {
+        lastAttemptedMove = drop;
         if (!active())
             return 0;
-        var resolve = should_lock ? lock : null;
-        if (move(falling_piece, falling_point.addY(-1), resolve, false))
+        var resolve = shouldLock ? lock : null;
+        if (move(fallingPiece, fallingPoint.addY(-1), resolve, false))
             return 1;
     }
 
-    function move(piece, point, resolve, update_ghost) {
+    function move(piece, point, resolve, updateGhost) {
         if (pieceCollides(piece, point))
             if (!resolve || !(point = resolve(piece, point)))
                 return false;
-        last_successful_move = last_attempted_move;
-        falling_piece = piece;
-        falling_point = point;
-        if (update_ghost)
-            ghost_point = computeGhost();
+        lastSuccessfulMove = lastAttemptedMove;
+        fallingPiece = piece;
+        fallingPoint = point;
+        if (updateGhost)
+            ghostPoint = computeGhost();
         if (!uncharging) {
-            var landed = pieceCollides(falling_piece, falling_point.addY(-1));
-            simulator.onPieceMove(falling_piece, falling_point, ghost_point, landed);
+            var landed = pieceCollides(fallingPiece, fallingPoint.addY(-1));
+            simulator.onPieceMove(fallingPiece, fallingPoint, ghostPoint, landed);
         }
         return true;
     }
 
     function hold() {
-        last_attempted_move = hold;
+        lastAttemptedMove = hold;
         if (!active()) {
-            charged_operations.push(hold);
+            chargedOperations.push(hold);
             return;
         }
-        if (!ready_to_hold)
+        if (!readyToHold)
             return;
-        if (hold_piece && pieceCollides(hold_piece, spawn_point))
+        if (holdPiece && pieceCollides(holdPiece, spawnPoint))
             return;
-        var temp = hold_piece;
-        hold_piece = falling_piece.rotate(0);
-        simulator.onHoldPiece(hold_piece);
+        var temp = holdPiece;
+        holdPiece = fallingPiece.rotate(0);
+        simulator.onHoldPiece(holdPiece);
         if (temp)
-            move(temp, spawn_point, null, true);
+            move(temp, spawnPoint, null, true);
         else
-            falling_piece = null,
+            fallingPiece = null,
             spawn();
-        ready_to_hold = false;
+        readyToHold = false;
     }
 
     function active() {
-        return falling_piece && !stopped;
+        return fallingPiece && !stopped;
     }
 
     function fillBag(bag) {
@@ -507,9 +507,9 @@ function SimulatorBase(simulator) {
     }
 
     function computeGhost() {
-        var p = falling_point;
+        var p = fallingPoint;
         var q;
-        while (!pieceCollides(falling_piece, q = p.addY(-1)))
+        while (!pieceCollides(fallingPiece, q = p.addY(-1)))
             p = q;
         return p;
     }
@@ -524,27 +524,27 @@ function SimulatorBase(simulator) {
     }
 
     function lock() {
-        var raw_tspin = false;
-        if (falling_piece.name == 'T' && last_successful_move === rotate) {
+        var rawTspin = false;
+        if (fallingPiece.name == 'T' && lastSuccessfulMove === rotate) {
             var count = 0;
             for (var i = 0; i < 4; ++i) {
-                var q = falling_point.add(diagonal[i]);
+                var q = fallingPoint.add(diagonalPoints[i]);
                 if (q.y < 0 || q.x >= cols || q.x < 0 || playfield[q.y][q.x])
                     count += 1;
             }
             if (count >= 3)
-                raw_tspin = true;
+                rawTspin = true;
         }
         merge();
-        simulator.onPieceLock(playfield, clearLines(), raw_tspin, kick);
+        simulator.onPieceLock(playfield, clearLines(), rawTspin, kick);
     }
 
     function merge() {
-        for (var i = 0, n = falling_piece.geometry.length; i < n; ++i) {
-            var q = falling_piece.geometry[i].add(falling_point);
-            playfield[q.y][q.x] = falling_piece.name;
+        for (var i = 0, n = fallingPiece.geometry.length; i < n; ++i) {
+            var q = fallingPiece.geometry[i].add(fallingPoint);
+            playfield[q.y][q.x] = fallingPiece.name;
         }
-        falling_piece = falling_point = ghost_point = null;
+        fallingPiece = fallingPoint = ghostPoint = null;
     }
 
     function clearLines() {
@@ -588,111 +588,111 @@ function SimulatorBase(simulator) {
 }
 
 
-function Simulator(cols, rows, spawn_point, ui) {
+function Simulator(cols, rows, spawnPoint, ui) {
 
     var fps = 60;
-    var skip_time = 1000 / fps;
-    var default_timings = {
-        soft_drop       :   .5,  // G (lines per frame)
-        line_clear      :   15,  // frames
-        game_over       :  200   // frames
+    var skipTime = 1000 / fps;
+    var defaultTimings = {
+        softDrop       :   .5,  // G (lines per frame)
+        lineClear      :   15,  // frames
+        gameOver       :  200   // frames
     };
-    var timing_expressions = {
+    var timingExpressions = {
         gravity: function () {
             var n = figures.level - 1;
             var t = Math.pow(.8 - n * .007, n);
             return 1 / t / fps;
         },
-        lock_delay: function () { return 725 - 15 * figures.level; },
-        line_clear: function () {
-            return game_mode == 'sprint' ? 0 : default_timings.line_clear;
+        lockDelay: function () { return 725 - 15 * figures.level; },
+        lineClear: function () {
+            return gameMode == 'sprint' ? 0 : defaultTimings.lineClear;
         }
     };
-    var infinity_limit = 16;
+    var infinityLimit = 16;
 
-    var base_scores = {
+    var baseScores = {
         normal: {1: 100, 2: 300, 3: 500, 4: 800},
         tspin: {0: 400, 1: 800, 2: 1200, 3: 1600},
         combo: 50,
-        soft_drop: 1,
-        hard_drop: 2,
+        softDrop: 1,
+        hardDrop: 2,
         b2b: 1.5
     };
-    var tspin = function (line_clear, raw_tspin, kick) {
-        return raw_tspin && (!kick || line_clear === 3);
+    var tspin = function (lineClear, rawTspin, kick) {
+        return rawTspin && (!kick || lineClear === 3);
     };
-    var difficult = function (line_clear, raw_tspin, kick) {
-        return line_clear === 4 || tspin(line_clear, raw_tspin, kick);
+    var difficult = function (lineClear, rawTspin, kick) {
+        return lineClear === 4 || tspin(lineClear, rawTspin, kick);
     };
 
-    var game_modes = ['marathon', 'ultra', 'sprint'];
-    var marathon_max_level = 15;
-    var ultra_timeout = 180;
-    var sprint_lines = 40;
+    var gameModes = ['marathon', 'ultra', 'sprint'];
+    var marathonMaxLevel = 15;
+    var ultraTimeout = 180;
+    var sprintLines = 40;
 
-    var game_mode;
+    var gameMode;
     var timings = {};
     var figures = {};
     var action = {};
 
-    var gravitate_timer;
-    var lock_timer;
-    var infinity_counter = Arrays.repeats(rows, 0);
-    var soft_drop;
+    var gravitateTimer;
+    var lockTimer;
+    var infinityCounter = Arrays.repeats(rows, 0);
+    var softDropping;
 
     var timer;
-    var start_time;
-    var current_time;
-    var end_time;
+    var startTime;
+    var currentTime;
+    var endTime;
 
-    var blocked_out;
+    var blockedOut;
 
-    var simulator_base = new SimulatorBase(this);
+    var simulatorBase = new SimulatorBase(this);
     var controller;
     var painter;
 
-    this.shiftLeft = simulator_base.shiftLeft;
+    this.shiftLeft = simulatorBase.shiftLeft;
 
-    this.shiftRight = simulator_base.shiftRight;
+    this.shiftRight = simulatorBase.shiftRight;
 
-    this.rotateLeft = simulator_base.rotateLeft;
+    this.rotateLeft = simulatorBase.rotateLeft;
 
-    this.rotateRight = simulator_base.rotateRight;
+    this.rotateRight = simulatorBase.rotateRight;
 
     this.softDrop = function () {
-        soft_drop = !soft_drop;
+        softDropping = !softDropping;
     };
 
     this.hardDrop = function () {
-        var distance = simulator_base.hardDrop();
+        var distance = simulatorBase.hardDrop();
         if (distance > 0) {
-            figures.score += distance * base_scores.hard_drop;
+            figures.score += distance * baseScores.hardDrop;
             painter.setFigures(figures);
         }
     };
 
-    this.hold = simulator_base.hold;
+    this.hold = simulatorBase.hold;
 
-    this.onPieceSpawn = function (falling_piece, falling_point, ghost_point) {
-        clearTimeout(gravitate_timer);
-        clearTimeout(lock_timer);
-        painter.drawFallingPiece(falling_piece, falling_point, ghost_point);
+    this.onPieceSpawn = function (fallingPiece, fallingPoint, ghostPoint) {
+        clearTimeout(gravitateTimer);
+        clearTimeout(lockTimer);
+        painter.drawFallingPiece(fallingPiece, fallingPoint, ghostPoint);
         controller.interrupt();
         resetInfinityCounter();
         gravitate();
     };
 
-    this.onPieceMove = function (falling_piece, falling_point, ghost_point, landed) {
-        clearTimeout(lock_timer);
-        painter.drawFallingPiece(falling_piece, falling_point, ghost_point, landed);
+    this.onPieceMove = function (fallingPiece, fallingPoint, ghostPoint, landed) {
+        clearTimeout(lockTimer);
+        painter.drawFallingPiece(fallingPiece, fallingPoint, ghostPoint, landed);
         if (!landed)
             return;
-        for (var y = falling_point.y; y < rows; ++y)
-            infinity_counter[y] += 1;
-        if (infinity_counter[falling_point.y] > infinity_limit)
-            simulator_base.drop();
+        for (var y = fallingPoint.y; y < rows; ++y)
+            infinityCounter[y] += 1;
+        if (infinityCounter[fallingPoint.y] > infinityLimit)
+            simulatorBase.drop();
         else
-            lock_timer = setTimeout(simulator_base.drop, timings.lock_delay);
+            lockTimer = setTimeout(simulatorBase.drop, timings.lockDelay);
     };
 
     this.onPieceLock = function (playfield, lines, tspin, kick) {
@@ -700,12 +700,12 @@ function Simulator(cols, rows, spawn_point, ui) {
         updateState(lines.length, tspin, kick);
         painter.setAction(action);
         painter.setFigures(figures);
-        painter.clearLines(fps, timings.line_clear, spawnPiece, playfield, lines);
+        painter.clearLines(fps, timings.lineClear, spawnPiece, playfield, lines);
     };
 
-    this.onHoldPiece = function (hold_piece) {
-        clearTimeout(lock_timer);
-        painter.drawHoldPiece(hold_piece);
+    this.onHoldPiece = function (holdPiece) {
+        clearTimeout(lockTimer);
+        painter.drawHoldPiece(holdPiece);
         controller.interrupt();
         resetInfinityCounter();
     };
@@ -715,8 +715,8 @@ function Simulator(cols, rows, spawn_point, ui) {
     };
 
     this.onBlockOut = function () {
-        blocked_out = true;
-        end_time = Date.now();
+        blockedOut = true;
+        endTime = Date.now();
         stop();
     };
 
@@ -728,145 +728,145 @@ function Simulator(cols, rows, spawn_point, ui) {
         painter = painter_;
     };
 
-    this.start = function (game_mode_) {
-        if (game_modes.indexOf(game_mode_) < 0)
+    this.start = function (gameMode_) {
+        if (gameModes.indexOf(gameMode_) < 0)
             throw 'Unknown Game Mode: ' + mode;
-        game_mode = game_mode_;
+        gameMode = gameMode_;
         figures.level = 1;
         figures.lines = 0;
         figures.score = 0;
-        for (var key in default_timings)
-            timings[key] = default_timings[key];
+        for (var key in defaultTimings)
+            timings[key] = defaultTimings[key];
         updateTimings();
         for (var key in action)
             action[key] = null;
-        soft_drop = false;
-        blocked_out = false;
+        softDropping = false;
+        blockedOut = false;
 
         painter.start();
-        painter.setScoreVisible(game_mode != 'sprint');
+        painter.setScoreVisible(gameMode != 'sprint');
         painter.setFigures(figures, true);
-        simulator_base.start(cols, rows, spawn_point);
+        simulatorBase.start(cols, rows, spawnPoint);
         controller.start();
 
-        current_time = start_time = Date.now();
-        end_time = null;
+        currentTime = startTime = Date.now();
+        endTime = null;
         time();
 
         spawnPiece();
     };
 
     function spawnPiece() {
-        if (end_time) {
+        if (endTime) {
             stop();
             return;
         }
-        simulator_base.spawn();
+        simulatorBase.spawn();
     }
 
     function stop() {
         controller.stop();
         clearTimeout(timer);
-        clearTimeout(gravitate_timer);
-        clearTimeout(lock_timer);
+        clearTimeout(gravitateTimer);
+        clearTimeout(lockTimer);
         painter.drawLockedPiece();
-        painter.setGameOver(fps, timings.game_over, onGameOver);
+        painter.setGameOver(fps, timings.gameOver, onGameOver);
     }
 
     function onGameOver() {
-        var record = game_mode !== 'sprint'
+        var record = gameMode !== 'sprint'
             ? figures.score
-            : blocked_out ? null : end_time - start_time;
-        ui.onGameOver(game_mode, record);
+            : blockedOut ? null : endTime - startTime;
+        ui.onGameOver(gameMode, record);
     }
 
-    function updateState(line_clear, raw_tspin, kick) {
-        action.line_clear = line_clear;
-        action.tspin = tspin(line_clear, raw_tspin, kick);
-        action.combo = line_clear === 0
+    function updateState(lineClear, rawTspin, kick) {
+        action.lineClear = lineClear;
+        action.tspin = tspin(lineClear, rawTspin, kick);
+        action.combo = lineClear === 0
             ? null
             : action.combo === null ? 0 : action.combo + 1;
 
-        var base = action.tspin ? base_scores.tspin : base_scores.normal;
-        var diff = difficult(line_clear, raw_tspin, kick);
-        var b2b = action.b2b_ready && diff && line_clear > 0;
-        var b2b_bonus = b2b ? base_scores.b2b : 1;
-        var combo_bonus = (action.combo || 0) * base_scores.combo;
-        var points = (base[line_clear] * b2b_bonus + combo_bonus) * figures.level;
+        var base = action.tspin ? baseScores.tspin : baseScores.normal;
+        var diff = difficult(lineClear, rawTspin, kick);
+        var b2b = action.b2bReady && diff && lineClear > 0;
+        var b2bBonus = b2b ? baseScores.b2b : 1;
+        var comboBonus = (action.combo || 0) * baseScores.combo;
+        var points = (base[lineClear] * b2bBonus + comboBonus) * figures.level;
 
         action.points = points > 0 ? points : null;
         action.b2b = b2b;
-        action.b2b_ready = diff || action.b2b_ready && line_clear === 0;
+        action.b2bReady = diff || action.b2bReady && lineClear === 0;
 
         figures.score += points || 0;
-        figures.lines += line_clear;
+        figures.lines += lineClear;
 
-        switch (game_mode) {
+        switch (gameMode) {
         case 'marathon':
             var level = Math.floor(figures.lines / 10) + 1;
-            if (level > marathon_max_level)
-                end_time = Date.now();
+            if (level > marathonMaxLevel)
+                endTime = Date.now();
             else if (level > figures.level) {
                 figures.level = level;
                 updateTimings();
             }
             break;
         case 'sprint':
-            if (figures.lines >= sprint_lines)
-                end_time = Date.now();
+            if (figures.lines >= sprintLines)
+                endTime = Date.now();
             break;
         }
     }
 
     function updateTimings() {
-        for (var key in timing_expressions)
-            timings[key] = timing_expressions[key]();
+        for (var key in timingExpressions)
+            timings[key] = timingExpressions[key]();
     }
 
     function resetInfinityCounter() {
-        for (var y in infinity_counter)
-            infinity_counter[y] = 0;
+        for (var y in infinityCounter)
+            infinityCounter[y] = 0;
     }
 
     var gravitate = (function () {
-        var gravity_distance;
-        var next_time;
+        var gravityDistance;
+        var nextTime;
         function update() {
-            while (next_time <= Date.now()) {
-                gravity_distance += soft_drop ? timings.soft_drop
-                                              : timings.gravity;
-                while (gravity_distance >= 1) {
-                    gravity_distance -= 1;
-                    if (!simulator_base.softDrop()) {
-                        gravity_distance = 0;
+            while (nextTime <= Date.now()) {
+                gravityDistance += softDropping ? timings.softDrop
+                                                : timings.gravity;
+                while (gravityDistance >= 1) {
+                    gravityDistance -= 1;
+                    if (!simulatorBase.softDrop()) {
+                        gravityDistance = 0;
                         break;
                     }
-                    if (soft_drop && game_mode != 'sprint') {
-                        figures.score += base_scores.soft_drop;
+                    if (softDropping && gameMode != 'sprint') {
+                        figures.score += baseScores.softDrop;
                         painter.setFigures(figures);
                     }
                 }
-                next_time += skip_time;
+                nextTime += skipTime;
             }
-            gravitate_timer = setTimeout(update, next_time - Date.now());
+            gravitateTimer = setTimeout(update, nextTime - Date.now());
         }
         return function () {
-            gravity_distance = 0;
-            next_time = Date.now() + skip_time;
-            gravitate_timer = setTimeout(update, skip_time);
+            gravityDistance = 0;
+            nextTime = Date.now() + skipTime;
+            gravitateTimer = setTimeout(update, skipTime);
         };
     })();
 
     function time() {
-        current_time = Date.now();
-        var d = current_time - start_time;
+        currentTime = Date.now();
+        var d = currentTime - startTime;
         timer = setTimeout(time, 1000 - d % 1000);
         var seconds = Math.round(d / 1000);
-        if (game_mode != 'ultra') {
+        if (gameMode != 'ultra') {
             painter.setTime(seconds);
             return;
         }
-        var remaining = Math.max(ultra_timeout - seconds, 0);
+        var remaining = Math.max(ultraTimeout - seconds, 0);
         painter.setTime(remaining);
         if (remaining === 0)
             stop();
@@ -932,31 +932,31 @@ function Controller() {
             keys[keymap[e.keyCode]].keyup();
     }
 
-    function register(name, f_keydown, f_keyup) {
+    function register(name, keydownFunc, keyupFunc) {
         var key = keys[name];
-        var ex_key = keys[key.exclude];
+        var exclusiveKey = keys[key.exclude];
         var interval = 1000 / key.frequency;
         var timer;
         function repeat() {
             if (!key.pressed)
                 return;
-            f_keydown();
+            keydownFunc();
             timer = setTimeout(repeat, interval);
         }
         key.keydown = function () {
             if (key.pressed)
                 return;
-            if (ex_key && ex_key.pressed)
-                ex_key.interrupt();
+            if (exclusiveKey && exclusiveKey.pressed)
+                exclusiveKey.interrupt();
             key.pressed = true;
-            f_keydown();
+            keydownFunc();
             if (key.frequency)
                 timer = setTimeout(repeat, key.delay);
         };
         key.keyup = function () {
             clearTimeout(timer);
-            if (!key.interrupted && f_keyup)
-                f_keyup();
+            if (!key.interrupted && keyupFunc)
+                keyupFunc();
             delete key.pressed;
             delete key.interrupted;
             return;
@@ -965,8 +965,8 @@ function Controller() {
             if (!key.pressed || key.interrupted)
                 return;
             clearTimeout(timer);
-            if (f_keyup)
-                f_keyup();
+            if (keyupFunc)
+                keyupFunc();
             key.interrupted = true;
         };
     }
@@ -975,7 +975,7 @@ function Controller() {
 
 function Painter(cols, rows) {
 
-    var block_colors = {
+    var blockColors = {
         'I': Color.fromHSL(180, 100, 47.5),
         'O': Color.fromHSL(55, 100, 47.5),
         'T': Color.fromHSL(285, 100, 52.5),
@@ -985,15 +985,15 @@ function Painter(cols, rows) {
         'L': Color.fromHSL(35, 100, 47.5)
     };
 
-    var effect_colors = {
+    var effectColors = {
         gray: Color.fromHSL(0, 0, 80),
-        yellow_0: Color.fromHSL(50, 100, 50, 0),
-        orange_25: Color.fromHSL(25, 100, 50, .25),
-        red_50: Color.fromHSL(0, 100, 50, .50)
+        yellow0: Color.fromHSL(50, 100, 50, 0),
+        orange25: Color.fromHSL(25, 100, 50, .25),
+        red50: Color.fromHSL(0, 100, 50, .50)
     };
 
     var texts = {
-        line_clear: {1: 'SINGLE', 2: 'DOUBLE', 3: 'TRIPLE', 4: 'TETRIS'},
+        lineClear: {1: 'SINGLE', 2: 'DOUBLE', 3: 'TRIPLE', 4: 'TETRIS'},
         tspin: 'T-SPIN',
         combo: 'COMBO',
         b2b: 'BACK-TO-BACK'
@@ -1012,12 +1012,12 @@ function Painter(cols, rows) {
     // cached DOM elements
     var canvases = {};
     var labels = {};
-    var action_label;
-    var score_label;
+    var actionLabel;
+    var scoreLabel;
 
     // canvas contexts
     var ctx = {};
-    var ctx_preview = [];
+    var ctxPreview = [];
 
     var state = {};
 
@@ -1032,34 +1032,34 @@ function Painter(cols, rows) {
     this.start = function () {
         Utils.forEach(ctx, clear);
         Utils.forEach(labels, clearText);
-        ctx_preview.forEach(clear);
+        ctxPreview.forEach(clear);
         for (var key in state)
             delete state[key];
     };
 
-    this.drawFallingPiece = function (falling_piece, falling_point, ghost_point, landed) {
-        if (state.falling_piece !== falling_piece || state.landed !== landed) {
-            drawPiece(ctx.falling_piece, falling_piece, landed ? blocks.light : blocks.normal);
-            drawPiece(ctx.ghost_piece, falling_piece, blocks.ghost);
+    this.drawFallingPiece = function (fallingPiece, fallingPoint, ghostPoint, landed) {
+        if (state.fallingPiece !== fallingPiece || state.landed !== landed) {
+            drawPiece(ctx.fallingPiece, fallingPiece, landed ? blocks.light : blocks.normal);
+            drawPiece(ctx.ghostPiece, fallingPiece, blocks.ghost);
         }
-        setPosition(canvases.falling_piece, falling_point);
-        setPosition(canvases.ghost_piece, ghost_point);
+        setPosition(canvases.fallingPiece, fallingPoint);
+        setPosition(canvases.ghostPiece, ghostPoint);
 
-        state.falling_piece = falling_piece;
-        state.falling_point = falling_point;
-        state.ghost_point = ghost_point;
+        state.fallingPiece = fallingPiece;
+        state.fallingPoint = fallingPoint;
+        state.ghostPoint = ghostPoint;
         state.landed = landed;
     };
 
     this.drawLockedPiece = function () {
-        if (!state.falling_piece)
+        if (!state.fallingPiece)
             return;
-        clear(ctx.falling_piece);
-        clear(ctx.ghost_piece);
-        drawPiece(ctx.playfield, state.falling_piece, blocks.normal, state.falling_point);
-        state.falling_piece = null;
-        state.falling_point = null;
-        state.ghost_point = null;
+        clear(ctx.fallingPiece);
+        clear(ctx.ghostPiece);
+        drawPiece(ctx.playfield, state.fallingPiece, blocks.normal, state.fallingPoint);
+        state.fallingPiece = null;
+        state.fallingPoint = null;
+        state.ghostPoint = null;
         state.landed = null;
     };
 
@@ -1070,12 +1070,12 @@ function Painter(cols, rows) {
         }
         return function (preview) {
             p = preview;
-            ctx_preview.forEach(drawPreview);
+            ctxPreview.forEach(drawPreview);
         };
     })();
 
-    this.drawHoldPiece = function (hold_piece) {
-        drawPiece(ctx.hold_piece, hold_piece, blocks.normal, null, true);
+    this.drawHoldPiece = function (holdPiece) {
+        drawPiece(ctx.holdPiece, holdPiece, blocks.normal, null, true);
     };
 
     this.clearLines = (function () {
@@ -1098,16 +1098,16 @@ function Painter(cols, rows) {
 
     this.setAction = function (action) {
         if (!action.points) {
-            if (!action_label.hasClass('unhighlighted'))
-                action_label.addClass('unhighlighted');
+            if (!actionLabel.hasClass('unhighlighted'))
+                actionLabel.addClass('unhighlighted');
             return;
         }
-        action_label.removeClass('unhighlighted');
+        actionLabel.removeClass('unhighlighted');
         labels.combo.text(action.combo > 0 ? texts.combo + ' ' + action.combo : '');
         labels.points.text(action.points > 0 ? '+' + action.points : '');
         labels.b2b.text(action.b2b ? texts.b2b : '');
         labels.tspin.text(action.tspin ? texts.tspin : '');
-        labels.line_clear.text(action.line_clear > 0 ? texts.line_clear[action.line_clear] : '');
+        labels.lineClear.text(action.lineClear > 0 ? texts.lineClear[action.lineClear] : '');
     };
 
     this.setFigures = (function () {
@@ -1116,8 +1116,8 @@ function Painter(cols, rows) {
             if (n !== ref || flag)
                 label.text(n);
         }
-        return function (figures, ignore_cache) {
-            flag = ignore_cache;
+        return function (figures, ignoreCache) {
+            flag = ignoreCache;
             setFigure(labels.level, figures.level, state.level);
             setFigure(labels.lines, figures.lines, state.lines);
             setFigure(labels.score, figures.score, state.score);
@@ -1128,9 +1128,9 @@ function Painter(cols, rows) {
 
     this.setScoreVisible = function (visible) {
         if (visible)
-            score_label.show();
+            scoreLabel.show();
         else
-            score_label.hide();
+            scoreLabel.hide();
     };
 
     this.setTime = (function () {
@@ -1152,26 +1152,26 @@ function Painter(cols, rows) {
         width = cols * size;
         height = rows * size;
 
-        var width_side = 6 * size;
-        var height_blind = 1.5 * size;
-        var screen_width = width + 2 * (width_side + size);
-        var screen_height = height - height_blind;
+        var widthSide = 6 * size;
+        var heightBlind = 1.5 * size;
+        var screenWidth = width + 2 * (widthSide + size);
+        var screenHeight = height - heightBlind;
         var t = 2.0;
 
         $('#screen')
             .css('margin', '0 auto')
-            .css('margin-top', px(-(.5 * screen_height + size)))
+            .css('margin-top', px(-(.5 * screenHeight + size)))
             .css('border-width', px(size))
-            .width(screen_width)
-            .height(screen_height);
+            .width(screenWidth)
+            .height(screenHeight);
         $('#left')
             .css('margin-right', px(size))
-            .width(width_side).height(screen_height);
+            .width(widthSide).height(screenHeight);
         $('#right')
             .css('margin-left', px(size))
-            .width(width_side).height(screen_height);
+            .width(widthSide).height(screenHeight);
         $('#center')
-            .css('margin-top', px(-height_blind))
+            .css('margin-top', px(-heightBlind))
             .width(width)
             .height(height);
         $('#hold-tag').css('top', px(1.5 * size));
@@ -1208,26 +1208,26 @@ function Painter(cols, rows) {
     }
 
     function cacheDOMElements() {
-        canvases.falling_piece = $('#falling-piece')[0];
-        canvases.ghost_piece = $('#ghost-piece')[0];
+        canvases.fallingPiece = $('#falling-piece')[0];
+        canvases.ghostPiece = $('#ghost-piece')[0];
         labels.combo = $('#combo');
         labels.points = $('#points');
         labels.b2b = $('#b2b');
         labels.tspin = $('#t-spin');
-        labels.line_clear = $('#line-clear');
+        labels.lineClear = $('#line-clear');
         labels.level = $('#level');
         labels.lines = $('#lines');
         labels.score = $('#score');
         labels.minute = $('#minute');
         labels.second = $('#second');
-        action_label = $('#action');
-        score_label = $('#score-tag, #score');
+        actionLabel = $('#action');
+        scoreLabel = $('#score-tag, #score');
     }
 
     function renderBlockImages() {
         blocks.normal = createBlocks();
         blocks.light = createBlocks({bright: 1.15});
-        blocks.ghost = createBlocks({bright: 1.125, line_width: 2, margin: 1.5, no_fill: true});
+        blocks.ghost = createBlocks({bright: 1.125, lineWidth: 2, margin: 1.5, noFill: true});
     }
 
     function createBlocks(options) {
@@ -1239,27 +1239,27 @@ function Painter(cols, rows) {
         var f = options.bright
             ? function (c) { return c.brighter(options.bright); }
             : function (c) { return c; };
-        for (var piece_name in block_colors) {
-            var color = f(block_colors[piece_name]);
-            if (!options.no_fill) {
+        for (var pieceName in blockColors) {
+            var color = f(blockColors[pieceName]);
+            if (!options.noFill) {
                 context.fillStyle = color.toString();
                 context.fillRect(m, m, size - 2 * m, size - 2 * m);
             }
             context.strokeStyle = color.brighter(1).toString();
-            context.lineWidth = options.line_width || 1;
+            context.lineWidth = options.lineWidth || 1;
             context.strokeRect(mm, mm, size - 2 * mm, size - 2 * mm);
-            blocks[piece_name] = context.getImageData(0, 0, size, size);
+            blocks[pieceName] = context.getImageData(0, 0, size, size);
         }
         return blocks;
     }
 
     function getCanvasContexts() {
         ctx.playfield = getContext2D('playfield');
-        ctx.falling_piece = getContext2D('falling-piece');
-        ctx.ghost_piece = getContext2D('ghost-piece');
-        ctx.hold_piece = getContext2D('hold-piece');
+        ctx.fallingPiece = getContext2D('falling-piece');
+        ctx.ghostPiece = getContext2D('ghost-piece');
+        ctx.holdPiece = getContext2D('hold-piece');
         $('.preview').each(function (i) {
-            return ctx_preview[i] = this.getContext('2d');
+            return ctxPreview[i] = this.getContext('2d');
         });
     }
 
@@ -1269,7 +1269,7 @@ function Painter(cols, rows) {
 
     function drawGrid() {
         var c = getContext2D('playfield-background');
-        c.strokeStyle = effect_colors.gray.toString();
+        c.strokeStyle = effectColors.gray.toString();
         c.lineWidth = 1;
         for (var x = 1; x < cols; ++x) {
             c.beginPath();
@@ -1304,18 +1304,18 @@ function Painter(cols, rows) {
         for (var y = 0; y < rows; ++y) {
             var row = playfield[y];
             for (var x = 0; x < cols; ++x) {
-                var piece_name = row[x];
+                var pieceName = row[x];
                 clearBlock(ctx.playfield, x, y);
-                if (piece_name)
-                    drawBlock(ctx.playfield, x, y, piece_name, blocks.normal);
+                if (pieceName)
+                    drawBlock(ctx.playfield, x, y, pieceName, blocks.normal);
             }
         }
     }
 
-    function drawBlock(c, x, y, piece_name, blocks) {
+    function drawBlock(c, x, y, pieceName, blocks) {
         var x = x * size;
         var y = c.canvas.height - (y + 1) * size;
-        c.putImageData(blocks[piece_name], x, y);
+        c.putImageData(blocks[pieceName], x, y);
     }
 
     function clearBlock(c, x, y) {
@@ -1331,12 +1331,12 @@ function Painter(cols, rows) {
     }
 
     var setPosition = (function () {
-        str_cache = {};  // e.g. '10px'
+        cache = {};  // e.g. '10px'
         return function (canvas, p) {
             var x = (p.x - 2) * size;
             var y = (p.y - 2) * size;
-            canvas.style.left = str_cache[x] || (str_cache[x] = px(x));
-            canvas.style.bottom = str_cache[y] || (str_cache[y] = px(y));
+            canvas.style.left = cache[x] || (cache[x] = px(x));
+            canvas.style.bottom = cache[y] || (cache[y] = px(y));
         };
     })();
 
@@ -1355,15 +1355,15 @@ function Painter(cols, rows) {
         c.save();
         c.globalCompositeOperation = 'source-atop';
         var solid = height / frames / frames * i * (i + 1);
-        c.fillStyle = effect_colors.gray.toString();
+        c.fillStyle = effectColors.gray.toString();
         c.fillRect(0, height - solid, width, solid);
         var h = height - solid;
         var grad = solid * 3;
         var g = c.createLinearGradient(0, h - grad, 0, h);
-        g.addColorStop(0, effect_colors.yellow_0.toString());
-        g.addColorStop(.3, effect_colors.orange_25.toString());
-        g.addColorStop(.6, effect_colors.red_50.toString());
-        g.addColorStop(1, effect_colors.gray.toString());
+        g.addColorStop(0, effectColors.yellow0.toString());
+        g.addColorStop(.3, effectColors.orange25.toString());
+        g.addColorStop(.6, effectColors.red50.toString());
+        g.addColorStop(1, effectColors.gray.toString());
         c.fillStyle = g;
         c.fillRect(0, h - grad, width, grad);
         c.restore();
@@ -1400,8 +1400,8 @@ function Painter(cols, rows) {
 
 function UserInterface() {
 
-    var current_menu;
-    var last_focus;
+    var currentMenu;
+    var lastFocus;
 
     var simulator = new Simulator(10, 22, Point.of(4, 20), this);
     var controller = new Controller();
@@ -1409,8 +1409,8 @@ function UserInterface() {
 
     var screen = $('#screen');
     var panels = $('#left, #right, #center');
-    var main_menu = $('#main-menu');
-    var play_menu = $('#play-menu');
+    var mainMenu = $('#main-menu');
+    var playMenu = $('#play-menu');
 
     this.init = function () {
         painter.init(20);
@@ -1419,13 +1419,13 @@ function UserInterface() {
         controller.setSimulator(simulator);
         makeMenuButtons();
         setEventListeners();
-        show(main_menu);
+        show(mainMenu);
     };
 
-    this.onGameOver = function (game_mode, record) {
+    this.onGameOver = function (gameMode, record) {
         if (console)
-            console.log(game_mode, record);
-        show(main_menu);
+            console.log(gameMode, record);
+        show(mainMenu);
     };
 
     function makeMenuButtons() {
@@ -1446,27 +1446,27 @@ function UserInterface() {
 
     function setEventListeners() {
         $('button').click(function () { $(this).focus(); });
-        $('.return button').click(function () { show(main_menu); });
-        $('#play button').click(function () { show(play_menu); });
-        play_menu.find('li:not(.return) button').click(function () {
-            hide(current_menu);
+        $('.return button').click(function () { show(mainMenu); });
+        $('#play button').click(function () { show(playMenu); });
+        playMenu.find('li:not(.return) button').click(function () {
+            hide(currentMenu);
             simulator.start($(this).blur().attr('value'));
         }).unbind('focus').focus(function () {
             screen.removeClass().addClass($(this).attr('value'));
-            last_focus = this;
+            lastFocus = this;
         });
     }
 
     function show(menu) {
-        if (current_menu)
-            hide(current_menu);
+        if (currentMenu)
+            hide(currentMenu);
         menu.show();
         menu.data('focus').focus();
-        current_menu = menu;
+        currentMenu = menu;
     }
 
     function hide(menu) {
-        menu.data('focus', $(last_focus));
+        menu.data('focus', $(lastFocus));
         menu.hide();
     }
 
@@ -1483,7 +1483,7 @@ function UserInterface() {
 
     function focus() {
         screen.removeClass();
-        last_focus = this;
+        lastFocus = this;
     }
 }
 
