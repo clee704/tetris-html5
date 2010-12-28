@@ -970,9 +970,7 @@ function Controller() {
 }
 
 
-function Painter(cols, rows) {
-
-    var size = 20;  // grid size
+function Painter(cols, rows, size) {
 
     var width = cols * size;
     var height = rows * size;
@@ -1389,7 +1387,7 @@ function UserInterface() {
 
     var simulator = new Simulator(10, 22, Point.of(4, 20), this);
     var controller = new Controller();
-    var painter = new Painter(10, 22);
+    var painter = new Painter(10, 22, 20);
 
     var screen = $('#screen');
     var panels = $('#left, #right, #center');
@@ -1403,7 +1401,7 @@ function UserInterface() {
         controller.setSimulator(simulator);
 
         $('.menu').each(function () {
-            $(this).find('li').wrapInner(button);
+            $(this).find('li').wrapInner(menuButton);
             $(this)
                 .css('top', .5 * (screen.height() - $(this).height()) + 'px')
                 .data('focus', $(this).find('li:first button'));
@@ -1427,6 +1425,13 @@ function UserInterface() {
             console.log(game_mode, record);
         show(main_menu);
     };
+
+    function menuButton() {
+        return $('<button />')
+            .keydown(keydown)
+            .focus(focus)
+            .attr('value', $(this).attr('id'));
+    }
 
     function show(menu) {
         if (current_menu)
@@ -1455,13 +1460,6 @@ function UserInterface() {
     function focus() {
         screen.removeClass();
         last_focus = this;
-    }
-
-    function button() {
-        return $('<button />')
-            .keydown(keydown)
-            .focus(focus)
-            .attr('value', $(this).attr('id'));
     }
 }
 
