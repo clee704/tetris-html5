@@ -46,25 +46,55 @@
           <canvas class="preview smaller"></canvas>
           <canvas class="preview smaller"></canvas>
         </div>
-        <div id=main-menu class=menu>
-          <ol>
-            <li id=play>PLAY</li>
-            <li id=records>RECORDS</li>
-            <li id=options>OPTIONS</li>
-            <li id=about>ABOUT</li>
+        <div id=main class=menu>
+          <ol class=buttons>
+            <li id=play-button>PLAY</li>
+            <li id=records-button>RECORDS</li>
+            <li id=options-button>OPTIONS</li>
+            <li id=about-button>ABOUT</li>
           </ol>
         </div>
-        <div id=play-menu class=menu>
-          <ol>
-            <li id=marathon>MARATHON</li>
-            <li id=ultra>ULTRA</li>
-            <li id=sprint>SPRINT</li>
+        <div id=play class=menu>
+          <ol class=buttons>
+            <li id=marathon-button>MARATHON</li>
+            <li id=ultra-button>ULTRA</li>
+            <li id=sprint-button>SPRINT</li>
             <li class=return>RETURN</li>
           </ol>
         </div>
-        <div id=record-menu class=menu>
+        <div id=record class=menu>
           <div id=record-table></div>
-          <ol>
+          <ol class=buttons>
+            <li class=return>RETURN</li>
+          </ol>
+        </div>
+        <div id=about class=menu>
+          <div id=description>
+            <p>This is a tetris implementation in HTML5.</p>
+            <p>
+              It is almost compliant with
+              <a href=http://tetris.wikia.com/wiki/Tetris_Guideline
+                 rel=external>the Tetris Guideline</a>.
+              T-spin recognition is nearly 3-corner T no kick,
+              but will register on a triple.
+            </p>
+            <p>It has three play modes as follows (each with its goal):</p>
+            <ul>
+              <li>Marathon (score the most throughout the 15 levels)</li>
+              <li>Ultra (score the most in 3 minutes)</li>
+              <li>Sprint (clear 40 lines as fast as possible)</li>
+            </ul>
+            <p>
+              You can find the source code at
+              <a href=http://github.com/clee704/tetris-html5
+                 rel=external>github.com/clee704/tetris-html5</a>.
+            </p>
+            <p>
+              Written by Chungmin Lee
+              &lt;<a href=mailto:lemonedo@gmail.com>lemonedo@gmail.com</a>&gt;.
+            </p>
+          </div>
+          <ol class=buttons>
             <li class=return>RETURN</li>
           </ol>
         </div>

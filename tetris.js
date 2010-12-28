@@ -730,7 +730,7 @@ function Simulator(cols, rows, spawnPoint, ui) {
 
     this.start = function (gameMode_) {
         if (gameModes.indexOf(gameMode_) < 0)
-            throw 'Unknown Game Mode: ' + mode;
+            throw 'Unknown Game Mode: ' + gameMode_;
         gameMode = gameMode_;
         figures.level = 1;
         figures.lines = 0;
@@ -1406,8 +1406,9 @@ function UserInterface() {
     var painter = new Painter(10, 22);
 
     var panels = $('#left, #right, #center');
-    var mainMenu = $('#main-menu');
-    var playMenu = $('#play-menu');
+    var mainMenu = $('#main');
+    var playMenu = $('#play');
+    var aboutMenu = $('#about');
 
     var currentMenu = null;
     var lastFocus = null;
@@ -1430,15 +1431,14 @@ function UserInterface() {
 
     function makeMenuButtons() {
         $('.menu').each(function () {
-            $(this).find('li').wrapInner(menuButton);
+            $(this).find('.buttons li').wrapInner('<button />');
             $(this)
                 .css('top', .5 * ($('#screen').height() - $(this).height()) + 'px')
-                .data('focus', $(this).find('li:first button'));
+                .data('focus', $(this).find('.buttons li:first button'));
         });
-    }
-
-    function menuButton() {
-        return $('<button />').attr('value', $(this).attr('id'));
+        playMenu.find('#marathon-button button').val('marathon');
+        playMenu.find('#ultra-button button').val('ultra');
+        playMenu.find('#sprint-button button').val('sprint');
     }
 
     function setEventListeners() {
@@ -1447,12 +1447,17 @@ function UserInterface() {
             .focus(focus)
             .focusout(focusout)
             .keydown(keydown);
-        $('#play button').click(function () { show(playMenu); });
+        $('#play-button button').click(function () { show(playMenu); });
+        $('#about-button button').click(function () { show(aboutMenu); });
         $('.return button').click(function () { show(mainMenu); });
-        playMenu.find('li:not(.return) button').click(function () {
+        playMenu.find('.buttons li:not(.return) button').click(function () {
             hide(currentMenu);
-            simulator.start($(this).blur().attr('value'));
+            simulator.start($(this).blur().val());
         })
+        $('a[rel~=external]').click(function () {
+            window.open(this.href, '_blank');
+            return false;
+        });
         if ($.browser.mozilla) {
             $(document).mousedown(function () {
                 if (currentMenu && lastFocus)

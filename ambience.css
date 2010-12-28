@@ -33,7 +33,7 @@ body {
 }
 
 #action {
-  color: #000;
+  color: black;
 }
 
 #action.unhighlighted {
@@ -61,8 +61,45 @@ body {
   color: #333;
 }
 
-/*.menu button:focus:before {
-  content: '+';
-  position: absolute;
-  left: -.5em;
-}*/
+#description {
+  color: #333;
+  background-color: rgba(245, 245, 245, .67);
+  border-radius: 20px;
+     -moz-border-radius: 20px;
+  -webkit-border-radius: 20px;
+       -o-border-radius: 20px;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  text-align: left;
+  margin: 0 40px;
+  padding: 20px;
+}
+
+#description p {
+  margin: 1em 0;
+}
+
+#description ul {
+  padding-left: 2em;
+}
+
+a {
+  color: #0645ad;
+  text-decoration: none;
+}
+
+a:visited {
+  color: #0b0080;
+}
+
+a:active {
+  color: #faa700;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+a[rel~=external] {
+  color: #36b;
+}
