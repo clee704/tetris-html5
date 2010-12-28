@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset=UTF-8>
+    <title>TETRIS</title>
+    <link rel=stylesheet href="http://fonts.googleapis.com/css?family=Allerta+Stencil">
+    <link rel=stylesheet href=ambience.css>
+    <link rel=stylesheet href=layout.css>
+  </head>
+  <body>
+    <div id=vertical-centering-wrapper>
+      <div id=screen>
+        <div id=left>
+          <div id=hold-tag class="label center">HOLD</div>
+          <canvas id=hold-piece></canvas>
+          <div id=action class="label center">
+            <div id=combo class=placeholder></div>
+            <div id=points class=placeholder></div>
+            <div id=b2b class=placeholder></div>
+            <div id=t-spin></div>
+            <div id=line-clear></div>
+          </div>
+          <div id=level-tag class="label left">LEVEL</div>
+          <div id=lines-tag class="label left">LINES</div>
+          <div id=score-tag class="label left">SCORE</div>
+          <div id=time-tag class="label left">TIME</div>
+          <div id=level class="label right"></div>
+          <div id=lines class="label right"></div>
+          <div id=score class="label right"></div>
+          <div id=time class="label right">
+            <span id=minute></span>:<span id=second></span>
+          </div>
+        </div>
+        <div id=center>
+          <canvas id=playfield-background></canvas>
+          <canvas id=playfield></canvas>
+          <canvas id=ghost-piece></canvas>
+          <canvas id=falling-piece></canvas>
+        </div>
+        <div id=right>
+          <div id=next-tag class="label center">NEXT</div>
+          <canvas class="preview"></canvas>
+          <canvas class="preview small"></canvas>
+          <canvas class="preview smaller"></canvas>
+          <canvas class="preview smaller"></canvas>
+          <canvas class="preview smaller"></canvas>
+          <canvas class="preview smaller"></canvas>
+        </div>
+        <div id=main-menu class=menu>
+          <!--<img id=logo src=logo.png>-->
+          <ol>
+            <li id=play>PLAY</li>
+            <li id=records>RECORDS</li>
+            <li id=options>OPTIONS</li>
+            <li id=about>ABOUT</li>
+          </ol>
+        </div>
+        <div id=play-menu class=menu>
+          <ol>
+            <li id=marathon>MARATHON</li>
+            <li id=ultra>ULTRA</li>
+            <li id=sprint>SPRINT</li>
+            <li class=return>RETURN</li>
+          </ol>
+        </div>
+        <div id=record-menu class=menu>
+          <div id=record-table></div>
+          <ol>
+            <li class=return>RETURN</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+    <script src=http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js></script>
+    <script src=tetris.js></script>
+  </body>
+</html>

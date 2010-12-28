@@ -1,0 +1,68 @@
+body {
+  color: #bbb;
+  background-color: #eee;
+  font: 14px 'Allerta Stencil';
+  margin: 0;
+  padding: 0;
+}
+
+#screen {
+  background-color: #ccc;
+  border: 0px solid #ccc;
+  border-radius: 20px;
+     -moz-border-radius: 20px;
+  -webkit-border-radius: 20px;
+       -o-border-radius: 20px;
+  width: 0;
+  height: 0;
+}
+
+#left, #center, #right {
+  background-color: white;
+}
+
+#left, #right {
+  border-radius: 10px;
+     -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+       -o-border-radius: 10px;
+}
+
+.label {
+  color: #666;
+}
+
+#action {
+  color: #000;
+}
+
+#action.unhighlighted {
+  color: #999;
+}
+
+.menu {
+  font-size: 150%;
+}
+
+.menu button {
+  color: #999;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  font: inherit;
+  position: relative;
+}
+
+.menu button::-moz-focus-inner {
+  border: 0;  /* Firefox version of outline: none */
+}
+
+.menu button:focus {
+  color: #333;
+}
+
+/*.menu button:focus:before {
+  content: '+';
+  position: absolute;
+  left: -.5em;
+}*/
