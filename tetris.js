@@ -1401,17 +1401,16 @@ function Painter(cols, rows) {
 
 function UserInterface() {
 
-    var currentMenu;
-    var lastFocus;
-
     var simulator = new Simulator(10, 22, Point.of(4, 20), this);
     var controller = new Controller();
     var painter = new Painter(10, 22);
 
-    var screen = $('#screen');
     var panels = $('#left, #right, #center');
     var mainMenu = $('#main-menu');
     var playMenu = $('#play-menu');
+
+    var currentMenu = null;
+    var lastFocus = null;
 
     this.init = function () {
         painter.init(20);
@@ -1433,29 +1432,33 @@ function UserInterface() {
         $('.menu').each(function () {
             $(this).find('li').wrapInner(menuButton);
             $(this)
-                .css('top', .5 * (screen.height() - $(this).height()) + 'px')
+                .css('top', .5 * ($('#screen').height() - $(this).height()) + 'px')
                 .data('focus', $(this).find('li:first button'));
         });
     }
 
     function menuButton() {
-        return $('<button />')
-            .keydown(keydown)
-            .focus(focus)
-            .attr('value', $(this).attr('id'));
+        return $('<button />').attr('value', $(this).attr('id'));
     }
 
     function setEventListeners() {
-        $('button').click(function () { $(this).focus(); });
-        $('.return button').click(function () { show(mainMenu); });
+        $('button')
+            .click(function () { $(this).focus(); })
+            .focus(focus)
+            .focusout(focusout)
+            .keydown(keydown);
         $('#play button').click(function () { show(playMenu); });
+        $('.return button').click(function () { show(mainMenu); });
         playMenu.find('li:not(.return) button').click(function () {
             hide(currentMenu);
             simulator.start($(this).blur().attr('value'));
-        }).unbind('focus').focus(function () {
-            screen.removeClass().addClass($(this).attr('value'));
-            lastFocus = this;
-        });
+        })
+        if ($.browser.mozilla) {
+            $(document).mousedown(function () {
+                if (currentMenu && lastFocus)
+                    setTimeout(restoreFocus, 0);
+            });
+        }
     }
 
     function show(menu) {
@@ -1467,8 +1470,9 @@ function UserInterface() {
     }
 
     function hide(menu) {
-        menu.data('focus', $(lastFocus));
+        menu.data('focus', lastFocus);
         menu.hide();
+        currentMenu = null;
     }
 
     function keydown(e) {
@@ -1483,8 +1487,18 @@ function UserInterface() {
     }
 
     function focus() {
-        screen.removeClass();
-        lastFocus = this;
+        lastFocus = $(this);
+    }
+
+    function focusout() {
+        if (this == lastFocus[0]) {
+            restoreFocus();
+            return false;
+        }
+    }
+
+    function restoreFocus() {
+        lastFocus.focus();
     }
 }
 
