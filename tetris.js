@@ -1003,19 +1003,20 @@ function Painter(cols, rows) {
     var width;
     var height;
 
-    // used for scaling block images in the preview panel
+    // Constants used for scaling block images in the preview panel
     var small = .875;
     var smaller = .75;
 
-    var blocks = {};  // pre-rendered block images
+    // Pre-rendered block images
+    var blocks = {};
 
-    // cached DOM elements
+    // Cached DOM elements
     var canvases = {};
     var labels = {};
     var actionLabel;
     var scoreLabel;
 
-    // canvas contexts
+    // Canvas contexts
     var ctx = {};
     var ctxPreview = [];
 
