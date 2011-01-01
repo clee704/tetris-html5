@@ -1,18 +1,15 @@
 body {
-  color: #bbb;
-  background-color: #eee;
+  background-color: #ddd;
   font: 14px 'Allerta Stencil';
   margin: 0;
   padding: 0;
 }
 
 #screen {
-  background-color: #ccc;
-  border: 0px solid #ccc;
+  background-color: #bbb;
+  border: 0px solid #bbb;
   border-radius: 20px;
-     -moz-border-radius: 20px;
-  -webkit-border-radius: 20px;
-       -o-border-radius: 20px;
+  -moz-border-radius: 20px;
   width: 0;
   height: 0;
 }
@@ -23,9 +20,7 @@ body {
 
 #left, #right {
   border-radius: 10px;
-     -moz-border-radius: 10px;
-  -webkit-border-radius: 10px;
-       -o-border-radius: 10px;
+  -moz-border-radius: 10px;
 }
 
 .label {
@@ -40,12 +35,16 @@ body {
   color: #999;
 }
 
+#ghost-piece {
+  opacity: .33;
+}
+
 .menu {
   font-size: 150%;
 }
 
 .menu button {
-  color: #999;
+  color: #888;
   background-color: transparent;
   border: none;
   outline: none;
@@ -65,9 +64,7 @@ body {
   color: #333;
   background-color: rgba(245, 245, 245, .67);
   border-radius: 20px;
-     -moz-border-radius: 20px;
-  -webkit-border-radius: 20px;
-       -o-border-radius: 20px;
+  -moz-border-radius: 20px;
   font-family: Arial, sans-serif;
   font-size: 14px;
   text-align: left;

@@ -1,4 +1,4 @@
-(function (window, document, undefined) {
+(function (window, document, $, undefined) {
 
 
 var tetris = new function () {
@@ -8,18 +8,9 @@ var tetris = new function () {
  * Utility functions for various purposes.
  */
 var Utils = {
-
     clamp: function (v, min, max) {
         return v < min ? min : v > max ? max : v;
     },
-
-    points: function (args) {
-        var a = [];
-        for (var i = 0, n = args.length; i < n; i += 2)
-            a.push(Point.of(args[i], args[i + 1]));
-        return a;
-    },
-
     forEach: function (obj, callback, thisp) {
         for (var key in obj)
             callback.call(thisp, obj[key], key, obj);
@@ -31,25 +22,21 @@ var Utils = {
  * Utility functions for arrays.
  */
 var Arrays = {
-
-    repeats: function (n, value) {
+    repeat: function (n, value) {
         var a = [];
         for (var i = 0; i < n; ++i)
             a.push(value);
         return a;
     },
-
     copy: function (source, destination) {
         for (var i = 0, n = source.length; i < n; ++i)
             destination[i] = source[i];
         destination.length = n;
     },
-
     fill: function (a, value) {
         for (var i = 0, n = a.length; i < n; ++i)
             a[i] = value;
     },
-
     remove: function (a, i) {
         var n = a.length;
         if (i < 0 || i >= n)
@@ -57,7 +44,7 @@ var Arrays = {
         var temp = a[i];
         for (var j = i + 1; j < n; ++j)
             a[j - 1] = a[j];
-        a.length -= 1;
+        --a.length;
         return temp;
     }
 };
@@ -101,6 +88,13 @@ Point.of = (function () {
     }
 })();
 
+Point.arrayOf = function () {
+    var a = [];
+    for (var i = 0, n = arguments.length; i < n; i += 2)
+        a.push(Point.of(arguments[i], arguments[i + 1]));
+    return a;
+};
+
 
 /**
  * Tetromino with a specific shape and rotation.
@@ -111,10 +105,10 @@ Point.of = (function () {
  * @immutable
  */
 function Tetromino(name, rotation, geometry, offset, center) {
-    this.name = name;           // one of I, J, L, O, S, T, Z
-    this.rotation = rotation;   // 0 on spawn; +1 for one right rotation; max 3
-    this.geometry = geometry;   // points on which this piece occupies
-    this.offset = offset;       // see www.tetrisconcept.net/wiki/SRS
+    this.name = name;          // one of I, J, L, O, S, T, Z
+    this.rotation = rotation;  // 0 on spawn; +1 for one right rotation; max 3
+    this.geometry = geometry;  // points on which this piece occupies
+    this.offset = offset;      // see www.tetrisconcept.net/wiki/SRS
     this.center = center;
 }
 
@@ -131,7 +125,6 @@ Tetromino.prototype.rotate = function (rotation) {
 };
 
 Tetromino.of = (function () {
-    var points = Utils.points;
     function rotateRight(p) { return Point.of(p.y, -p.x); }
     function rotations(base) {
         var rotations = {0: base};
@@ -153,32 +146,32 @@ Tetromino.of = (function () {
         return Point.of((mx + nx) / 2, (my + ny) / 2);
     }
     var geometries = {
-        'I': rotations(points([-1, 0, 0, 0, 1, 0, 2, 0])),
-        'J': rotations(points([-1, 1,-1, 0, 0, 0, 1, 0])),
-        'L': rotations(points([ 1, 1,-1, 0, 0, 0, 1, 0])),
-        'O': rotations(points([ 0, 1, 1, 1, 0, 0, 1, 0])),
-        'S': rotations(points([ 0, 1, 1, 1,-1, 0, 0, 0])),
-        'T': rotations(points([ 0, 1,-1, 0, 0, 0, 1, 0])),
-        'Z': rotations(points([-1, 1, 0, 1, 0, 0, 1, 0]))
+        'I': rotations(Point.arrayOf(-1, 0, 0, 0, 1, 0, 2, 0)),
+        'J': rotations(Point.arrayOf(-1, 1,-1, 0, 0, 0, 1, 0)),
+        'L': rotations(Point.arrayOf( 1, 1,-1, 0, 0, 0, 1, 0)),
+        'O': rotations(Point.arrayOf( 0, 1, 1, 1, 0, 0, 1, 0)),
+        'S': rotations(Point.arrayOf( 0, 1, 1, 1,-1, 0, 0, 0)),
+        'T': rotations(Point.arrayOf( 0, 1,-1, 0, 0, 0, 1, 0)),
+        'Z': rotations(Point.arrayOf(-1, 1, 0, 1, 0, 0, 1, 0))
     };
     var offsets = {
         'O': {
-            0: points([ 0, 0]),
-            1: points([ 0,-1]),
-            2: points([-1,-1]),
-            3: points([-1, 0])
+            0: Point.arrayOf( 0, 0),
+            1: Point.arrayOf( 0,-1),
+            2: Point.arrayOf(-1,-1),
+            3: Point.arrayOf(-1, 0)
         },
         'I': {
-            0: points([ 0, 0,-1, 0, 2, 0,-1, 0, 0,-2]),
-            1: points([-1, 0, 0, 0, 0, 0, 0, 1, 0,-2]),
-            2: points([-1, 1, 1, 1,-2, 1, 1, 0,-2, 0]),
-            3: points([ 0, 1, 0, 1, 0, 1, 0,-1, 0, 2])
+            0: Point.arrayOf( 0, 0,-1, 0, 2, 0,-1, 0, 0,-2),
+            1: Point.arrayOf(-1, 0, 0, 0, 0, 0, 0, 1, 0,-2),
+            2: Point.arrayOf(-1, 1, 1, 1,-2, 1, 1, 0,-2, 0),
+            3: Point.arrayOf( 0, 1, 0, 1, 0, 1, 0,-1, 0, 2)
         },
         'others': {
-            0: points([ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-            1: points([ 0, 0, 1, 0, 1,-1, 0, 2, 1, 2]),
-            2: points([ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-            3: points([ 0, 0,-1, 0,-1,-1, 0, 2,-1, 2])
+            0: Point.arrayOf( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+            1: Point.arrayOf( 0, 0, 1, 0, 1,-1, 0, 2, 1, 2),
+            2: Point.arrayOf( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+            3: Point.arrayOf( 0, 0,-1, 0,-1,-1, 0, 2,-1, 2)
         }
     };
     var cache = {};
@@ -212,13 +205,12 @@ function Color(r, g, b, h, s, l, a) {
     this.s = Utils.clamp(s, 0, 100);
     this.l = Utils.clamp(l, 0, 100);
     this.a = a === undefined ? 1 : Utils.clamp(a, 0, 1);
-    var round = Math.round;
-    var rgba = [round(this.r), round(this.g), round(this.b), this.a];
+    var rgba = [Math.round(this.r), Math.round(this.g), Math.round(this.b), this.a];
     this.string = 'rgba(' + rgba.join(',') + ')';
 }
 
-Color.prototype.brighter = function (factor) {
-    return Color.fromHSL(this.h, this.s, factor * this.l, this.a);
+Color.prototype.brighter = function (multiplier) {
+    return Color.fromHSL(this.h, this.s, this.l * multiplier, this.a);
 };
 
 Color.prototype.toString = function () {
@@ -323,91 +315,60 @@ function SimulatorBase(simulator) {
     var fallingPoint;
     var ghostPoint;
     var holdPiece;
-    var readyToHold;
+    var holdReady;
 
     // needed to implement IRS, IHS
     var chargedOperations = [];
     var uncharging;
 
     // needed to implement T-spin detection
-    var diagonalPoints = Utils.points([1, 1, 1,-1,-1, 1,-1,-1]);
+    var diagonalPoints = Point.arrayOf(1, 1, 1,-1,-1, 1,-1,-1);
     var lastAttemptedMove;
     var lastSuccessfulMove;
     var kick;
 
     var stopped = true;
 
-    this.start = function (cols_, rows_, spawnPoint_) {
-        cols = cols_;
-        rows = rows_;
-        spawnPoint = spawnPoint_;
-        playfield = Arrays.repeats(rows + 4, cols).map(function (cols) {
-            return Arrays.repeats(cols, 0);
-        });
-        bag.length = 0;
-        fillBag(bag);
-        fallingPiece = fallingPoint = ghostPoint = holdPiece = null;
-        readyToHold = true;
-        chargedOperations.length = 0;
-        uncharging = false;
-        stopped = false;
-    };
-
-    this.spawn = spawn;
-
-    this.rotateLeft = rotateLeft;
-
-    this.rotateRight = rotateRight;
-
-    this.shiftLeft = shiftLeft;
-
-    this.shiftRight = shiftRight;
-
-    this.drop = function () { drop(true); };
-
-    this.softDrop = function () { return drop(false); };
-
-    this.hardDrop = function () {
-        lastAttemptedMove = drop;
-        if (!active())
-            return 0;
-        var distance = fallingPoint.y - ghostPoint.y;
-        if (distance > 0)
-            lastSuccessfulMove = lastAttemptedMove;
-        fallingPoint = ghostPoint;
-        simulator.onPieceMove(fallingPiece, fallingPoint, ghostPoint, true);
-        lock();
-        return distance;
-    };
-
-    this.hold = hold;
-
-    function spawn() {
-        if (!(!fallingPiece && !stopped))
-            return;
-        fallingPiece = bag.shift();
-        fallingPoint = spawnPoint;
-        ghostPoint = computeGhost();
-        readyToHold = true;
-        if (bag.length < 7)
-            fillBag(bag);
-        if (uncharging)
-            return;
-        if (chargedOperations.length > 0) {
-            uncharging = true;
-            for (var i = 0, n = chargedOperations.length; i < n; ++i)
-                (chargedOperations.shift())();
-            uncharging = false;
+    var spawn = (function () { 
+        function stop() {
+            stopped = true;
+            merge();
+            simulator.onBlockOut();
         }
-        simulator.onPreviewUpdate(bag);
-        simulator.onPieceSpawn(fallingPiece, fallingPoint, ghostPoint);
-        move(fallingPiece, fallingPoint, stop, false);
-    }
+        return function () {
+            if (fallingPiece || stopped)
+                return;
+            fallingPiece = bag.shift();
+            fallingPoint = spawnPoint;
+            ghostPoint = computeGhost();
+            holdReady = true;
+            if (bag.length < 7)
+                fillBag(bag);
+            if (uncharging)
+                return;
+            if (chargedOperations.length > 0) {
+                uncharging = true;
+                for (var i = 0, n = chargedOperations.length; i < n; ++i)
+                    (chargedOperations.shift())();
+                uncharging = false;
+            }
+            simulator.onPreviewUpdate(bag);
+            simulator.onPieceSpawn(fallingPiece, fallingPoint, ghostPoint);
+            move(fallingPiece, fallingPoint, stop, false);
+        }
+    })();
 
-    function rotateLeft() { rotate(-1); }
+    var shiftLeft = function () { shift(-1); };
+    var shiftRight = function () { shift(1); };
+    var shift = function (dir) {
+        lastAttemptedMove = shift;
+        if (!active())
+            return;
+        move(fallingPiece, fallingPoint.addX(dir), null, true);
+    };
 
-    function rotateRight() { rotate(1); }
-
+    var rotateLeft = function () { rotate(-1); };
+    var rotateRight = function () { rotate(1); };
     var rotate = (function () {
         var rotatedPiece;
         var offset = [];
@@ -415,7 +376,7 @@ function SimulatorBase(simulator) {
             kick = true;
             for (var i = 1, n = offset.length; i < n; ++i) {
                 var p = fallingPoint.add(offset[i]);
-                if (!pieceCollides(rotatedPiece, p))
+                if (!checkCollision(rotatedPiece, p))
                     return p;
             }
         }
@@ -435,51 +396,24 @@ function SimulatorBase(simulator) {
         };
     })();
 
-    function shiftLeft() { shift(-1); }
-
-    function shiftRight() { shift(1); }
-
-    function shift(dir) {
-        lastAttemptedMove = shift;
-        if (!active())
-            return;
-        move(fallingPiece, fallingPoint.addX(dir), null, true);
-    }
-
-    function drop(shouldLock) {
+    var drop = function (shouldLock) {
         lastAttemptedMove = drop;
         if (!active())
             return 0;
         var resolve = shouldLock ? lock : null;
         if (move(fallingPiece, fallingPoint.addY(-1), resolve, false))
             return 1;
-    }
+    };
 
-    function move(piece, point, resolve, updateGhost) {
-        if (pieceCollides(piece, point))
-            if (!resolve || !(point = resolve(piece, point)))
-                return false;
-        lastSuccessfulMove = lastAttemptedMove;
-        fallingPiece = piece;
-        fallingPoint = point;
-        if (updateGhost)
-            ghostPoint = computeGhost();
-        if (!uncharging) {
-            var landed = pieceCollides(fallingPiece, fallingPoint.addY(-1));
-            simulator.onPieceMove(fallingPiece, fallingPoint, ghostPoint, landed);
-        }
-        return true;
-    }
-
-    function hold() {
+    var hold = function () {
         lastAttemptedMove = hold;
         if (!active()) {
             chargedOperations.push(hold);
             return;
         }
-        if (!readyToHold)
+        if (!holdReady)
             return;
-        if (holdPiece && pieceCollides(holdPiece, spawnPoint))
+        if (holdPiece && checkCollision(holdPiece, spawnPoint))
             return;
         var temp = holdPiece;
         holdPiece = fallingPiece.rotate(0);
@@ -489,14 +423,26 @@ function SimulatorBase(simulator) {
         else
             fallingPiece = null,
             spawn();
-        readyToHold = false;
-    }
+        holdReady = false;
+    };
 
-    function active() {
-        return fallingPiece && !stopped;
-    }
+    var move = function (piece, point, resolve, updateGhost) {
+        if (checkCollision(piece, point))
+            if (!resolve || !(point = resolve(piece, point)))
+                return false;
+        lastSuccessfulMove = lastAttemptedMove;
+        fallingPiece = piece;
+        fallingPoint = point;
+        if (updateGhost)
+            ghostPoint = computeGhost();
+        if (!uncharging) {
+            var landed = checkCollision(fallingPiece, fallingPoint.addY(-1));
+            simulator.onPieceMove(fallingPiece, fallingPoint, ghostPoint, landed);
+        }
+        return true;
+    };
 
-    function fillBag(bag) {
+    var fillBag = function (bag) {
         // new Array() instead of an array literal: due to a bug in Opera
         var remainders = new Array('I', 'J', 'L', 'O', 'S', 'Z', 'T');
         while (remainders.length > 0) {
@@ -504,42 +450,70 @@ function SimulatorBase(simulator) {
             bag.push(Tetromino.of(remainders[i], 0));
             Arrays.remove(remainders, i);
         }
-    }
+    };
 
-    function computeGhost() {
+    var computeGhost = function () {
         var p = fallingPoint;
         var q;
-        while (!pieceCollides(fallingPiece, q = p.addY(-1)))
+        while (!checkCollision(fallingPiece, q = p.addY(-1)))
             p = q;
         return p;
-    }
+    };
 
-    function pieceCollides(piece, point) {
+    var checkCollision = function (piece, point) {
         for (var i = 0, n = piece.geometry.length; i < n; ++i) {
             var q = piece.geometry[i].add(point);
             if (q.y < 0 || q.x >= cols || q.x < 0 || playfield[q.y][q.x])
                 return true;
         }
         return false;
-    }
+    };
 
-    function lock() {
-        var rawTspin = false;
-        if (fallingPiece.name === 'T' && lastSuccessfulMove === rotate) {
-            var count = 0;
-            for (var i = 0; i < 4; ++i) {
-                var q = fallingPoint.add(diagonalPoints[i]);
-                if (q.y < 0 || q.x >= cols || q.x < 0 || playfield[q.y][q.x])
-                    count += 1;
+    var lock = (function () {
+        function zero(x) { return x === 0; }
+        function nonZero(x) { return x !== 0; }
+        function clearLines() {
+            var lines = [];
+            var height;
+            for (var i = 0, n = playfield.length; i < n; ++i)
+                if (playfield[i].every(nonZero))
+                    lines.push(i);
+                else if (playfield[height = i].every(zero))
+                    break;
+            var i = 0;
+            var j = lines[0];
+            var k = 1;
+            while (i < lines.length && j < height) {
+                j += 1;
+                while (j === lines[i + 1]) {
+                    i += 1;
+                    j += 1;
+                    k += 1;
+                }
+                Arrays.copy(playfield[j], playfield[j - k]);
             }
-            if (count >= 3)
-                rawTspin = true;
+            for (var i = j - k; i < j; ++i)
+                Arrays.fill(playfield[i], 0);
+            return lines;
         }
-        merge();
-        simulator.onPieceLock(playfield, clearLines(), rawTspin, kick);
-    }
+        return function () {
+            var rawTspin = false;
+            if (fallingPiece.name === 'T' && lastSuccessfulMove === rotate) {
+                var count = 0;
+                for (var i = 0; i < 4; ++i) {
+                    var q = fallingPoint.add(diagonalPoints[i]);
+                    if (q.y < 0 || q.x >= cols || q.x < 0 || playfield[q.y][q.x])
+                        count += 1;
+                }
+                if (count >= 3)
+                    rawTspin = true;
+            }
+            merge();
+            simulator.onPieceLock(playfield, clearLines(), rawTspin, kick);
+        };
+    })();
 
-    function merge() {
+    var merge = function () {
         for (var i = 0, n = fallingPiece.geometry.length; i < n; ++i) {
             var q = fallingPiece.geometry[i].add(fallingPoint);
             playfield[q.y][q.x] = fallingPiece.name;
@@ -547,48 +521,56 @@ function SimulatorBase(simulator) {
         fallingPiece = fallingPoint = ghostPoint = null;
     }
 
-    function clearLines() {
-        var lines = [];
-        var height;
-        for (var i = 0, n = playfield.length; i < n; ++i)
-            if (playfield[i].every(nonZero))
-                lines.push(i);
-            else if (playfield[height = i].every(zero))
-                break;
-        var i = 0;
-        var j = lines[0];
-        var k = 1;
-        while (i < lines.length && j < height) {
-            j += 1;
-            while (j === lines[i + 1]) {
-                i += 1;
-                j += 1;
-                k += 1;
-            }
-            Arrays.copy(playfield[j], playfield[j - k]);
-        }
-        for (var i = j - k; i < j; ++i)
-            Arrays.fill(playfield[i], 0);
-        return lines;
-    }
+    var active = function () { return fallingPiece && !stopped; }
 
-    function zero(x) {
-        return x === 0;
-    }
+    this.start = function (cols_, rows_, spawnPoint_) {
+        cols = cols_;
+        rows = rows_;
+        spawnPoint = spawnPoint_;
+        playfield = Arrays.repeat(rows + 4, cols).map(function (cols) {
+            return Arrays.repeat(cols, 0);
+        });
+        bag.length = 0;
+        fillBag(bag);
+        fallingPiece = fallingPoint = ghostPoint = holdPiece = null;
+        holdReady = true;
+        chargedOperations.length = 0;
+        uncharging = false;
+        stopped = false;
+    };
 
-    function nonZero(x) {
-        return x !== 0;
-    }
+    this.spawn = spawn;
 
-    function stop() {
-        stopped = true;
-        merge();
-        simulator.onBlockOut();
-    }
+    this.shiftLeft = shiftLeft;
+    this.shiftRight = shiftRight;
+
+    this.rotateLeft = rotateLeft;
+    this.rotateRight = rotateRight;
+
+    this.drop = function () { drop(true); };
+    this.softDrop = function () { return drop(false); };
+    this.hardDrop = function () {
+        lastAttemptedMove = drop;
+        if (!active())
+            return 0;
+        var distance = fallingPoint.y - ghostPoint.y;
+        if (distance > 0)
+            lastSuccessfulMove = lastAttemptedMove;
+        fallingPoint = ghostPoint;
+        simulator.onPieceMove(fallingPiece, fallingPoint, ghostPoint, true);
+        lock();
+        return distance;
+    };
+
+    this.hold = hold;
 }
 
 
 function Simulator(cols, rows, spawnPoint, ui) {
+
+    var simulatorBase = new SimulatorBase(this);
+    var controller;
+    var painter;
 
     var fps = 60;
     var skipTime = 1000 / fps;
@@ -603,7 +585,9 @@ function Simulator(cols, rows, spawnPoint, ui) {
             var t = Math.pow(.8 - n * .007, n);
             return 1 / t / fps;
         },
-        lockDelay: function () { return 725 - 10 * figures.level; },
+        lockDelay: function () {
+            return 725 - 10 * figures.level;
+        },
         lineClear: function () {
             return gameMode === 'marathon' ? defaultTimings.lineClear : 0;
         }
@@ -635,34 +619,107 @@ function Simulator(cols, rows, spawnPoint, ui) {
     var figures = {};
     var action = {};
 
-    var gravitateTimer;
-    var lockTimer;
-    var infinityCounter = Arrays.repeats(rows, 0);
-    var softDropping;
-
     var timer;
     var startTime;
-    var currentTime;
     var endTime;
 
+    var gravitateTimer;
+    var lockTimer;
+    var infinityCounter = Arrays.repeat(rows, 0);
+
+    var softDropping;
     var blockedOut;
 
-    var simulatorBase = new SimulatorBase(this);
-    var controller;
-    var painter;
+    var spawnPiece = function () {
+        if (endTime) {
+            stop();
+            return;
+        }
+        simulatorBase.spawn();
+    };
+
+    var stop = (function () {
+        function onGameOver() {
+            var record = gameMode !== 'sprint'
+                ? figures.score
+                : blockedOut ? null : endTime - startTime;
+            ui.onGameOver(gameMode, record);
+        }
+        return function () {
+            controller.stop();
+            clearTimeout(timer);
+            clearTimeout(gravitateTimer);
+            clearTimeout(lockTimer);
+            painter.drawLockedPiece();
+            painter.setGameOver(fps, timings.gameOver, onGameOver);
+        };
+    })();
+
+    var updateTimings = function () {
+        for (var key in timingExpressions)
+            timings[key] = timingExpressions[key]();
+    };
+
+    var resetInfinityCounter = function () {
+        for (var y in infinityCounter)
+            infinityCounter[y] = 0;
+    };
+
+    this.setPainter = function (painter_) { painter = painter_; };
+    this.setController = function (controller_) { controller = controller_; };
+    this.start = (function () {
+        var currentTime;
+        function startTimer() {
+            currentTime = startTime = Date.now();
+            endTime = null;
+            time();
+        }
+        function time() {
+            currentTime = Date.now();
+            var d = currentTime - startTime;
+            timer = setTimeout(time, 1000 - d % 1000);
+            var seconds = Math.round(d / 1000);
+            if (gameMode !== 'ultra')
+                painter.setTime(seconds);
+            else {
+                var remaining = Math.max(ultraTimeout - seconds, 0);
+                painter.setTime(remaining);
+                if (remaining === 0)
+                    stop();
+            }
+        }
+        return function (gameMode_) {
+            if (gameModes.indexOf(gameMode_) < 0)
+                throw 'Unknown Game Mode: ' + gameMode_;
+            gameMode = gameMode_;
+            figures.level = 1;
+            figures.lines = 0;
+            figures.score = 0;
+            for (var key in defaultTimings)
+                timings[key] = defaultTimings[key];
+            updateTimings();
+            for (var key in action)
+                action[key] = null;
+            softDropping = false;
+            blockedOut = false;
+            painter.start();
+            painter.setLevelVisible(gameMode === 'marathon');
+            painter.setScoreVisible(gameMode !== 'sprint');
+            painter.setFigures(figures, true);
+            simulatorBase.start(cols, rows, spawnPoint);
+            controller.start();
+            startTimer();
+            spawnPiece();
+        };
+    })();
 
     this.shiftLeft = simulatorBase.shiftLeft;
-
     this.shiftRight = simulatorBase.shiftRight;
 
     this.rotateLeft = simulatorBase.rotateLeft;
-
     this.rotateRight = simulatorBase.rotateRight;
 
-    this.softDrop = function () {
-        softDropping = !softDropping;
-    };
-
+    this.softDrop = function () { softDropping = !softDropping; };
     this.hardDrop = function () {
         var distance = simulatorBase.hardDrop();
         if (distance > 0) {
@@ -673,165 +730,14 @@ function Simulator(cols, rows, spawnPoint, ui) {
 
     this.hold = simulatorBase.hold;
 
-    this.onPieceSpawn = function (fallingPiece, fallingPoint, ghostPoint) {
-        clearTimeout(gravitateTimer);
-        clearTimeout(lockTimer);
-        painter.drawFallingPiece(fallingPiece, fallingPoint, ghostPoint);
-        controller.interrupt();
-        resetInfinityCounter();
-        gravitate();
-    };
-
-    this.onPieceMove = function (fallingPiece, fallingPoint, ghostPoint, landed) {
-        clearTimeout(lockTimer);
-        painter.drawFallingPiece(fallingPiece, fallingPoint, ghostPoint, landed);
-        if (!landed)
-            return;
-        for (var y = fallingPoint.y; y < rows; ++y)
-            infinityCounter[y] += 1;
-        if (infinityCounter[fallingPoint.y] > infinityLimit)
-            simulatorBase.drop();
-        else
-            lockTimer = setTimeout(simulatorBase.drop, timings.lockDelay);
-    };
-
-    this.onPieceLock = function (playfield, lines, tspin, kick) {
-        painter.drawLockedPiece();
-        updateState(lines.length, tspin, kick);
-        painter.setAction(action);
-        painter.setFigures(figures);
-        painter.clearLines(fps, timings.lineClear, spawnPiece, playfield, lines);
-    };
-
-    this.onHoldPiece = function (holdPiece) {
-        clearTimeout(lockTimer);
-        painter.drawHoldPiece(holdPiece);
-        controller.interrupt();
-        resetInfinityCounter();
-    };
-
-    this.onPreviewUpdate = function (preview) {
-        painter.drawPreview(preview);
-    };
-
-    this.onBlockOut = function () {
-        blockedOut = true;
-        endTime = Date.now();
-        stop();
-    };
-
-    this.setController = function (controller_) {
-        controller = controller_;
-    };
-
-    this.setPainter = function (painter_) {
-        painter = painter_;
-    };
-
-    this.start = function (gameMode_) {
-        if (gameModes.indexOf(gameMode_) < 0)
-            throw 'Unknown Game Mode: ' + gameMode_;
-        gameMode = gameMode_;
-        figures.level = 1;
-        figures.lines = 0;
-        figures.score = 0;
-        for (var key in defaultTimings)
-            timings[key] = defaultTimings[key];
-        updateTimings();
-        for (var key in action)
-            action[key] = null;
-        softDropping = false;
-        blockedOut = false;
-
-        painter.start();
-        painter.setLevelVisible(gameMode === 'marathon');
-        painter.setScoreVisible(gameMode !== 'sprint');
-        painter.setFigures(figures, true);
-        simulatorBase.start(cols, rows, spawnPoint);
-        controller.start();
-
-        currentTime = startTime = Date.now();
-        endTime = null;
-        time();
-
-        spawnPiece();
-    };
-
-    function spawnPiece() {
-        if (endTime) {
-            stop();
-            return;
-        }
-        simulatorBase.spawn();
-    }
-
-    function stop() {
-        controller.stop();
-        clearTimeout(timer);
-        clearTimeout(gravitateTimer);
-        clearTimeout(lockTimer);
-        painter.drawLockedPiece();
-        painter.setGameOver(fps, timings.gameOver, onGameOver);
-    }
-
-    function onGameOver() {
-        var record = gameMode !== 'sprint'
-            ? figures.score
-            : blockedOut ? null : endTime - startTime;
-        ui.onGameOver(gameMode, record);
-    }
-
-    function updateState(lineClear, rawTspin, kick) {
-        action.lineClear = lineClear;
-        action.tspin = tspin(lineClear, rawTspin, kick);
-        action.combo = lineClear === 0
-            ? null
-            : action.combo === null ? 0 : action.combo + 1;
-
-        var base = action.tspin ? baseScores.tspin : baseScores.normal;
-        var diff = difficult(lineClear, rawTspin, kick);
-        var b2b = action.b2bReady && diff && lineClear > 0;
-        var b2bBonus = b2b ? baseScores.b2b : 1;
-        var comboBonus = (action.combo || 0) * baseScores.combo;
-        var points = (base[lineClear] * b2bBonus + comboBonus) * figures.level;
-
-        action.points = points > 0 ? points : null;
-        action.b2b = b2b;
-        action.b2bReady = diff || action.b2bReady && lineClear === 0;
-
-        figures.score += points || 0;
-        figures.lines += lineClear;
-
-        switch (gameMode) {
-        case 'marathon':
-            var level = Math.floor(figures.lines / 10) + 1;
-            if (level > marathonMaxLevel)
-                endTime = Date.now();
-            else if (level > figures.level) {
-                figures.level = level;
-                updateTimings();
-            }
-            break;
-        case 'sprint':
-            if (figures.lines >= sprintLines)
-                endTime = Date.now();
-            break;
-        }
-    }
-
-    function updateTimings() {
-        for (var key in timingExpressions)
-            timings[key] = timingExpressions[key]();
-    }
-
-    function resetInfinityCounter() {
-        for (var y in infinityCounter)
-            infinityCounter[y] = 0;
-    }
-
-    var gravitate = (function () {
+    this.onPieceSpawn = (function () {
         var gravityDistance;
         var nextTime;
+        function gravitate() {
+            gravityDistance = 0;
+            nextTime = Date.now() + skipTime;
+            gravitateTimer = setTimeout(update, skipTime);
+        }
         function update() {
             while (nextTime <= Date.now()) {
                 gravityDistance += softDropping ? timings.softDrop
@@ -851,27 +757,88 @@ function Simulator(cols, rows, spawnPoint, ui) {
             }
             gravitateTimer = setTimeout(update, nextTime - Date.now());
         }
-        return function () {
-            gravityDistance = 0;
-            nextTime = Date.now() + skipTime;
-            gravitateTimer = setTimeout(update, skipTime);
+        return function (fallingPiece, fallingPoint, ghostPoint) {
+            clearTimeout(gravitateTimer);
+            clearTimeout(lockTimer);
+            painter.drawFallingPiece(fallingPiece, fallingPoint, ghostPoint);
+            controller.interrupt();
+            resetInfinityCounter();
+            gravitate();
         };
     })();
 
-    function time() {
-        currentTime = Date.now();
-        var d = currentTime - startTime;
-        timer = setTimeout(time, 1000 - d % 1000);
-        var seconds = Math.round(d / 1000);
-        if (gameMode !== 'ultra') {
-            painter.setTime(seconds);
+    this.onPieceMove = function (fallingPiece, fallingPoint, ghostPoint, landed) {
+        clearTimeout(lockTimer);
+        painter.drawFallingPiece(fallingPiece, fallingPoint, ghostPoint, landed);
+        if (!landed)
             return;
+        for (var y = fallingPoint.y; y < rows; ++y)
+            infinityCounter[y] += 1;
+        if (infinityCounter[fallingPoint.y] > infinityLimit)
+            simulatorBase.drop();
+        else
+            lockTimer = setTimeout(simulatorBase.drop, timings.lockDelay);
+    };
+
+    this.onPieceLock = (function () {
+        function updateState(lineClear, rawTspin, kick) {
+            action.lineClear = lineClear;
+            action.tspin = tspin(lineClear, rawTspin, kick);
+            action.combo = lineClear === 0
+                ? null
+                : action.combo === null ? 0 : action.combo + 1;
+            var base = action.tspin ? baseScores.tspin : baseScores.normal;
+            var diff = difficult(lineClear, rawTspin, kick);
+            var b2b = action.b2bReady && diff && lineClear > 0;
+            var b2bBonus = b2b ? baseScores.b2b : 1;
+            var comboBonus = (action.combo || 0) * baseScores.combo;
+            var points = (base[lineClear] * b2bBonus + comboBonus) * figures.level;
+            action.points = points > 0 ? points : null;
+            action.b2b = b2b;
+            action.b2bReady = diff || action.b2bReady && lineClear === 0;
+            figures.score += points || 0;
+            figures.lines += lineClear;
+            switch (gameMode) {
+            case 'marathon':
+                var level = Math.floor(figures.lines / 10) + 1;
+                if (level > marathonMaxLevel)
+                    endTime = Date.now();
+                else if (level > figures.level) {
+                    figures.level = level;
+                    updateTimings();
+                }
+                break;
+            case 'sprint':
+                if (figures.lines >= sprintLines)
+                    endTime = Date.now();
+                break;
+            }
         }
-        var remaining = Math.max(ultraTimeout - seconds, 0);
-        painter.setTime(remaining);
-        if (remaining === 0)
-            stop();
-    }
+        return function (playfield, lines, tspin, kick) {
+            painter.drawLockedPiece();
+            updateState(lines.length, tspin, kick);
+            painter.setAction(action);
+            painter.setFigures(figures);
+            painter.clearLines(fps, timings.lineClear, spawnPiece, playfield, lines);
+        };
+    })();
+
+    this.onHoldPiece = function (holdPiece) {
+        clearTimeout(lockTimer);
+        painter.drawHoldPiece(holdPiece);
+        controller.interrupt();
+        resetInfinityCounter();
+    };
+
+    this.onPreviewUpdate = function (preview) {
+        painter.drawPreview(preview);
+    };
+
+    this.onBlockOut = function () {
+        blockedOut = true;
+        endTime = Date.now();
+        stop();
+    };
 }
 
 
@@ -894,24 +861,74 @@ function Controller() {
 
     var doc = $(document);
 
-    this.setSimulator = function (simulator) {
-        register('SL', simulator.shiftLeft);
-        register('SR', simulator.shiftRight);
-        register('RL', simulator.rotateLeft);
-        register('RR', simulator.rotateRight);
-        register('DS', simulator.softDrop, simulator.softDrop);
-        register('DH', simulator.hardDrop);
-        register('H', simulator.hold);
-    };
-
-    this.start = function () {
-        for (var name in keys) {
+    this.setSimulator = (function () {
+        function register(name, keydownFunc, keyupFunc) {
             var key = keys[name];
-            delete key.pressed;
-            delete key.interrupted;
+            var exclusiveKey = keys[key.exclude];
+            var interval = 1000 / key.frequency;
+            var timer;
+            function repeat() {
+                if (!key.pressed)
+                    return;
+                keydownFunc();
+                timer = setTimeout(repeat, interval);
+            }
+            key.keydown = function () {
+                if (key.pressed)
+                    return;
+                if (exclusiveKey && exclusiveKey.pressed)
+                    exclusiveKey.interrupt();
+                key.pressed = true;
+                keydownFunc();
+                if (key.frequency)
+                    timer = setTimeout(repeat, key.delay);
+            };
+            key.keyup = function () {
+                clearTimeout(timer);
+                if (!key.interrupted && keyupFunc)
+                    keyupFunc();
+                delete key.pressed;
+                delete key.interrupted;
+                return;
+            };
+            key.interrupt = function () {
+                if (!key.pressed || key.interrupted)
+                    return;
+                clearTimeout(timer);
+                if (keyupFunc)
+                    keyupFunc();
+                key.interrupted = true;
+            };
         }
-        doc.bind('keydown.controller', keydown).bind('keyup.controller', keyup);
-    };
+        return function (simulator) {
+            register('SL', simulator.shiftLeft);
+            register('SR', simulator.shiftRight);
+            register('RL', simulator.rotateLeft);
+            register('RR', simulator.rotateRight);
+            register('DS', simulator.softDrop, simulator.softDrop);
+            register('DH', simulator.hardDrop);
+            register('H', simulator.hold);
+        };
+    })();
+
+    this.start = (function () {
+        function down(e) {
+            if (e.keyCode in keymap)
+                keys[keymap[e.keyCode]].keydown();
+        }
+        function up(e) {
+            if (e.keyCode in keymap)
+                keys[keymap[e.keyCode]].keyup();
+        }
+        return function () {
+            for (var name in keys) {
+                var key = keys[name];
+                delete key.pressed;
+                delete key.interrupted;
+            }
+            doc.bind('keydown.controller', down).bind('keyup.controller', up);
+        };
+    })();
 
     this.interrupt = function () {
         for (var name in keys)
@@ -922,55 +939,6 @@ function Controller() {
     this.stop = function () {
         doc.unbind('.controller');
     };
-
-    function keydown(e) {
-        if (e.keyCode in keymap)
-            keys[keymap[e.keyCode]].keydown();
-    }
-
-    function keyup(e) {
-        if (e.keyCode in keymap)
-            keys[keymap[e.keyCode]].keyup();
-    }
-
-    function register(name, keydownFunc, keyupFunc) {
-        var key = keys[name];
-        var exclusiveKey = keys[key.exclude];
-        var interval = 1000 / key.frequency;
-        var timer;
-        function repeat() {
-            if (!key.pressed)
-                return;
-            keydownFunc();
-            timer = setTimeout(repeat, interval);
-        }
-        key.keydown = function () {
-            if (key.pressed)
-                return;
-            if (exclusiveKey && exclusiveKey.pressed)
-                exclusiveKey.interrupt();
-            key.pressed = true;
-            keydownFunc();
-            if (key.frequency)
-                timer = setTimeout(repeat, key.delay);
-        };
-        key.keyup = function () {
-            clearTimeout(timer);
-            if (!key.interrupted && keyupFunc)
-                keyupFunc();
-            delete key.pressed;
-            delete key.interrupted;
-            return;
-        };
-        key.interrupt = function () {
-            if (!key.pressed || key.interrupted)
-                return;
-            clearTimeout(timer);
-            if (keyupFunc)
-                keyupFunc();
-            key.interrupted = true;
-        };
-    }
 }
 
 
@@ -978,16 +946,16 @@ function Painter(cols, rows) {
 
     var blockColors = {
         'I': Color.fromHSL(180, 100, 47.5),
-        'O': Color.fromHSL(55, 100, 47.5),
-        'T': Color.fromHSL(285, 100, 52.5),
-        'S': Color.fromHSL(105, 100, 42.5),
-        'Z': Color.fromHSL(5, 100, 47.5),
-        'J': Color.fromHSL(240, 100, 52.5),
+        'O': Color.fromHSL(55, 100, 50),
+        'T': Color.fromHSL(285, 100, 50),
+        'S': Color.fromHSL(105, 100, 45),
+        'Z': Color.fromHSL(5, 100, 45),
+        'J': Color.fromHSL(240, 100, 50),
         'L': Color.fromHSL(35, 100, 47.5)
     };
 
     var effectColors = {
-        gray: Color.fromHSL(0, 0, 80),
+        gray: Color.fromHSL(0, 0, 73.33),
         yellow0: Color.fromHSL(50, 100, 50, 0),
         orange25: Color.fromHSL(25, 100, 50, .25),
         red50: Color.fromHSL(0, 100, 50, .50)
@@ -1019,47 +987,270 @@ function Painter(cols, rows) {
     var scoreLabel;
 
     // Canvas contexts
-    var ctx = {};
-    var ctxPreview = [];
+    var contexts = {};
+    var previewContexts = [];
 
     var state = {};
 
-    this.init = function (size_) {
-        setDimensions(size_);
-        cacheDOMElements();
-        renderBlockImages();
-        getCanvasContexts();
-        drawGrid();
-    };
+    var px = function (n) { return n + 'px'; };
 
-    this.start = function () {
-        Utils.forEach(ctx, clear);
-        Utils.forEach(labels, clearText);
-        ctxPreview.forEach(clear);
-        for (var key in state)
-            delete state[key];
-    };
-
-    this.drawFallingPiece = function (fallingPiece, fallingPoint, ghostPoint, landed) {
-        if (state.fallingPiece !== fallingPiece || state.landed !== landed) {
-            drawPiece(ctx.fallingPiece, fallingPiece, landed ? blocks.light : blocks.normal);
-            drawPiece(ctx.ghostPiece, fallingPiece, blocks.ghost);
+    var drawPiece = function (ctx, piece, blocks, point, center) {
+        if (!point) {
+            clear(ctx);
+            point = Point.of(2, 2);
         }
-        setPosition(canvases.fallingPiece, fallingPoint);
-        setPosition(canvases.ghostPiece, ghostPoint);
-
-        state.fallingPiece = fallingPiece;
-        state.fallingPoint = fallingPoint;
-        state.ghostPoint = ghostPoint;
-        state.landed = landed;
+        for (var i = 0, n = piece.geometry.length; i < n; ++i) {
+            var q = piece.geometry[i].add(point);
+            if (center)
+                q = q.sub(piece.center);
+            drawBlock(ctx, q.x, q.y, piece.name, blocks);
+        }
     };
+
+    var drawBlock = function (ctx, x, y, pieceName, blocks) {
+        var x = x * size;
+        var y = ctx.canvas.height - (y + 1) * size;
+        ctx.putImageData(blocks[pieceName], x, y);
+    };
+
+    var clear = function (ctx) {
+        ctx.canvas.width = ctx.canvas.width;
+    };
+
+    var animate = (function () {
+        var frames, draw, arg, callback, timer, i;
+        function update() {
+            if (i < frames) {
+                draw(i, frames, arg);
+                i += 1;
+            } else {
+                clearInterval(timer);
+                if (callback)
+                    callback();
+            }
+        }
+        return function (fps, frames_, draw_, arg_, callback_) {
+            if (frames_ === 0) {
+                if (callback_)
+                    callback_();
+                return;
+            }
+            frames = frames_;
+            draw = draw_;
+            arg = arg_;
+            callback = callback_;
+            i = 0;
+            timer = setInterval(update, 1000 / fps);
+        };
+    })();
+
+    this.init = (function () {
+        function setDimensions(size_) {
+            size = size_;
+            width = cols * size;
+            height = rows * size;
+            var widthSide = 6 * size;
+            var heightBlind = 1.5 * size;
+            var screenWidth = width + 2 * (widthSide + size);
+            var screenHeight = height - heightBlind;
+            var t = 2.0;
+            $('#screen')
+                .css('margin', '0 auto')
+                .css('margin-top', px(-(.5 * screenHeight + size)))
+                .css('border-width', px(size))
+                .width(screenWidth)
+                .height(screenHeight);
+            $('#left')
+                .css('margin-right', px(size))
+                .width(widthSide).height(screenHeight);
+            $('#right')
+                .css('margin-left', px(size))
+                .width(widthSide).height(screenHeight);
+            $('#center')
+                .css('margin-top', px(-heightBlind))
+                .width(width)
+                .height(height);
+            $('#hold-tag').css('top', px(1.5 * size));
+            $('#hold-piece').css('top', px(2 * size)).css('left', px(.5 * size));
+            $('#action')
+                .css('top', px(.5 * height - 3.5 * size))
+                .css('line-height', px(size));
+            $('#combo').css('margin-bottom', px(size));
+            $('#action .placeholder').height(size);
+            $('#level-tag, #level').css('top', px(.5 * height + 4 * size));
+            $('#lines-tag, #lines').css('top', px(.5 * height + 5 * size));
+            $('#score-tag, #score').css('top', px(.5 * height + 6 * size));
+            $('#time-tag, #time').css('top', px(.5 * height + 7.5 * size));
+            $('#next-tag').css('top', px(1.5 * size));
+            $('#playfield, #playfield-background').each(function () {
+                this.width = width;
+                this.height = height;
+            });
+            $('#falling-piece, #ghost-piece, #hold-piece, .preview').each(function () {
+                this.width = this.height = 5 * size;
+            });
+            $('.preview').each(function (i) {
+                $(this).css('top', px(t * size)).css('left', px(.5 * size));
+                var f = $(this).hasClass('small')
+                    ? small
+                    : $(this).hasClass('smaller') ? smaller
+                                                  : 1;
+                t += 3.3 * f;
+            });
+        }
+
+        function cacheDOMElements() {
+            canvases.fallingPiece = $('#falling-piece')[0];
+            canvases.ghostPiece = $('#ghost-piece')[0];
+            labels.combo = $('#combo');
+            labels.points = $('#points');
+            labels.b2b = $('#b2b');
+            labels.tspin = $('#t-spin');
+            labels.lineClear = $('#line-clear');
+            labels.level = $('#level');
+            labels.lines = $('#lines');
+            labels.score = $('#score');
+            labels.minute = $('#minute');
+            labels.second = $('#second');
+            actionLabel = $('#action');
+            levelLabel = $('#level-tag, #level');
+            scoreLabel = $('#score-tag, #score');
+        }
+
+        function prepareBlockImages() {
+            blocks.normal = renderBlockImages();
+            blocks.light = renderBlockImages({bright: 1.25});
+        }
+
+        // temporary canvas
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+
+        function renderBlockImages(options) {
+            var options = options || {};
+            var blocks = {};
+            var colorFilter = options.bright
+                ? function (c) { return c.brighter(options.bright); }
+                : function (c) { return c; };
+            for (var pieceName in blockColors) {
+                var color = colorFilter(blockColors[pieceName]);
+
+                // Clear
+                canvas.width = canvas.height = size;
+
+                // Fill
+                var g = ctx.createLinearGradient(0, 0, size, size);
+                g.addColorStop(0, color.brighter(1.05).toString());
+                g.addColorStop(1, color.brighter(.952).toString());
+                ctx.fillStyle = g;
+                ctx.fillRect(0, 0, size, size);
+
+                // Stroke
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = color.brighter(.8).toString();
+                ctx.beginPath();
+                ctx.moveTo(0, size);
+                ctx.lineTo(0, 0);
+                ctx.lineTo(size, 0);
+                ctx.lineTo(size, size);
+                ctx.lineTo(0, size);
+                ctx.stroke();
+                ctx.closePath();
+
+                blocks[pieceName] = ctx.getImageData(0, 0, size, size);
+            }
+            return blocks;
+        }
+
+        function getCanvasContexts() {
+            contexts.playfield = getContext2D('playfield');
+            contexts.fallingPiece = getContext2D('falling-piece');
+            contexts.ghostPiece = getContext2D('ghost-piece');
+            contexts.holdPiece = getContext2D('hold-piece');
+            $('.preview').each(function (i) {
+                return previewContexts[i] = this.getContext('2d');
+            });
+        }
+
+        function drawGrid() {
+            var ctx = getContext2D('playfield-background');
+            ctx.strokeStyle = effectColors.gray.toString();
+            ctx.lineWidth = 1;
+            for (var x = 1; x < cols; ++x) {
+                ctx.beginPath();
+                ctx.moveTo(x * size, 0);
+                ctx.lineTo(x * size, height);
+                ctx.stroke();
+                ctx.closePath();
+            }
+            for (var y = 1; y < rows; ++y) {
+                ctx.beginPath();
+                ctx.moveTo(0, y * size);
+                ctx.lineTo(width, y * size);
+                ctx.stroke();
+                ctx.closePath();
+            }
+        }
+
+        function getContext2D(id) {
+            return document.getElementById(id).getContext('2d');
+        }
+
+        return function (size_) {
+            setDimensions(size_);
+            cacheDOMElements();
+            prepareBlockImages();
+            getCanvasContexts();
+            drawGrid();
+        };
+    })();
+
+    this.start = (function () {
+        function clearText(label) {
+            label.text('');
+        }
+        return function () {
+            Utils.forEach(contexts, clear);
+            Utils.forEach(labels, clearText);
+            previewContexts.forEach(clear);
+            for (var key in state)
+                delete state[key];
+        };
+    })();
+
+    this.drawFallingPiece = (function () {
+        var setPosition = (function () {
+            cache = {};  // e.g. '10px'
+            return function (canvas, p) {
+                var x = (p.x - 2) * size;
+                var y = (p.y - 2) * size;
+                canvas.style.left = cache[x] || (cache[x] = px(x));
+                canvas.style.bottom = cache[y] || (cache[y] = px(y));
+            };
+        })();
+        function setState(fallingPiece, fallingPoint, ghostPoint, landed) {
+            state.fallingPiece = fallingPiece;
+            state.fallingPoint = fallingPoint;
+            state.ghostPoint = ghostPoint;
+            state.landed = landed;
+        }
+        return function (fallingPiece, fallingPoint, ghostPoint, landed) {
+            if (state.fallingPiece !== fallingPiece || state.landed !== landed) {
+                drawPiece(contexts.fallingPiece, fallingPiece, landed ? blocks.light : blocks.normal);
+                drawPiece(contexts.ghostPiece, fallingPiece, blocks.normal);
+            }
+            setPosition(canvases.fallingPiece, fallingPoint);
+            setPosition(canvases.ghostPiece, ghostPoint);
+            setState(fallingPiece, fallingPoint, ghostPoint, landed);
+        };
+    })();
 
     this.drawLockedPiece = function () {
         if (!state.fallingPiece)
             return;
-        clear(ctx.fallingPiece);
-        clear(ctx.ghostPiece);
-        drawPiece(ctx.playfield, state.fallingPiece, blocks.normal, state.fallingPoint);
+        clear(contexts.fallingPiece);
+        clear(contexts.ghostPiece);
+        drawPiece(contexts.playfield, state.fallingPiece, blocks.normal, state.fallingPoint);
         state.fallingPiece = null;
         state.fallingPoint = null;
         state.ghostPoint = null;
@@ -1068,17 +1259,17 @@ function Painter(cols, rows) {
 
     this.drawPreview = (function () {
         var p;
-        function drawPreview(c, i) {
-            drawPiece(c, p[i], blocks.normal, null, true);
+        function drawPreview(ctx, i) {
+            drawPiece(ctx, p[i], blocks.normal, null, true);
         }
         return function (preview) {
             p = preview;
-            ctxPreview.forEach(drawPreview);
+            previewContexts.forEach(drawPreview);
         };
     })();
 
     this.drawHoldPiece = function (holdPiece) {
-        drawPiece(ctx.holdPiece, holdPiece, blocks.normal, null, true);
+        drawPiece(contexts.holdPiece, holdPiece, blocks.normal, null, true);
     };
 
     this.clearLines = (function () {
@@ -1087,6 +1278,29 @@ function Painter(cols, rows) {
         function chainedCallback() {
             drawPlayfield(playfield);
             callback();
+        }
+        function drawPlayfield(playfield) {
+            for (var y = 0; y < rows; ++y) {
+                var row = playfield[y];
+                for (var x = 0; x < cols; ++x) {
+                    var pieceName = row[x];
+                    clearBlock(contexts.playfield, x, y);
+                    if (pieceName)
+                        drawBlock(contexts.playfield, x, y, pieceName, blocks.normal);
+                }
+            }
+        }
+        function clearBlock(ctx, x, y) {
+            ctx.clearRect(x * size, height - (y + 1) * size, size, size);
+        }
+        function lineClearAnimation(i, frames, lines) {
+            var ctx = contexts.playfield;
+            ctx.save();
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.globalAlpha = i * 9 / frames / frames;
+            for (var j = 0, n = lines.length; j < n; ++j)
+                ctx.fillRect(0, (rows - lines[j] - 1) * size, width, size);
+            ctx.restore();
         }
         return function (fps, frames, callback_, playfield_, lines) {
             if (lines.length === 0) {
@@ -1153,257 +1367,27 @@ function Painter(cols, rows) {
         };
     })();
 
-    this.setGameOver = function (fps, frames, callback) {
-        animate(fps, frames, gameOverAnimation, null, callback);
-    };
-
-    function setDimensions(size_) {
-        size = size_;
-        width = cols * size;
-        height = rows * size;
-
-        var widthSide = 6 * size;
-        var heightBlind = 1.5 * size;
-        var screenWidth = width + 2 * (widthSide + size);
-        var screenHeight = height - heightBlind;
-        var t = 2.0;
-
-        $('#screen')
-            .css('margin', '0 auto')
-            .css('margin-top', px(-(.5 * screenHeight + size)))
-            .css('border-width', px(size))
-            .width(screenWidth)
-            .height(screenHeight);
-        $('#left')
-            .css('margin-right', px(size))
-            .width(widthSide).height(screenHeight);
-        $('#right')
-            .css('margin-left', px(size))
-            .width(widthSide).height(screenHeight);
-        $('#center')
-            .css('margin-top', px(-heightBlind))
-            .width(width)
-            .height(height);
-        $('#hold-tag').css('top', px(1.5 * size));
-        $('#hold-piece').css('top', px(2 * size)).css('left', px(.5 * size));
-        $('#action')
-            .css('top', px(.5 * height - 3.5 * size))
-            .css('line-height', px(size));
-        $('#combo').css('margin-bottom', px(size));
-        $('#action .placeholder').height(size);
-        $('#level-tag, #level').css('top', px(.5 * height + 4 * size));
-        $('#lines-tag, #lines').css('top', px(.5 * height + 5 * size));
-        $('#score-tag, #score').css('top', px(.5 * height + 6 * size));
-        $('#time-tag, #time').css('top', px(.5 * height + 7.5 * size));
-        $('#next-tag').css('top', px(1.5 * size));
-        $('#playfield, #playfield-background').each(function () {
-            this.width = width;
-            this.height = height;
-        });
-        $('#falling-piece, #ghost-piece, #hold-piece, .preview').each(function () {
-            this.width = this.height = 5 * size;
-        });
-        $('.preview').each(function (i) {
-            $(this).css('top', px(t * size)).css('left', px(.5 * size));
-            var f = $(this).hasClass('small')
-                ? small
-                : $(this).hasClass('smaller') ? smaller
-                                              : 1;
-            t += 3.3 * f;
-        });
-    }
-
-    function px(n) {
-        return n + 'px';
-    }
-
-    function cacheDOMElements() {
-        canvases.fallingPiece = $('#falling-piece')[0];
-        canvases.ghostPiece = $('#ghost-piece')[0];
-        labels.combo = $('#combo');
-        labels.points = $('#points');
-        labels.b2b = $('#b2b');
-        labels.tspin = $('#t-spin');
-        labels.lineClear = $('#line-clear');
-        labels.level = $('#level');
-        labels.lines = $('#lines');
-        labels.score = $('#score');
-        labels.minute = $('#minute');
-        labels.second = $('#second');
-        actionLabel = $('#action');
-        levelLabel = $('#level-tag, #level');
-        scoreLabel = $('#score-tag, #score');
-    }
-
-    function renderBlockImages() {
-        blocks.normal = createBlocks();
-        blocks.light = createBlocks({bright: 1.15});
-        blocks.ghost = createBlocks({bright: 1.125, lineWidth: 2, margin: 1.5, noFill: true});
-    }
-
-    function createBlocks(options) {
-        var options = options || {};
-        var context = document.createElement('canvas').getContext('2d');
-        var m = options.margin ? options.margin : 0;
-        var mm = m + .5;  // margins for stroke
-        var blocks = {};
-        var f = options.bright
-            ? function (c) { return c.brighter(options.bright); }
-            : function (c) { return c; };
-        for (var pieceName in blockColors) {
-            var color = f(blockColors[pieceName]);
-            if (!options.noFill) {
-                context.fillStyle = color.toString();
-                context.fillRect(m, m, size - 2 * m, size - 2 * m);
-            }
-            context.strokeStyle = color.brighter(1).toString();
-            context.lineWidth = options.lineWidth || 1;
-            context.strokeRect(mm, mm, size - 2 * mm, size - 2 * mm);
-            blocks[pieceName] = context.getImageData(0, 0, size, size);
+    this.setGameOver = (function () {
+        function gameOverAnimation(i, frames) {
+            var ctx = contexts.playfield;
+            ctx.save();
+            ctx.globalCompositeOperation = 'source-atop';
+            var solid = 2 * i * (i + 1) * (i + 2) * height / frames / frames / frames;
+            ctx.fillStyle = effectColors.gray.toString();
+            ctx.fillRect(0, height - solid, width, solid);
+            var h = height - solid;
+            var grad = solid * 3;
+            var g = ctx.createLinearGradient(0, h - grad, 0, h);
+            g.addColorStop(0, effectColors.yellow0.toString());
+            g.addColorStop(.3, effectColors.orange25.toString());
+            g.addColorStop(.6, effectColors.red50.toString());
+            g.addColorStop(1, effectColors.gray.toString());
+            ctx.fillStyle = g;
+            ctx.fillRect(0, h - grad, width, grad);
+            ctx.restore();
         }
-        return blocks;
-    }
-
-    function getCanvasContexts() {
-        ctx.playfield = getContext2D('playfield');
-        ctx.fallingPiece = getContext2D('falling-piece');
-        ctx.ghostPiece = getContext2D('ghost-piece');
-        ctx.holdPiece = getContext2D('hold-piece');
-        $('.preview').each(function (i) {
-            return ctxPreview[i] = this.getContext('2d');
-        });
-    }
-
-    function getContext2D(id) {
-        return document.getElementById(id).getContext('2d');
-    }
-
-    function drawGrid() {
-        var c = getContext2D('playfield-background');
-        c.strokeStyle = effectColors.gray.toString();
-        c.lineWidth = 1;
-        for (var x = 1; x < cols; ++x) {
-            c.beginPath();
-            c.moveTo(x * size, 0);
-            c.lineTo(x * size, height);
-            c.stroke();
-            c.closePath();
-        }
-        for (var y = 1; y < rows; ++y) {
-            c.beginPath();
-            c.moveTo(0, y * size);
-            c.lineTo(width, y * size);
-            c.stroke();
-            c.closePath();
-        }
-    }
-
-    function drawPiece(c, piece, blocks, point, center) {
-        if (!point) {
-            clear(c);
-            point = Point.of(2, 2);
-        }
-        for (var i = 0, n = piece.geometry.length; i < n; ++i) {
-            var q = piece.geometry[i].add(point);
-            if (center)
-                q = q.sub(piece.center);
-            drawBlock(c, q.x, q.y, piece.name, blocks);
-        }
-    }
-
-    function drawPlayfield(playfield) {
-        for (var y = 0; y < rows; ++y) {
-            var row = playfield[y];
-            for (var x = 0; x < cols; ++x) {
-                var pieceName = row[x];
-                clearBlock(ctx.playfield, x, y);
-                if (pieceName)
-                    drawBlock(ctx.playfield, x, y, pieceName, blocks.normal);
-            }
-        }
-    }
-
-    function drawBlock(c, x, y, pieceName, blocks) {
-        var x = x * size;
-        var y = c.canvas.height - (y + 1) * size;
-        c.putImageData(blocks[pieceName], x, y);
-    }
-
-    function clearBlock(c, x, y) {
-        c.clearRect(x * size, height - (y + 1) * size, size, size);
-    }
-
-    function clear(c) {
-        c.clearRect(0, 0, c.canvas.width, c.canvas.height);
-    }
-
-    function clearText(label) {
-        label.text('');
-    }
-
-    var setPosition = (function () {
-        cache = {};  // e.g. '10px'
-        return function (canvas, p) {
-            var x = (p.x - 2) * size;
-            var y = (p.y - 2) * size;
-            canvas.style.left = cache[x] || (cache[x] = px(x));
-            canvas.style.bottom = cache[y] || (cache[y] = px(y));
-        };
-    })();
-
-    function lineClearAnimation(i, frames, lines) {
-        var c = ctx.playfield;
-        c.save();
-        c.globalCompositeOperation = 'destination-out';
-        c.globalAlpha = 9 / frames / frames * i;
-        for (var i = 0, n = lines.length; i < n; ++i)
-            c.fillRect(0, (rows - lines[i] - 1) * size, width, size);
-        c.restore();
-    }
-
-    function gameOverAnimation(i, frames) {
-        var c = ctx.playfield;
-        c.save();
-        c.globalCompositeOperation = 'source-atop';
-        var solid = height / frames / frames * i * (i + 1);
-        c.fillStyle = effectColors.gray.toString();
-        c.fillRect(0, height - solid, width, solid);
-        var h = height - solid;
-        var grad = solid * 3;
-        var g = c.createLinearGradient(0, h - grad, 0, h);
-        g.addColorStop(0, effectColors.yellow0.toString());
-        g.addColorStop(.3, effectColors.orange25.toString());
-        g.addColorStop(.6, effectColors.red50.toString());
-        g.addColorStop(1, effectColors.gray.toString());
-        c.fillStyle = g;
-        c.fillRect(0, h - grad, width, grad);
-        c.restore();
-    }
-
-    var animate = (function () {
-        var frames, draw, arg, callback, timer, i;
-        function update() {
-            if (i > frames) {
-                clearInterval(timer);
-                if (callback)
-                    callback();
-            } else {
-                draw(i, frames, arg);
-                i += 1;
-            }
-        }
-        return function (fps, frames_, draw_, arg_, callback_) {
-            if (frames_ === 0) {
-                if (callback_)
-                    callback_();
-                return;
-            }
-            frames = frames_;
-            draw = draw_;
-            arg = arg_;
-            callback = callback_;
-            i = 1;
-            timer = setInterval(update, 1000 / fps);
+        return function (fps, frames, callback) {
+            animate(fps, frames, gameOverAnimation, null, callback);
         };
     })();
 }
@@ -1423,98 +1407,95 @@ function UserInterface() {
     var currentMenu = null;
     var lastFocus = null;
 
-    this.init = function () {
-        painter.init(20);
-        simulator.setController(controller);
-        simulator.setPainter(painter);
-        controller.setSimulator(simulator);
-        makeMenuButtons();
-        setEventListeners();
-        show(mainMenu);
-    };
-
-    this.onGameOver = function (gameMode, record) {
-        if (console)
-            console.log(gameMode, record);
-        show(mainMenu);
-    };
-
-    function makeMenuButtons() {
-        $('.menu').each(function () {
-            $(this).find('.buttons li').wrapInner('<button />');
-            $(this)
-                .css('top', .5 * ($('#screen').height() - $(this).height()) + 'px')
-                .data('focus', $(this).find('.buttons li:first button'));
-        });
-        playMenu.find('#marathon-button button').val('marathon');
-        playMenu.find('#ultra-button button').val('ultra');
-        playMenu.find('#sprint-button button').val('sprint');
-    }
-
-    function setEventListeners() {
-        $('button')
-            .click(function () { $(this).focus(); })
-            .focus(focus)
-            .focusout(focusout)
-            .keydown(keydown);
-        $('#play-button button').click(function () { show(playMenu); });
-        $('#about-button button').click(function () { show(aboutMenu); });
-        $('.return button').click(function () { show(mainMenu); });
-        playMenu.find('.buttons li:not(.return) button').click(function () {
-            hide(currentMenu);
-            simulator.start($(this).blur().val());
-        })
-        $('a[rel~=external]').click(function () {
-            window.open(this.href, '_blank');
-            return false;
-        });
-        if ($.browser.mozilla) {
-            $(document).mousedown(function () {
-                if (currentMenu && lastFocus)
-                    setTimeout(restoreFocus, 0);
-            });
-        }
-    }
-
-    function show(menu) {
+    var showMenu = function (menu) {
         if (currentMenu)
-            hide(currentMenu);
+            hideMenu(currentMenu);
         menu.show();
         menu.data('focus').focus();
         currentMenu = menu;
-    }
+    };
 
-    function hide(menu) {
+    var hideMenu = function (menu) {
         menu.data('focus', lastFocus);
         menu.hide();
         currentMenu = null;
-    }
+    };
 
-    function keydown(e) {
-        switch (e.keyCode) {
-        case 38:
-            $(this).parent().prev().find('button').focus();
-            break;
-        case 40:
-            $(this).parent().next().find('button').focus();
-            break;
+    this.init = (function () {
+        function makeMenuButtons() {
+            $('.menu').each(function () {
+                $(this).find('.buttons li').wrapInner('<button />');
+                $(this)
+                    .css('top', .5 * ($('#screen').height() - $(this).height()) + 'px')
+                    .data('focus', $(this).find('.buttons li:first button'));
+            });
+            playMenu.find('#marathon-button button').val('marathon');
+            playMenu.find('#ultra-button button').val('ultra');
+            playMenu.find('#sprint-button button').val('sprint');
         }
-    }
-
-    function focus() {
-        lastFocus = $(this);
-    }
-
-    function focusout() {
-        if (this === lastFocus[0]) {
-            restoreFocus();
-            return false;
+        function setEventListeners() {
+            $('button')
+                .click(function () { $(this).focus(); })
+                .focus(focus)
+                .focusout(focusout)
+                .keydown(keydown);
+            $('#play-button button').click(function () { showMenu(playMenu); });
+            $('#about-button button').click(function () { showMenu(aboutMenu); });
+            $('.return button').click(function () { showMenu(mainMenu); });
+            playMenu.find('.buttons li:not(.return) button').click(function () {
+                hideMenu(currentMenu);
+                simulator.start($(this).blur().val());
+            })
+            $('a[rel~=external]').click(function () {
+                window.open(this.href, '_blank');
+                return false;
+            });
+            if ($.browser.mozilla) {
+                $(document).mousedown(function () {
+                    if (currentMenu && lastFocus)
+                        setTimeout(restoreFocus, 0);
+                });
+            }
         }
-    }
+        function focus() {
+            lastFocus = $(this);
+        }
+        function focusout() {
+            if (this === lastFocus[0]) {
+                restoreFocus();
+                return false;
+            }
+        }
+        function keydown(e) {
+            switch (e.keyCode) {
+            case 38:
+                $(this).parent().prev().find('button').focus();
+                break;
+            case 40:
+                $(this).parent().next().find('button').focus();
+                break;
+            }
+        }
+        function restoreFocus() {
+            lastFocus.focus();
+        }
+        return function () {
+            painter.init(20);
+            simulator.setController(controller);
+            simulator.setPainter(painter);
+            controller.setSimulator(simulator);
+            makeMenuButtons();
+            setEventListeners();
+            showMenu(mainMenu);
+        };
+    })();
 
-    function restoreFocus() {
-        lastFocus.focus();
-    }
+    this.onGameOver = function (gameMode, record) {
+        var console;
+        if (console)
+            console.log(gameMode, record);
+        showMenu(mainMenu);
+    };
 }
 
 
@@ -1534,7 +1515,7 @@ this.Painter = Painter;
 this.UserInterface = UserInterface;
 
 
-}
+};
 
 
 $(window).load(function () {
@@ -1542,4 +1523,4 @@ $(window).load(function () {
 });
 
 
-})(this, this.document);
+})(this, this.document, this.jQuery);
