@@ -845,18 +845,26 @@ function Simulator(cols, rows, spawnPoint, ui) {
 function Controller() {
 
     var keys = {
-        'SL': {delay: 150, frequency: 30, exclude: 'SR'},
-        'SR': {delay: 150, frequency: 30, exclude: 'SL'},
-        'RL': {exclude: 'RR'},
-        'RR': {exclude: 'RL'},
-        'DS': {interruptable: true},
-        'DH': {},
-        'H' : {}
+        'ShiftLeft': {delay: 150, frequency: 30, exclude: 'ShiftRight'},
+        'ShiftRight': {delay: 150, frequency: 30, exclude: 'ShiftLeft'},
+        'RotateLeft': {exclude: 'RotateRight'},
+        'RotateRight': {exclude: 'RotateLeft'},
+        'SoftDrop': {interruptable: true},
+        'HardDrop': {},
+        'Hold' : {}
     };
 
     var keymap = {
-        16: 'H', 17: 'RL', 32: 'DH', 37: 'SL', 38: 'RR', 39: 'SR', 40: 'DS',
-        67: 'H', 88: 'RR', 90: 'RL'
+        37: 'ShiftLeft',   // Left
+        39: 'ShiftRight',  // Right
+        17: 'RotateLeft',  // Ctrl
+        90: 'RotateLeft',  // z
+        38: 'RotateRight',  // Up
+        88: 'RotateRight',  // x
+        40: 'SoftDrop',  // Down
+        32: 'HardDrop',  // Space
+        16: 'Hold',  // Shift
+        67: 'Hold'   // c
     };
 
     var doc = $(document);
@@ -901,13 +909,13 @@ function Controller() {
             };
         }
         return function (simulator) {
-            register('SL', simulator.shiftLeft);
-            register('SR', simulator.shiftRight);
-            register('RL', simulator.rotateLeft);
-            register('RR', simulator.rotateRight);
-            register('DS', simulator.softDrop, simulator.softDrop);
-            register('DH', simulator.hardDrop);
-            register('H', simulator.hold);
+            register('ShiftLeft', simulator.shiftLeft);
+            register('ShiftRight', simulator.shiftRight);
+            register('RotateLeft', simulator.rotateLeft);
+            register('RotateRight', simulator.rotateRight);
+            register('SoftDrop', simulator.softDrop, simulator.softDrop);
+            register('HardDrop', simulator.hardDrop);
+            register('Hold', simulator.hold);
         };
     })();
 
