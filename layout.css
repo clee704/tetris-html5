@@ -1,83 +1,89 @@
 body {
-  text-align: center;
-}
-
-#vertical-centering-wrapper {
-  position: absolute;
-  top: 50%;
-  width: 100%;
-}
-
-#screen {
-  position: relative;
-  overflow: hidden;
-}
-
-#left, #center, #right {
-  float: left;
-  position: relative;
+	text-align: center;
 }
 
 .label {
-  position: absolute;
+	position: absolute;
 }
 
 .left {
-  text-align: left;
-  left: .5em;
+	text-align: left;
+	left: .5em;
 }
 
 .right {
-  text-align: right;
-  right: .5em;
+	text-align: right;
+	right: .5em;
 }
 
 .center {
-  text-align: center;
-  width: 100%;
+	text-align: center;
+	width: 100%;
 }
 
-#playfield, #playfield-background {
-  position: absolute;
-  top: 0;
-  left: 0;
+#vertical-centering-wrapper {
+	position: absolute;
+	top: 50%;
+	width: 100%;
 }
 
-#falling-piece, #ghost-piece, #hold-piece, .preview {
-  position: absolute;
+#screen {
+	position: relative;
+	overflow: hidden;
+}
+
+#left,
+#center,
+#right {
+	float: left;
+	position: relative;
+}
+
+#playfield,
+#playfield-background {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+#falling-piece,
+#ghost-piece,
+#hold-piece,
+.preview {
+	position: absolute;
 }
 
 .small {
-  transform: scale(.875);
-     -moz-transform: scale(.875);
-  -webkit-transform: scale(.875);
-       -o-transform: scale(.875);
+	transform: scale(.875);
+	-moz-transform: scale(.875);
+	-webkit-transform: scale(.875);
+	-o-transform: scale(.875);
 }
 .smaller {
-  transform: scale(.75);
-     -moz-transform: scale(.75);
-  -webkit-transform: scale(.75);
-       -o-transform: scale(.75);
+	transform: scale(.75);
+	-moz-transform: scale(.75);
+	-webkit-transform: scale(.75);
+	-o-transform: scale(.75);
 }
 
 .menu {
-  display: none;
-  position: absolute;
-  width: 100%;
+	display: none;
+	position: absolute;
+	width: 100%;
 }
 
 .menu ol {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
 }
 
 .menu button {
-  position: relative;
-  margin: .25em 0;
-  padding: .125em .5em;
+	position: relative;
+	margin: .25em 0;
+	padding: .125em .5em;
 }
 
 .menu .return button {
-  margin-top: 1em;
+	margin-top: 1em;
 }

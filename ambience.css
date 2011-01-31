@@ -1,102 +1,97 @@
 body {
-  background-color: #ddd;
-  font: 14px 'Allerta Stencil';
-  margin: 0;
-  padding: 0;
+	background-color: #ddd;
+	font: 14px 'Allerta Stencil';
+	margin: 0;
+	padding: 0;
 }
 
 #screen {
-  background-color: #bbb;
-  border: 0px solid #bbb;
-  border-radius: 20px;
-  -moz-border-radius: 20px;
-  width: 0;
-  height: 0;
+	background-color: #bbb;
+	border: 0px solid #bbb;
+	border-radius: 20px;
+	-moz-border-radius: 20px;
+	width: 0;
+	height: 0;
 }
 
 #left, #center, #right {
-  background-color: white;
-}
-
-#left, #right {
-  border-radius: 10px;
-  -moz-border-radius: 10px;
+	background-color: #fff;
 }
 
 .label {
-  color: #666;
+	color: #666;
 }
 
 #action {
-  color: black;
+	color: #000;
 }
 
 #action.unhighlighted {
-  color: #999;
+	color: #999;
 }
 
 #ghost-piece {
-  opacity: .33;
+	opacity: .33;
 }
 
 .menu {
-  font-size: 150%;
+	font-size: 150%;
 }
 
 .menu button {
-  color: #888;
-  background-color: transparent;
-  border: none;
-  outline: none;
-  font: inherit;
-  position: relative;
+	color: #888;
+	background-color: transparent;
+	border: none;
+	outline: none;
+	font: inherit;
+	position: relative;
 }
 
 .menu button::-moz-focus-inner {
-  border: 0;  /* Firefox version of outline: none */
+	border: 0; /* Firefox version of outline: none */
 }
 
 .menu button:focus {
-  color: #333;
+	color: #333;
 }
 
 #description {
-  color: #333;
-  background-color: rgba(245, 245, 245, .67);
-  border-radius: 20px;
-  -moz-border-radius: 20px;
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  text-align: left;
-  margin: 0 40px;
-  padding: 20px;
+	color: #333;
+	background-color: rgba(245, 245, 245, .67);
+	border-radius: 20px;
+	-moz-border-radius: 20px;
+	font-family: Arial, sans-serif;
+	font-size: 14px;
+	text-align: left;
+	margin: 0 40px;
+	padding: 20px;
 }
 
 #description p {
-  margin: 1em 0;
+	margin: 1em 0;
 }
 
 #description ul {
-  padding-left: 2em;
+	padding-left: 2em;
 }
 
 a {
-  color: #0645ad;
-  text-decoration: none;
+	color: #0645ad;
+	text-decoration: none;
 }
 
 a:visited {
-  color: #0b0080;
+	color: #0b0080;
 }
 
 a:active {
-  color: #faa700;
+	color: #faa700;
 }
 
 a:hover {
-  text-decoration: underline;
+	text-decoration: underline;
 }
 
 a[rel~=external] {
-  color: #36b;
+	color: #36b;
 }

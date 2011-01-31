@@ -1,106 +1,104 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset=UTF-8>
-    <title>TETRIS</title>
-    <link rel=stylesheet href="http://fonts.googleapis.com/css?family=Allerta+Stencil">
-    <link rel=stylesheet href=ambience.css>
-    <link rel=stylesheet href=layout.css>
-  </head>
-  <body>
-    <div id=vertical-centering-wrapper>
-      <div id=screen>
-        <div id=left>
-          <div id=hold-tag class="label center">HOLD</div>
-          <canvas id=hold-piece></canvas>
-          <div id=action class="label center">
-            <div id=combo class=placeholder></div>
-            <div id=points class=placeholder></div>
-            <div id=b2b class=placeholder></div>
-            <div id=t-spin></div>
-            <div id=line-clear></div>
-          </div>
-          <div id=level-tag class="label left">LEVEL</div>
-          <div id=lines-tag class="label left">LINES</div>
-          <div id=score-tag class="label left">SCORE</div>
-          <div id=time-tag class="label left">TIME</div>
-          <div id=level class="label right"></div>
-          <div id=lines class="label right"></div>
-          <div id=score class="label right"></div>
-          <div id=time class="label right">
-            <span id=minute></span>:<span id=second></span>
-          </div>
-        </div>
-        <div id=center>
-          <canvas id=playfield-background></canvas>
-          <canvas id=playfield></canvas>
-          <canvas id=ghost-piece></canvas>
-          <canvas id=falling-piece></canvas>
-        </div>
-        <div id=right>
-          <div id=next-tag class="label center">NEXT</div>
-          <canvas class="preview"></canvas>
-          <canvas class="preview small"></canvas>
-          <canvas class="preview smaller"></canvas>
-          <canvas class="preview smaller"></canvas>
-          <canvas class="preview smaller"></canvas>
-          <canvas class="preview smaller"></canvas>
-        </div>
-        <div id=main class=menu>
-          <ol class=buttons>
-            <li id=play-button>PLAY</li>
-            <li id=records-button>RECORDS</li>
-            <li id=options-button>OPTIONS</li>
-            <li id=about-button>ABOUT</li>
-          </ol>
-        </div>
-        <div id=play class=menu>
-          <ol class=buttons>
-            <li id=marathon-button>MARATHON</li>
-            <li id=ultra-button>ULTRA</li>
-            <li id=sprint-button>SPRINT</li>
-            <li class=return>RETURN</li>
-          </ol>
-        </div>
-        <div id=record class=menu>
-          <div id=record-table></div>
-          <ol class=buttons>
-            <li class=return>RETURN</li>
-          </ol>
-        </div>
-        <div id=about class=menu>
-          <div id=description>
-            <p>This is a tetris implementation in HTML5.</p>
-            <p>
-              It is almost compliant with
-              <a href=http://tetris.wikia.com/wiki/Tetris_Guideline
-                 rel=external>the Tetris Guideline</a>.
-              T-spin recognition is nearly 3-corner T no kick,
-              but will register on a triple.
-            </p>
-            <p>It has three play modes as follows (each with its goal):</p>
-            <ul>
-              <li>Marathon (score the most throughout the 15 levels)</li>
-              <li>Ultra (score the most in 3 minutes)</li>
-              <li>Sprint (clear 40 lines as fast as possible)</li>
-            </ul>
-            <p>
-              You can find the source code at
-              <a href=http://github.com/clee704/tetris-html5
-                 rel=external>github.com/clee704/tetris-html5</a>.
-            </p>
-            <p>
-              Written by Chungmin Lee
-              &lt;<a href=mailto:lemonedo@gmail.com>lemonedo@gmail.com</a>&gt;.
-            </p>
-          </div>
-          <ol class=buttons>
-            <li class=return>RETURN</li>
-          </ol>
-        </div>
-      </div>
-    </div>
-    <script src=http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js></script>
-    <script src=tetris.js></script>
-  </body>
+	<head>
+		<meta charset="UTF-8">
+		<title>TETRIS</title>
+		<link rel="stylesheet" href="layout.css">
+		<link rel="stylesheet" href="ambience.css">
+		<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Allerta+Stencil">
+	</head>
+	<body>
+		<div id="vertical-centering-wrapper">
+			<div id="screen">
+				<div id="left">
+					<div id="hold-tag" class="label center">HOLD</div>
+					<canvas id="hold-piece"></canvas>
+					<div id="action" class="label center">
+						<div id="combo" class="placeholder"></div>
+						<div id="points" class="placeholder"></div>
+						<div id="b2b" class="placeholder"></div>
+						<div id="t-spin"></div>
+						<div id="line-clear"></div>
+					</div>
+					<div id="level-tag" class="label left">LEVEL</div>
+					<div id="lines-tag" class="label left">LINES</div>
+					<div id="score-tag" class="label left">SCORE</div>
+					<div id="time-tag" class="label left">TIME</div>
+					<div id="level" class="label right"></div>
+					<div id="lines" class="label right"></div>
+					<div id="score" class="label right"></div>
+					<div id="time" class="label right">
+						<span id="minute"></span>:<span id="second"></span>
+					</div>
+				</div>
+				<div id="center">
+					<canvas id="playfield-background"></canvas>
+					<canvas id="playfield"></canvas>
+					<canvas id="ghost-piece"></canvas>
+					<canvas id="falling-piece"></canvas>
+				</div>
+				<div id="right">
+					<div id="next-tag" class="label center">NEXT</div>
+					<canvas class="preview"></canvas>
+					<canvas class="preview small"></canvas>
+					<canvas class="preview smaller"></canvas>
+					<canvas class="preview smaller"></canvas>
+					<canvas class="preview smaller"></canvas>
+					<canvas class="preview smaller"></canvas>
+				</div>
+				<div id="main" class="menu">
+					<ol class="buttons">
+						<li id="play-button">PLAY</li>
+						<li id="records-button">RECORDS</li>
+						<li id="options-button">OPTIONS</li>
+						<li id="about-button">ABOUT</li>
+					</ol>
+				</div>
+				<div id="play" class="menu">
+					<ol class="buttons">
+						<li id="marathon-button">MARATHON</li>
+						<li id="ultra-button">ULTRA</li>
+						<li id="sprint-button">SPRINT</li>
+						<li class="return">RETURN</li>
+					</ol>
+				</div>
+				<div id="record" class="menu">
+					<div id="record-table"></div>
+					<ol class="buttons">
+						<li class="return">RETURN</li>
+					</ol>
+				</div>
+				<div id="about" class="menu">
+					<div id="description">
+						<p>This is a tetris implementation in HTML5.</p>
+						<p>
+							It is almost compliant with
+							<a href="http://tetris.wikia.com/wiki/Tetris_Guideline" rel="external">the Tetris Guideline</a>.
+							T-spin recognition is nearly 3-corner T no kick,
+							but will register on a triple.
+						</p>
+						<p>It has three play modes as follows (each with its goal):</p>
+						<ul>
+							<li>Marathon (score the most throughout the 15 levels)</li>
+							<li>Ultra (score the most in 3 minutes)</li>
+							<li>Sprint (clear 40 lines as fast as possible)</li>
+						</ul>
+						<p>
+							You can find the source code at
+							<a href="http://github.com/clee704/tetris-html5" rel="external">github.com/clee704/tetris-html5</a>.
+						</p>
+						<p>
+							Written by Chungmin Lee
+							&lt;<a href="mailto:lemonedo@gmail.com">lemonedo@gmail.com</a>&gt;.
+						</p>
+					</div>
+					<ol class="buttons">
+						<li class="return">RETURN</li>
+					</ol>
+				</div>
+			</div>
+		</div>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+		<script src="tetris.js"></script>
+	</body>
 </html>
