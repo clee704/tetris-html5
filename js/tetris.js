@@ -1,6 +1,11 @@
 (function (window, document, $, undefined) {
 
 
+var $win = $(window);
+var $doc = $(document);
+var $body = $(document.body);
+
+
 var tetris = new function () {
 
 
@@ -331,7 +336,7 @@ function SimulatorBase(simulator) {
 
 	var stopped = true;
 
-	var spawn = (function () { 
+	var spawn = (function () {
 		function stop() {
 			stopped = true;
 			merge();
@@ -571,14 +576,15 @@ function Simulator(cols, rows, spawnPoint, ui) {
 
 	var simulatorBase = new SimulatorBase(this);
 	var controller;
+	var soundManager;
 	var painter;
 
 	var fps = 60;
 	var skipTime = 1000 / fps;
 	var defaultTimings = {
 		softDrop: .5,  // G (lines per frame)
-		lineClear: 15,  // frames
-		gameOver: 200   // frames
+		lineClear: 0, // frames
+		gameOver: 120  // frames
 	};
 	var timingExpressions = {
 		gravity: function () {
@@ -588,12 +594,9 @@ function Simulator(cols, rows, spawnPoint, ui) {
 		},
 		lockDelay: function () {
 			return 725 - 10 * figures.level;
-		},
-		lineClear: function () {
-			return gameMode === 'marathon' ? defaultTimings.lineClear : 0;
 		}
 	};
-	var infinityLimit = 16;
+	var infinityLimit = 24;
 
 	var baseScores = {
 		normal: {1: 100, 2: 300, 3: 500, 4: 800},
@@ -668,8 +671,9 @@ function Simulator(cols, rows, spawnPoint, ui) {
 			infinityCounter[y] = 0;
 	};
 
-	this.setPainter = function (painter_) { painter = painter_; };
-	this.setController = function (controller_) { controller = controller_; };
+	this.setController = function (o) { controller = o; };
+	this.setSoundManager = function (o) { soundManager = o; };
+	this.setPainter = function (o) { painter = o; };
 	this.start = (function () {
 		var currentTime;
 		function startTimer() {
@@ -819,11 +823,17 @@ function Simulator(cols, rows, spawnPoint, ui) {
 			}
 		}
 		return function (playfield, lines, tspin, kick) {
+			soundManager.play('land');
 			painter.drawLockedPiece();
 			updateState(lines.length, tspin, kick);
 			painter.setAction(action);
 			painter.setFigures(figures);
-			painter.clearLines(fps, timings.lineClear, spawnPiece, playfield, lines);
+			if (lines.length === 0) {
+				spawnPiece();
+			} else {
+				soundManager.play('lineclear');
+				painter.clearLines(fps, timings.lineClear, lines, playfield, spawnPiece);
+			}
 		};
 	})();
 
@@ -841,6 +851,7 @@ function Simulator(cols, rows, spawnPoint, ui) {
 	this.onBlockOut = function () {
 		blockedOut = true;
 		endTime = Date.now();
+		soundManager.play('gameover');
 		stop();
 	};
 }
@@ -870,8 +881,6 @@ function Controller() {
 		16: 'Hold',  // Shift
 		67: 'Hold'   // c
 	};
-
-	var doc = $(document);
 
 	this.setSimulator = (function () {
 		function register(name, keydownFunc, keyupFunc) {
@@ -938,7 +947,7 @@ function Controller() {
 				delete key.pressed;
 				delete key.interrupted;
 			}
-			doc.bind('keydown.controller', down).bind('keyup.controller', up);
+			$doc.bind('keydown.controller', down).bind('keyup.controller', up);
 		};
 	})();
 
@@ -949,12 +958,53 @@ function Controller() {
 	};
 
 	this.stop = function () {
-		doc.unbind('.controller');
+		$doc.unbind('.controller');
 	};
 }
 
 
-function Painter(cols, rows) {
+function SoundManager() {
+
+	var enabled;
+	var prefix = 'sounds/';
+	var suffix;
+	var numAudioElements = 12;
+	var readyQueue = [];
+
+	this.play = function (name) {
+		var audio;
+		if (!enabled || readyQueue.length === 0)
+			return;
+		audio = readyQueue.shift();
+		audio.src = prefix + name + suffix;
+	};
+
+	(function init() {
+		var i, audio;
+		for (i = 0; i < numAudioElements; ++i) {
+			audio = document.createElement('audio');
+			audio.preload = 'auto';
+			audio.autoplay = true;
+			audio.loop = false;
+			audio.controls = false;
+			audio.volume = 0.5;
+			audio.muted = false;
+			audio.addEventListener('ended', function () {
+				readyQueue.push(this);
+			}, false);
+			$body.append(audio);
+			readyQueue.push(audio);
+		}
+		if (audio.canPlayType('audio/mpeg; codecs="mp3"') !== '')
+			suffix = '.mp3';
+		else if (audio.canPlayType('audio/ogg; codecs="vorbis"') !== '')
+			suffix = '.ogg';
+		enabled = suffix !== undefined;
+	})();
+}
+
+
+function Painter(cols, rows, size) {
 
 	var blockColors = {
 		'I': Color.fromHSL(180, 100, 47.5),
@@ -966,13 +1016,6 @@ function Painter(cols, rows) {
 		'L': Color.fromHSL(35, 100, 47.5)
 	};
 
-	var effectColors = {
-		gray: Color.fromHSL(0, 0, 73.33),
-		yellow0: Color.fromHSL(50, 100, 50, 0),
-		orange25: Color.fromHSL(25, 100, 50, .25),
-		red50: Color.fromHSL(0, 100, 50, .50)
-	};
-
 	var texts = {
 		lineClear: {1: 'SINGLE', 2: 'DOUBLE', 3: 'TRIPLE', 4: 'TETRIS'},
 		tspin: 'T-SPIN',
@@ -980,7 +1023,6 @@ function Painter(cols, rows) {
 		b2b: 'BACK-TO-BACK'
 	};
 
-	var size;  // grid size
 	var width;
 	var height;
 
@@ -991,12 +1033,12 @@ function Painter(cols, rows) {
 	// Pre-rendered block images
 	var blocks = {};
 
-	// Cached DOM elements
+	// Cached jQuery elements
 	var canvases = {};
 	var labels = {};
-	var actionLabel;
-	var levelLabel;
-	var scoreLabel;
+	var $actionLabel;
+	var $levelLabel;
+	var $scoreLabel;
 
 	// Canvas contexts
 	var contexts = {};
@@ -1026,39 +1068,163 @@ function Painter(cols, rows) {
 	};
 
 	var clear = function (ctx) {
-		ctx.canvas.width = ctx.canvas.width;
+		//ctx.canvas.width = ctx.canvas.width;  // not work in Safari
+		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 	};
 
-	var animate = (function () {
-		var frames, draw, arg, callback, timer, i;
-		function update() {
-			if (i < frames) {
-				draw(i, frames, arg);
-				i += 1;
-			} else {
-				clearInterval(timer);
-				if (callback)
-					callback();
-			}
+	this.start = (function () {
+		function clearText(label) {
+			label.text('');
 		}
-		return function (fps, frames_, draw_, arg_, callback_) {
-			if (frames_ === 0) {
-				if (callback_)
-					callback_();
-				return;
-			}
-			frames = frames_;
-			draw = draw_;
-			arg = arg_;
-			callback = callback_;
-			i = 0;
-			timer = setInterval(update, 1000 / fps);
+		return function () {
+			Utils.forEach(contexts, clear);
+			Utils.forEach(labels, clearText);
+			previewContexts.forEach(clear);
+			for (var key in state)
+				delete state[key];
 		};
 	})();
 
-	this.init = (function () {
-		function setDimensions(size_) {
-			size = size_;
+	this.drawFallingPiece = (function () {
+		var setPosition = (function () {
+			cache = {};  // e.g. '10px'
+			return function (canvas, p) {
+				var x = (p.x - 2) * size;
+				var y = (p.y - 2) * size;
+				canvas.style.left = cache[x] || (cache[x] = px(x));
+				canvas.style.bottom = cache[y] || (cache[y] = px(y));
+			};
+		})();
+		function setState(fallingPiece, fallingPoint, ghostPoint, landed) {
+			state.fallingPiece = fallingPiece;
+			state.fallingPoint = fallingPoint;
+			state.ghostPoint = ghostPoint;
+			state.landed = landed;
+		}
+		return function (fallingPiece, fallingPoint, ghostPoint, landed) {
+			if (state.fallingPiece !== fallingPiece || state.landed !== landed) {
+				drawPiece(contexts.fallingPiece, fallingPiece, landed ? blocks.light : blocks.normal);
+				drawPiece(contexts.ghostPiece, fallingPiece, blocks.normal);
+			}
+			setPosition(canvases.$fallingPiece, fallingPoint);
+			setPosition(canvases.$ghostPiece, ghostPoint);
+			setState(fallingPiece, fallingPoint, ghostPoint, landed);
+		};
+	})();
+
+	this.drawLockedPiece = function () {
+		if (!state.fallingPiece)
+			return;
+		clear(contexts.fallingPiece);
+		clear(contexts.ghostPiece);
+		drawPiece(contexts.playfield, state.fallingPiece, blocks.normal, state.fallingPoint);
+		state.fallingPiece = null;
+		state.fallingPoint = null;
+		state.ghostPoint = null;
+		state.landed = null;
+	};
+
+	this.drawPreview = (function () {
+		var p;
+		function drawPreview(ctx, i) {
+			drawPiece(ctx, p[i], blocks.normal, null, true);
+		}
+		return function (preview) {
+			p = preview;
+			previewContexts.forEach(drawPreview);
+		};
+	})();
+
+	this.drawHoldPiece = function (holdPiece) {
+		drawPiece(contexts.holdPiece, holdPiece, blocks.normal, null, true);
+	};
+
+	this.clearLines = (function () {
+		var playfield,
+			callback;
+		function drawPlayfield() {
+			for (var y = 0; y < rows; ++y) {
+				var row = playfield[y];
+				for (var x = 0; x < cols; ++x) {
+					var pieceName = row[x];
+					clearBlock(contexts.playfield, x, y);
+					if (pieceName)
+						drawBlock(contexts.playfield, x, y, pieceName, blocks.normal);
+				}
+			}
+			callback();
+		}
+		function clearBlock(ctx, x, y) {
+			ctx.clearRect(x * size, height - (y + 1) * size, size, size);
+		}
+		return function (fps, frames, lines, playfield_, callback_) {
+			playfield = playfield_;
+			callback = callback_;
+			setTimeout(drawPlayfield, 1000 * frames / fps);
+		};
+	})();
+
+	this.setAction = function (action) {
+		if (!action.points) {
+			if (!$actionLabel.hasClass('unhighlighted'))
+				$actionLabel.addClass('unhighlighted');
+			return;
+		}
+		$actionLabel.removeClass('unhighlighted');
+		labels.$combo.text(action.combo > 0 ? texts.combo + ' ' + action.combo : '');
+		labels.$points.text(action.points > 0 ? '+' + action.points : '');
+		labels.$b2b.text(action.b2b ? texts.b2b : '');
+		labels.$tspin.text(action.tspin ? texts.tspin : '');
+		labels.$lineClear.text(action.lineClear > 0 ? texts.lineClear[action.lineClear] : '');
+	};
+
+	this.setFigures = (function () {
+		var flag = false;
+		function setFigure(label, n, ref) {
+			if (n !== ref || flag)
+				label.text(n);
+		}
+		return function (figures, ignoreCache) {
+			flag = ignoreCache;
+			setFigure(labels.$level, figures.level, state.level);
+			setFigure(labels.$lines, figures.lines, state.lines);
+			setFigure(labels.$score, figures.score, state.score);
+			for (var key in figures)
+				state[key] = figures[key];
+		};
+	})();
+
+	this.setLevelVisible = function (visible) {
+		if (visible)
+			$levelLabel.show();
+		else
+			$levelLabel.hide();
+	};
+
+	this.setScoreVisible = function (visible) {
+		if (visible)
+			$scoreLabel.show();
+		else
+			$scoreLabel.hide();
+	};
+
+	this.setTime = (function () {
+		var o = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09'];
+		return function (seconds) {
+			var m = Math.floor(seconds / 60);
+			var s = Math.floor(seconds % 60);
+			labels.$minute.text(m);
+			labels.$second.text(s < 10 ? o[s] : s);
+		};
+	})();
+
+	this.setGameOver = function (fps, frames, callback) {
+		setTimeout(callback, 1000 * frames / fps);
+	};
+
+	(function init() {
+		function setDimensions(pixels) {
+			size = pixels;
 			width = cols * size;
 			height = rows * size;
 			var widthSide = 6 * size;
@@ -1102,32 +1268,33 @@ function Painter(cols, rows) {
 				this.width = this.height = 5 * size;
 			});
 			$('.preview').each(function (i) {
-				$(this).css('top', px(t * size)).css('left', px(.5 * size));
-				var f = $(this).hasClass('small')
+				var $$ = $(this);
+				$$.css('top', px(t * size)).css('left', px(.5 * size));
+				var f = $$.hasClass('small')
 					? small
-					: $(this).hasClass('smaller')
+					: $$.hasClass('smaller')
 						? smaller
 						: 1;
 				t += 3.3 * f;
 			});
 		}
 
-		function cacheDOMElements() {
-			canvases.fallingPiece = $('#falling-piece')[0];
-			canvases.ghostPiece = $('#ghost-piece')[0];
-			labels.combo = $('#combo');
-			labels.points = $('#points');
-			labels.b2b = $('#b2b');
-			labels.tspin = $('#t-spin');
-			labels.lineClear = $('#line-clear');
-			labels.level = $('#level');
-			labels.lines = $('#lines');
-			labels.score = $('#score');
-			labels.minute = $('#minute');
-			labels.second = $('#second');
-			actionLabel = $('#action');
-			levelLabel = $('#level-tag, #level');
-			scoreLabel = $('#score-tag, #score');
+		function cacheElements() {
+			canvases.$fallingPiece = $('#falling-piece')[0];
+			canvases.$ghostPiece = $('#ghost-piece')[0];
+			labels.$combo = $('#combo');
+			labels.$points = $('#points');
+			labels.$b2b = $('#b2b');
+			labels.$tspin = $('#t-spin');
+			labels.$lineClear = $('#line-clear');
+			labels.$level = $('#level');
+			labels.$lines = $('#lines');
+			labels.$score = $('#score');
+			labels.$minute = $('#minute');
+			labels.$second = $('#second');
+			$actionLabel = $('#action');
+			$levelLabel = $('#level-tag, #level');
+			$scoreLabel = $('#score-tag, #score');
 		}
 
 		function prepareBlockImages() {
@@ -1187,7 +1354,7 @@ function Painter(cols, rows) {
 
 		function drawGrid() {
 			var ctx = getContext2D('playfield-background');
-			ctx.strokeStyle = effectColors.gray.toString();
+			ctx.strokeStyle = '#bbb';
 			ctx.lineWidth = 1;
 			for (var x = 1; x < cols; ++x) {
 				ctx.beginPath();
@@ -1209,242 +1376,66 @@ function Painter(cols, rows) {
 			return document.getElementById(id).getContext('2d');
 		}
 
-		return function (size_) {
-			setDimensions(size_);
-			cacheDOMElements();
-			prepareBlockImages();
-			getCanvasContexts();
-			drawGrid();
-		};
-	})();
-
-	this.start = (function () {
-		function clearText(label) {
-			label.text('');
-		}
-		return function () {
-			Utils.forEach(contexts, clear);
-			Utils.forEach(labels, clearText);
-			previewContexts.forEach(clear);
-			for (var key in state)
-				delete state[key];
-		};
-	})();
-
-	this.drawFallingPiece = (function () {
-		var setPosition = (function () {
-			cache = {};  // e.g. '10px'
-			return function (canvas, p) {
-				var x = (p.x - 2) * size;
-				var y = (p.y - 2) * size;
-				canvas.style.left = cache[x] || (cache[x] = px(x));
-				canvas.style.bottom = cache[y] || (cache[y] = px(y));
-			};
-		})();
-		function setState(fallingPiece, fallingPoint, ghostPoint, landed) {
-			state.fallingPiece = fallingPiece;
-			state.fallingPoint = fallingPoint;
-			state.ghostPoint = ghostPoint;
-			state.landed = landed;
-		}
-		return function (fallingPiece, fallingPoint, ghostPoint, landed) {
-			if (state.fallingPiece !== fallingPiece || state.landed !== landed) {
-				drawPiece(contexts.fallingPiece, fallingPiece, landed ? blocks.light : blocks.normal);
-				drawPiece(contexts.ghostPiece, fallingPiece, blocks.normal);
-			}
-			setPosition(canvases.fallingPiece, fallingPoint);
-			setPosition(canvases.ghostPiece, ghostPoint);
-			setState(fallingPiece, fallingPoint, ghostPoint, landed);
-		};
-	})();
-
-	this.drawLockedPiece = function () {
-		if (!state.fallingPiece)
-			return;
-		clear(contexts.fallingPiece);
-		clear(contexts.ghostPiece);
-		drawPiece(contexts.playfield, state.fallingPiece, blocks.normal, state.fallingPoint);
-		state.fallingPiece = null;
-		state.fallingPoint = null;
-		state.ghostPoint = null;
-		state.landed = null;
-	};
-
-	this.drawPreview = (function () {
-		var p;
-		function drawPreview(ctx, i) {
-			drawPiece(ctx, p[i], blocks.normal, null, true);
-		}
-		return function (preview) {
-			p = preview;
-			previewContexts.forEach(drawPreview);
-		};
-	})();
-
-	this.drawHoldPiece = function (holdPiece) {
-		drawPiece(contexts.holdPiece, holdPiece, blocks.normal, null, true);
-	};
-
-	this.clearLines = (function () {
-		var playfield;
-		var callback;
-		function chainedCallback() {
-			drawPlayfield(playfield);
-			callback();
-		}
-		function drawPlayfield(playfield) {
-			for (var y = 0; y < rows; ++y) {
-				var row = playfield[y];
-				for (var x = 0; x < cols; ++x) {
-					var pieceName = row[x];
-					clearBlock(contexts.playfield, x, y);
-					if (pieceName)
-						drawBlock(contexts.playfield, x, y, pieceName, blocks.normal);
-				}
-			}
-		}
-		function clearBlock(ctx, x, y) {
-			ctx.clearRect(x * size, height - (y + 1) * size, size, size);
-		}
-		function lineClearAnimation(i, frames, lines) {
-			var ctx = contexts.playfield;
-			ctx.save();
-			ctx.globalCompositeOperation = 'destination-out';
-			ctx.globalAlpha = i * 9 / frames / frames;
-			for (var j = 0, n = lines.length; j < n; ++j)
-				ctx.fillRect(0, (rows - lines[j] - 1) * size, width, size);
-			ctx.restore();
-		}
-		return function (fps, frames, callback_, playfield_, lines) {
-			if (lines.length === 0) {
-				callback_();
-				return;
-			}
-			playfield = playfield_;
-			callback = callback_;
-			animate(fps, frames, lineClearAnimation, lines, chainedCallback);
-		};
-	})();
-
-	this.setAction = function (action) {
-		if (!action.points) {
-			if (!actionLabel.hasClass('unhighlighted'))
-				actionLabel.addClass('unhighlighted');
-			return;
-		}
-		actionLabel.removeClass('unhighlighted');
-		labels.combo.text(action.combo > 0 ? texts.combo + ' ' + action.combo : '');
-		labels.points.text(action.points > 0 ? '+' + action.points : '');
-		labels.b2b.text(action.b2b ? texts.b2b : '');
-		labels.tspin.text(action.tspin ? texts.tspin : '');
-		labels.lineClear.text(action.lineClear > 0 ? texts.lineClear[action.lineClear] : '');
-	};
-
-	this.setFigures = (function () {
-		var flag = false;
-		function setFigure(label, n, ref) {
-			if (n !== ref || flag)
-				label.text(n);
-		}
-		return function (figures, ignoreCache) {
-			flag = ignoreCache;
-			setFigure(labels.level, figures.level, state.level);
-			setFigure(labels.lines, figures.lines, state.lines);
-			setFigure(labels.score, figures.score, state.score);
-			for (var key in figures)
-				state[key] = figures[key];
-		};
-	})();
-
-	this.setLevelVisible = function (visible) {
-		if (visible)
-			levelLabel.show();
-		else
-			levelLabel.hide();
-	};
-
-	this.setScoreVisible = function (visible) {
-		if (visible)
-			scoreLabel.show();
-		else
-			scoreLabel.hide();
-	};
-
-	this.setTime = (function () {
-		var o = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09'];
-		return function (seconds) {
-			var m = Math.floor(seconds / 60);
-			var s = Math.floor(seconds % 60);
-			labels.minute.text(m);
-			labels.second.text(s < 10 ? o[s] : s);
-		};
-	})();
-
-	this.setGameOver = (function () {
-		function gameOverAnimation(i, frames) {
-			var ctx = contexts.playfield;
-			ctx.save();
-			ctx.globalCompositeOperation = 'source-atop';
-			var solid = 2 * i * (i + 1) * (i + 2) * height / frames / frames / frames;
-			ctx.fillStyle = effectColors.gray.toString();
-			ctx.fillRect(0, height - solid, width, solid);
-			var h = height - solid;
-			var grad = solid * 3;
-			var g = ctx.createLinearGradient(0, h - grad, 0, h);
-			g.addColorStop(0, effectColors.yellow0.toString());
-			g.addColorStop(.3, effectColors.orange25.toString());
-			g.addColorStop(.6, effectColors.red50.toString());
-			g.addColorStop(1, effectColors.gray.toString());
-			ctx.fillStyle = g;
-			ctx.fillRect(0, h - grad, width, grad);
-			ctx.restore();
-		}
-		return function (fps, frames, callback) {
-			animate(fps, frames, gameOverAnimation, null, callback);
-		};
+		setDimensions(size);
+		cacheElements();
+		prepareBlockImages();
+		getCanvasContexts();
+		drawGrid();
 	})();
 }
 
 
 function UserInterface() {
 
-	var simulator = new Simulator(10, 22, Point.of(4, 20), this);
-	var controller = new Controller();
-	var painter = new Painter(10, 22);
+	var cols = 10;
+	var rows = 22;
+	var spawnPoint = Point.of(4, 20);
+	var defaultSize = 20;  // pixels per cell's side
 
-	var panels = $('#left, #right, #center');
-	var mainMenu = $('#main');
-	var playMenu = $('#play');
-	var aboutMenu = $('#about');
+	var simulator;
+	var controller;
+	var soundManager;
+	var painter;
 
-	var currentMenu = null;
-	var lastFocus = null;
+	var $mainMenu = $('#main');
+	var $playMenu = $('#play');
+	var $aboutMenu = $('#about');
 
-	var showMenu = function (menu) {
-		if (currentMenu)
-			hideMenu(currentMenu);
-		menu.show();
-		menu.data('focus').focus();
-		currentMenu = menu;
+	var $current = null;
+	var $lastFocus = null;
+
+	var showMenu = function ($menu) {
+		if ($current)
+			hideMenu($current);
+		$menu.show();
+		$menu.data('focus').focus();
+		$current = $menu;
 	};
 
-	var hideMenu = function (menu) {
-		menu.data('focus', lastFocus);
-		menu.hide();
-		currentMenu = null;
+	var hideMenu = function ($menu) {
+		$menu.data('focus', $lastFocus);
+		$menu.hide();
+		$current = null;
+	};
+
+	this.onGameOver = function (gameMode, record) {
+		if ('console' in window)
+			console.log(gameMode, record);
+		showMenu($mainMenu);
 	};
 
 	this.init = (function () {
 		function makeMenuButtons() {
 			$('.menu').each(function () {
-				$(this).find('.buttons li').wrapInner('<button />');
-				$(this)
-					.css('top', .5 * ($('#screen').height() - $(this).height()) + 'px')
-					.data('focus', $(this).find('.buttons li:first button'));
+				var $$ = $(this);
+				$$.find('.buttons li').wrapInner('<button />');
+				$$
+					.css('top', .5 * ($('#screen').height() - $$.height()) + 'px')
+					.data('focus', $$.find('.buttons li:first button'));
 			});
-			playMenu.find('#marathon-button button').val('marathon');
-			playMenu.find('#ultra-button button').val('ultra');
-			playMenu.find('#sprint-button button').val('sprint');
+			$playMenu.find('#marathon-button button').val('marathon');
+			$playMenu.find('#ultra-button button').val('ultra');
+			$playMenu.find('#sprint-button button').val('sprint');
 		}
 		function setEventListeners() {
 			$('button')
@@ -1452,11 +1443,11 @@ function UserInterface() {
 				.focus(focus)
 				.focusout(focusout)
 				.keydown(keydown);
-			$('#play-button button').click(function () { showMenu(playMenu); });
-			$('#about-button button').click(function () { showMenu(aboutMenu); });
-			$('.return button').click(function () { showMenu(mainMenu); });
-			playMenu.find('.buttons li:not(.return) button').click(function () {
-				hideMenu(currentMenu);
+			$('#play-button button').click(function () { showMenu($playMenu); });
+			$('#about-button button').click(function () { showMenu($aboutMenu); });
+			$('.return button').click(function () { showMenu($mainMenu); });
+			$playMenu.find('.buttons li:not(.return) button').click(function () {
+				hideMenu($current);
 				simulator.start($(this).blur().val());
 			})
 			$('a[rel~=external]').click(function () {
@@ -1464,17 +1455,17 @@ function UserInterface() {
 				return false;
 			});
 			if ($.browser.mozilla) {
-				$(document).mousedown(function () {
-					if (currentMenu && lastFocus)
+				$doc.mousedown(function () {
+					if ($current && $lastFocus)
 						setTimeout(restoreFocus, 0);
 				});
 			}
 		}
 		function focus() {
-			lastFocus = $(this);
+			$lastFocus = $(this);
 		}
 		function focusout() {
-			if (this === lastFocus[0]) {
+			if (this === $lastFocus[0]) {
 				restoreFocus();
 				return false;
 			}
@@ -1490,25 +1481,22 @@ function UserInterface() {
 			}
 		}
 		function restoreFocus() {
-			lastFocus.focus();
+			$lastFocus.focus();
 		}
 		return function () {
-			painter.init(20);
+			simulator = new Simulator(cols, rows, spawnPoint, this);
+			controller = new Controller();
+			soundManager = new SoundManager();
+			painter = new Painter(cols, rows, defaultSize);
 			simulator.setController(controller);
+			simulator.setSoundManager(soundManager);
 			simulator.setPainter(painter);
 			controller.setSimulator(simulator);
 			makeMenuButtons();
 			setEventListeners();
-			showMenu(mainMenu);
-		};
+			showMenu($mainMenu);
+		}
 	})();
-
-	this.onGameOver = function (gameMode, record) {
-		var console;
-		if (console)
-			console.log(gameMode, record);
-		showMenu(mainMenu);
-	};
 }
 
 
@@ -1531,7 +1519,7 @@ this.UserInterface = UserInterface;
 };
 
 
-$(window).load(function () {
+$win.load(function () {
 	new tetris.UserInterface().init();
 });
 

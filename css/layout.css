@@ -2,18 +2,24 @@ body {
 	text-align: center;
 }
 
+audio {
+	position: absolute;
+	width: 0;
+	height: 0;
+}
+
 .label {
 	position: absolute;
 }
 
 .left {
 	text-align: left;
-	left: .5em;
+	left: 0.5em;
 }
 
 .right {
 	text-align: right;
-	right: .5em;
+	right: 0.5em;
 }
 
 .center {
@@ -54,16 +60,17 @@ body {
 }
 
 .small {
-	transform: scale(.875);
-	-moz-transform: scale(.875);
-	-webkit-transform: scale(.875);
-	-o-transform: scale(.875);
+	transform: scale(0.875);
+	-moz-transform: scale(0.875);
+	-webkit-transform: scale(0.875);
+	-o-transform: scale(0.875);
 }
+
 .smaller {
-	transform: scale(.75);
-	-moz-transform: scale(.75);
-	-webkit-transform: scale(.75);
-	-o-transform: scale(.75);
+	transform: scale(0.75);
+	-moz-transform: scale(0.75);
+	-webkit-transform: scale(0.75);
+	-o-transform: scale(0.75);
 }
 
 .menu {
@@ -72,18 +79,15 @@ body {
 	width: 100%;
 }
 
-.menu ol {
+.menu .buttons {
 	list-style-type: none;
 	margin: 0;
 	padding: 0;
 }
 
-.menu button {
+.menu .buttons button {
 	position: relative;
-	margin: .25em 0;
-	padding: .125em .5em;
-}
-
-.menu .return button {
-	margin-top: 1em;
+	width: 8em;
+	margin: 0;
+	padding: 0.25em 0;
 }

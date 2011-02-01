@@ -31,40 +31,46 @@ body {
 }
 
 #ghost-piece {
-	opacity: .33;
+	opacity: 0.33;
 }
 
 .menu {
 	font-size: 150%;
+	opacity: 0.875;
 }
 
-.menu button {
-	color: #888;
-	background-color: transparent;
-	border: none;
-	outline: none;
+.menu .buttons button {
+	color: #666;
+	background-color: #fff;
+	border: 0;
+	border-bottom: 1px solid #ccc;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	outline: 0;
 	font: inherit;
 	position: relative;
 }
 
-.menu button::-moz-focus-inner {
+.menu .buttons button::-moz-focus-inner {
 	border: 0; /* Firefox version of outline: none */
 }
 
-.menu button:focus {
+.menu .buttons button:focus {
 	color: #333;
+	background-color: #ffffe0;
 }
 
 #description {
 	color: #333;
-	background-color: rgba(245, 245, 245, .67);
+	background-color: #fff;
+	border: 1px solid #ccc;
 	border-radius: 20px;
 	-moz-border-radius: 20px;
 	font-family: Arial, sans-serif;
 	font-size: 14px;
 	text-align: left;
-	margin: 0 40px;
-	padding: 20px;
+	margin: 0 40px 1em;
+	padding: 0 20px;
 }
 
 #description p {
