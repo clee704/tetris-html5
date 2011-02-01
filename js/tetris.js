@@ -672,8 +672,9 @@ function Simulator(cols, rows, spawnPoint, ui) {
 	};
 
 	this.setController = function (o) { controller = o; };
-	this.setSoundManager = function (o) { soundManager = o; };
 	this.setPainter = function (o) { painter = o; };
+	this.setSoundManager = function (o) { soundManager = o; };
+
 	this.start = (function () {
 		var currentTime;
 		function startTimer() {
@@ -960,47 +961,6 @@ function Controller() {
 	this.stop = function () {
 		$doc.unbind('.controller');
 	};
-}
-
-
-function SoundManager() {
-
-	var enabled;
-	var prefix = 'sounds/';
-	var suffix;
-	var numAudioElements = 12;
-	var readyQueue = [];
-
-	this.play = function (name) {
-		var audio;
-		if (!enabled || readyQueue.length === 0)
-			return;
-		audio = readyQueue.shift();
-		audio.src = prefix + name + suffix;
-	};
-
-	(function init() {
-		var i, audio;
-		for (i = 0; i < numAudioElements; ++i) {
-			audio = document.createElement('audio');
-			audio.preload = 'auto';
-			audio.autoplay = true;
-			audio.loop = false;
-			audio.controls = false;
-			audio.volume = 0.5;
-			audio.muted = false;
-			audio.addEventListener('ended', function () {
-				readyQueue.push(this);
-			}, false);
-			$body.append(audio);
-			readyQueue.push(audio);
-		}
-		if (audio.canPlayType('audio/mpeg; codecs="mp3"') !== '')
-			suffix = '.mp3';
-		else if (audio.canPlayType('audio/ogg; codecs="vorbis"') !== '')
-			suffix = '.ogg';
-		enabled = suffix !== undefined;
-	})();
 }
 
 
@@ -1385,17 +1345,58 @@ function Painter(cols, rows, size) {
 }
 
 
+function SoundManager(numChannels) {
+
+	var prefix = 'sounds/';
+	var suffix;
+	var readyQueue = [];
+
+	this.play = function (name) {
+		var audio;
+		if (suffix === null || readyQueue.length === 0)
+			return;
+		audio = readyQueue.shift();
+		audio.src = prefix + name + suffix;
+	};
+
+	(function init() {
+		var i, audio;
+		for (i = 0; i < numChannels; ++i) {
+			audio = document.createElement('audio');
+			audio.preload = 'auto';
+			audio.autoplay = true;
+			audio.loop = false;
+			audio.controls = false;
+			audio.volume = 0.5;
+			audio.muted = false;
+			audio.addEventListener('ended', function () {
+				readyQueue.push(this);
+			}, false);
+			$body.append(audio);
+			readyQueue.push(audio);
+		}
+		if (audio.canPlayType('audio/mpeg; codecs="mp3"') !== '')
+			suffix = '.mp3';
+		else if (audio.canPlayType('audio/ogg; codecs="vorbis"') !== '')
+			suffix = '.ogg';
+		else
+			suffix = null;
+	})();
+}
+
+
 function UserInterface() {
 
 	var cols = 10;
 	var rows = 22;
 	var spawnPoint = Point.of(4, 20);
-	var defaultSize = 20;  // pixels per cell's side
+	var defaultSize = 20;  // Pixels per cell's side
+	var numChannels = 8;  // Maximum number of sounds that can be played simultaneously
 
 	var simulator;
 	var controller;
-	var soundManager;
 	var painter;
+	var soundManager;
 
 	var $mainMenu = $('#main');
 	var $playMenu = $('#play');
@@ -1486,11 +1487,11 @@ function UserInterface() {
 		return function () {
 			simulator = new Simulator(cols, rows, spawnPoint, this);
 			controller = new Controller();
-			soundManager = new SoundManager();
 			painter = new Painter(cols, rows, defaultSize);
+			soundManager = new SoundManager(numChannels);
 			simulator.setController(controller);
-			simulator.setSoundManager(soundManager);
 			simulator.setPainter(painter);
+			simulator.setSoundManager(soundManager);
 			controller.setSimulator(simulator);
 			makeMenuButtons();
 			setEventListeners();
@@ -1510,9 +1511,12 @@ this.Color = Color;
 this.SimulatorBase = SimulatorBase;
 this.Simulator = Simulator;
 
-// Interface
+// Others
 this.Controller = Controller;
 this.Painter = Painter;
+this.SoundManager = SoundManager;
+
+// Interface
 this.UserInterface = UserInterface;
 
 
