@@ -146,6 +146,10 @@ Painter.prototype.setAction = function (action) {
 		: '');
 };
 
+Painter.prototype.setMode = function (mode) {
+	this._labels.$mode.text(mode.toUpperCase());
+};
+
 Painter.prototype.setFigures = function (figures, ignoreCache) {
 	var name;
 	Painter._setFigure(this._labels.$level, figures.level, this._state.level, ignoreCache);
@@ -248,10 +252,12 @@ Painter.prototype._setDimensions = function (size) {
 	$('#hold-tag').css('top', (1.5 * size) + 'px');
 	$('#hold-piece').css('top', (2 * size) + 'px').css('left', (0.5 * size) + 'px');
 	$('#action')
-		.css('top', (0.5 * height - 3.5 * size) + 'px')
+		.css('top', (0.5 * height - 4 * size) + 'px')
 		.css('line-height', size + 'px');
-	$('#combo').css('margin-bottom', size + 'px');
-	$('#action .placeholder').height(size);
+	$('#action .static').height(size);
+	$('#combo').css('margin-bottom', (0.5 * size) + 'px');
+	$('#points').css('margin-bottom', (0.5 * size) + 'px');
+	$('#mode').css('top', (0.5 * height + 3 * size) + 'px');
 	$('#level-tag, #level').css('top', (0.5 * height + 4 * size) + 'px');
 	$('#lines-tag, #lines').css('top', (0.5 * height + 5 * size) + 'px');
 	$('#score-tag, #score').css('top', (0.5 * height + 6 * size) + 'px');
@@ -292,6 +298,7 @@ Painter.prototype._cacheElements = function () {
 	this._labels.$b2b = $('#b2b');
 	this._labels.$tspin = $('#t-spin');
 	this._labels.$lineClear = $('#line-clear');
+	this._labels.$mode = $('#mode');
 	this._labels.$level = $('#level');
 	this._labels.$lines = $('#lines');
 	this._labels.$score = $('#score');

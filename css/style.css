@@ -114,11 +114,11 @@ a[rel~=external] {
 	width: 100%;
 }
 
-#action {
+#panels #action {
 	color: #000;
 }
 
-#action.unhighlighted {
+#panels #action.unhighlighted {
 	color: #999;
 }
 

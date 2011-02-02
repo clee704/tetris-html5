@@ -181,6 +181,7 @@ Simulator.prototype.start = function (gameMode) {
 	this._painter.start();
 	this._painter.setLevelVisible(gameMode === 'marathon');
 	this._painter.setScoreVisible(gameMode !== 'sprint');
+	this._painter.setMode(gameMode);
 	this._painter.setFigures(this._figures, true);
 	this._controller.start();
 	this._startTime = Date.now();
