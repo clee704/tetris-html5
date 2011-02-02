@@ -177,6 +177,8 @@ a[rel~=external] {
 	font-size: 130%;
 	line-height: 80%;
 	display: block;
+	position: relative;
+	left: -2em;
 }
 
 #logo .big {
