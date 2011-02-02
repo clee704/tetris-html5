@@ -1,0 +1,206 @@
+body {
+	background-color: #ddd;
+	font: 14px 'Allerta Stencil', sans-serif;
+	text-align: center;
+	overflow: hidden;
+	position: absolute;
+	top: 50%;
+	width: 100%;
+	padding: 0;
+	margin: 0;
+}
+
+audio {
+	position: absolute;
+	width: 0;
+	height: 0;
+}
+
+a {
+	color: #0645ad;
+	text-decoration: none;
+}
+
+a:visited {
+	color: #0b0080;
+}
+
+a:active {
+	color: #faa700;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a[rel~=external] {
+	color: #36b;
+}
+
+#wrapper {
+	background-color: #bbb;
+	border: 0px solid #bbb;
+	border-radius: 20px;
+	-moz-border-radius: 20px;
+	overflow: hidden;
+	position: relative;
+	width: 0;
+	height: 0;
+}
+
+#panels {
+	transition: none;
+	-webkit-transition: none;
+	-moz-transition: none;
+	-o-transition: none;
+}
+
+#panels.unhighlighted {
+	opacity: 0.5;
+	transition: opacity 1.8s linear;
+	-webkit-transition: opacity 1.8s linear;
+	-moz-transition: opacity 1.8s linear;
+	-o-transition: opacity 1.8s linear;
+}
+
+#panels .panel {
+	background-color: #fff;
+	float: left;
+	position: relative;
+}
+
+#panels .playfield {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+#panels .piece,
+#panels .label {
+	color: #666;
+	position: absolute;
+}
+
+#panels .piece.small {
+	transform: scale(0.875);
+	-moz-transform: scale(0.875);
+	-webkit-transform: scale(0.875);
+	-o-transform: scale(0.875);
+}
+
+#panels .piece.smaller {
+	transform: scale(0.75);
+	-moz-transform: scale(0.75);
+	-webkit-transform: scale(0.75);
+	-o-transform: scale(0.75);
+}
+
+#ghost-piece {
+	opacity: 0.33;
+}
+
+#panels .label.left {
+	text-align: left;
+	left: 0.5em;
+}
+
+#panels .label.right {
+	text-align: right;
+	right: 0.5em;
+}
+
+#panels .label.center {
+	text-align: center;
+	width: 100%;
+}
+
+#action {
+	color: #000;
+}
+
+#action.unhighlighted {
+	color: #999;
+}
+
+#menus .menu {
+	font-size: 150%;
+	display: none;
+	position: absolute;
+	width: 100%;
+	opacity: 0.875;
+}
+
+#menus .buttons {
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+}
+
+#menus .buttons li {
+	position: relative;
+}
+
+#menus .buttons button {
+	color: #666;
+	background-color: #fff;
+	border: 0;
+	border-bottom: 1px solid #ccc;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	outline: 0;
+	font: inherit;
+	position: relative;
+}
+
+#menus .buttons button::-moz-focus-inner {
+	border: 0; /* Firefox version of outline: 0 */
+}
+
+#menus .buttons button:focus {
+	color: #333;
+	background-color: #ffffe0;
+}
+
+#menus .buttons button {
+	position: relative;
+	width: 8em;
+	padding: 0.25em 0;
+	margin: 0;
+}
+
+#logo {
+	font-family: 'Sunshiney', sans-serif;
+	margin-bottom: 1.25em;
+}
+
+#logo .small {
+	font-size: 130%;
+	line-height: 80%;
+	display: block;
+}
+
+#logo .big {
+	font-size: 500%;
+	line-height: 100%;
+	display: block;
+}
+
+#description {
+	color: #333;
+	background-color: #fff;
+	border: 1px solid #ccc;
+	border-radius: 10px;
+	-moz-border-radius: 10px;
+	font: 14px Arial, sans-serif;
+	text-align: left;
+	padding: 0 20px;
+	margin: 0 40px 1.5em;
+}
+
+#description p {
+	margin: 1em 0;
+}
+
+#description ul {
+	padding-left: 2em;
+}
