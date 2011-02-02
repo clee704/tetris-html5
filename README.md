@@ -1,5 +1,5 @@
-Tetris implemented in HTML5. Written by Chungmin Lee <
-[lemonedo@gmail.com](mailto:lemonedo@gmail.com)>.
+Tetris implemented in HTML5. Written by Chungmin Lee
+<[lemonedo@gmail.com](mailto:lemonedo@gmail.com)>.
 
 Almost compliant with
 [the Tetris Guidline](http://tetris.wikia.com/wiki/Tetris_Guideline).
