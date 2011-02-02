@@ -1,4 +1,8 @@
-* Implement saving records.
-* Implement customizing options (e.g. DAS).
 * Implement pause.
-* Add visual effects.
+* Implement RECORDS menu.
+* Implement OPTIONS menu.
+  - Key mappings
+  - Soft drop speed
+  - DAS speed
+* Add visual effects to hard drop, line clear, etc.
+* Add volume slider and mute/unmute button.
