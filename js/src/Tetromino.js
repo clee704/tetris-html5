@@ -1,6 +1,5 @@
-/*!
+/**
  * @namespace tetris
- * @class tetris.Tetromino
  */
 (function (window, document, undefined) {
 
@@ -10,7 +9,7 @@
  * Use Tetromino.of() instead of new Tetromino() to create an instance
  * for both convenience and performance.
  *
- * @class
+ * @class tetris.Tetromino
  * @immutable
  */
 function Tetromino(name, rotation, geometry, offset, center) {

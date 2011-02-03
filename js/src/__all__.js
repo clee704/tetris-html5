@@ -1,4 +1,4 @@
-/*!
+/**
  * @namespace tetris
  */
 (function (window, document, undefined) {

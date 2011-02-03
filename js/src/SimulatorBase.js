@@ -1,12 +1,10 @@
-/*!
+/**
  * @namespace tetris
- * @class tetris.SimulatorBase
  */
 (function (window, document, undefined) {
 
 /**
- * @class
- * @singleton This class might not work when there are multiple instances
+ * @class tetris.SimulatorBase
  */
 function SimulatorBase(simulator) {
 	
@@ -132,11 +130,12 @@ SimulatorBase.prototype.hold = function () {
 	temp = this._holdPiece;
 	this._holdPiece = this._fallingPiece.rotate(0);
 	this._simulator.onHoldPiece(this._holdPiece);
-	if (temp)
+	if (temp) {
 		this._move(temp, this._spawnPoint, true, null);
-	else
-		this._fallingPiece = null,
+	} else {
+		this._fallingPiece = null;
 		this.spawn();
+	}
 	this._holdReady = false;
 };
 
@@ -153,8 +152,7 @@ SimulatorBase.prototype._fillBag = function () {
 };
 
 SimulatorBase.prototype._computeGhost = function () {
-	var p = this._fallingPoint,
-		q;
+	var p = this._fallingPoint, q;
 	while (!this._checkCollision(this._fallingPiece, q = p.addY(-1)))
 		p = q;
 	return p;
@@ -226,8 +224,7 @@ SimulatorBase.prototype._move = function (piece, point, updateGhost, resolveFunc
 		this._ghostPoint = this._computeGhost();
 	if (!this._uncharging) {
 		landed = this._checkCollision(this._fallingPiece, this._fallingPoint.addY(-1));
-		this._simulator.onPieceMove(this._fallingPiece, this._fallingPoint, this._ghostPoint,
-			landed);
+		this._simulator.onPieceMove(this._fallingPiece, this._fallingPoint, this._ghostPoint, landed);
 	}
 	return true;
 };

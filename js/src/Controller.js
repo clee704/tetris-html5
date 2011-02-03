@@ -1,13 +1,12 @@
-/*!
+/**
  * @namespace tetris
- * @class tetris.Controller
  */
 (function (window, document, $, undefined) {
 
 var $doc = $(document);
 
 /**
- * @class
+ * @class tetris.Controller
  * @singleton This class might not work when there are multiple instances
  */
 function Controller() {

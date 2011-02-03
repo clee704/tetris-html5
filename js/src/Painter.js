@@ -1,11 +1,10 @@
-/*!
+/**
  * @namespace tetris
- * @class tetris.Painter
  */
 (function (window, document, $, undefined) {
 
 /**
- * @class
+ * @class tetris.Painter
  * @singleton This class might not work when there are multiple instances
  */
 function Painter(cols, rows, size) {
@@ -88,8 +87,7 @@ Painter.prototype.drawLockedPiece = function () {
 		return;
 	Painter._clearCanvas(this._contexts.fallingPiece);
 	Painter._clearCanvas(this._contexts.ghostPiece);
-	this._drawPiece(this._contexts.playfield, this._state.fallingPiece, this._blocks.normal,
-		this._state.fallingPoint);
+	this._drawPiece(this._contexts.playfield, this._state.fallingPiece, this._blocks.normal, this._state.fallingPoint);
 	this._state.fallingPiece = null;
 	this._state.fallingPoint = null;
 	this._state.ghostPoint = null;
@@ -117,9 +115,7 @@ Painter.prototype.setAction = function (action) {
 	this._labels.$points.text(action.points > 0 ? '+' + action.points : '');
 	this._labels.$b2b.text(action.b2b ? this._TEXTS.b2b : '');
 	this._labels.$tspin.text(action.tspin ? this._TEXTS.tspin : '');
-	this._labels.$lineClear.text(action.lineClear > 0
-		? this._TEXTS.lineClear[action.lineClear]
-		: '');
+	this._labels.$lineClear.text(action.lineClear > 0 ? this._TEXTS.lineClear[action.lineClear] : '');
 };
 
 Painter.prototype.setMode = function (mode) {
@@ -242,7 +238,9 @@ Painter.prototype._setDimensions = function (size) {
 		.width(width)
 		.height(height);
 	$('#hold-tag').css('top', (1.5 * size) + 'px');
-	$('#hold-piece').css('top', (2 * size) + 'px').css('left', (0.5 * size) + 'px');
+	$('#hold-piece')
+		.css('top', (2 * size) + 'px')
+		.css('left', (0.5 * size) + 'px');
 	$('#action')
 		.css('top', (0.5 * height - 4 * size) + 'px')
 		.css('line-height', size + 'px');

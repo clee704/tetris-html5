@@ -1,6 +1,5 @@
-/*!
+/**
  * @namespace tetris
- * @class tetris.Point
  */
 (function (window, document, undefined) {
 
@@ -10,7 +9,7 @@
  * Use Point.of() instead of new Point() to create an instance
  * if you want to use cached objects.
  *
- * @class
+ * @class tetris.Point
  * @immutable
  */
 function Point(x, y) {
@@ -35,8 +34,8 @@ Point.prototype.subtract = function (p) {
 };
 
 Point.of = function (x, y) {
-	var a = Point._cache[x];
-	var b = a ? a[y] : (Point._cache[x] = {}, null);
+	var a = Point._cache[x],
+		b = a ? a[y] : (Point._cache[x] = {}, null);
 	return b || (Point._cache[x][y] = new Point(x, y));
 };
 

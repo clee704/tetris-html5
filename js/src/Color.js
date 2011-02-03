@@ -1,6 +1,5 @@
-/*!
+/**
  * @namespace tetris
- * @class tetris.Color
  */
 (function (window, document, undefined) {
 
@@ -10,7 +9,7 @@
  * Use Color.fromRGB() and Color.fromHSL() instead of new Color()
  * to create an instance.
  *
- * @class
+ * @class tetris.Color
  * @immutable
  */
 function Color(r, g, b, h, s, l, a) {
@@ -21,12 +20,10 @@ function Color(r, g, b, h, s, l, a) {
 	this.s = Color._clamp(s, 0, 100);
 	this.l = Color._clamp(l, 0, 100);
 	this.a = a === undefined ? 1 : Color._clamp(a, 0, 1);
-	this.string = 'rgba('
-		+ [window.Math.round(this.r),
-			window.Math.round(this.g),
-			window.Math.round(this.b),
-			this.a].join(',')
-		+ ')';
+	r = window.Math.round(this.r);
+	g = window.Math.round(this.g);
+	b = window.Math.round(this.b);
+	this.string = 'rgba(' + [r, g, b, this.a].join(',') + ')';
 }
 
 Color.prototype.brighter = function (multiplier) {

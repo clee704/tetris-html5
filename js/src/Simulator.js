@@ -1,12 +1,10 @@
-/*!
+/**
  * @namespace tetris
- * @class tetris.Simulator
  */
 (function (window, document, undefined) {
 
 /**
- * @class
- * @singleton This class might not work when there are multiple instances
+ * @class tetris.Simulator
  */
 function Simulator(cols, rows, spawnPoint, controller, painter, soundManager, ui) {
 	var self = this;
@@ -185,16 +183,14 @@ Simulator.prototype.start = function (gameMode) {
 	this._updateTime();
 };
 
-Simulator.prototype.onPieceSpawn = (function () {
-	return function (fallingPiece, fallingPoint, ghostPoint) {
-		window.clearTimeout(this._freeFallTimer);
-		window.clearTimeout(this._lockTimer);
-		this._painter.drawFallingPiece(fallingPiece, fallingPoint, ghostPoint);
-		this._controller.interrupt();
-		this._resetInfinityCounter();
-		this._startFreeFall();
-	};
-})();
+Simulator.prototype.onPieceSpawn = function (fallingPiece, fallingPoint, ghostPoint) {
+	window.clearTimeout(this._freeFallTimer);
+	window.clearTimeout(this._lockTimer);
+	this._painter.drawFallingPiece(fallingPiece, fallingPoint, ghostPoint);
+	this._controller.interrupt();
+	this._resetInfinityCounter();
+	this._startFreeFall();
+};
 
 Simulator.prototype.onPieceMove = function (fallingPiece, fallingPoint, ghostPoint, landed) {
 	var y;

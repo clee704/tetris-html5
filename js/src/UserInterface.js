@@ -1,13 +1,12 @@
-/*!
+/**
  * @namespace tetris
- * @class tetris.UserInterface
  */
 (function (window, document, $, undefined) {
 
 var $doc = $(document);
 
 /**
- * @class
+ * @class tetris.UserInterface
  * @singleton This class might not work when there are multiple instances
  */
 function UserInterface() {
@@ -31,22 +30,22 @@ function UserInterface() {
 	this._controller = new window.tetris.Controller();
 	this._painter = new window.tetris.Painter(this._COLS, this._ROWS, this._SIZE);
 	this._soundManager = new window.tetris.SoundManager(this._NUM_CHANNELS);
-	this._simulator = new window.tetris.Simulator(this._COLS, this._ROWS, this._SPAWN_POINT,
-		this._controller, this._painter, this._soundManager, this);
+	this._simulator = new window.tetris.Simulator(this._COLS, this._ROWS, this._SPAWN_POINT, this._controller, this._painter, this._soundManager, this);
 
 	/* Make menu buttons */
 	$('.menu').each(function () {
 		var $$ = $(this);
 		$$.find('.buttons li').wrapInner('<button />');
 		$$.css('top', 0.5 * ($('#wrapper').height() - $$.height()) + 'px')
-			.data('focus', $$.find('.buttons li:first button'));
+		$$.data('focus', $$.find('.buttons li:first button'));
 	});
 	this._$playMenu.find('#marathon-button button').val('marathon');
 	this._$playMenu.find('#ultra-button button').val('ultra');
 	this._$playMenu.find('#sprint-button button').val('sprint');
 
 	/* Set event listeners */
-	$('button').focus(function () { self._$lastFocus = $(this); })
+	$('button')
+		.focus(function () { self._$lastFocus = $(this); })
 		.focusout(function () {
 			/* Prevent focus out from the entire menu */
 			if (this === self._$lastFocus[0]) {

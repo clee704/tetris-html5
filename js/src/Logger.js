@@ -1,11 +1,10 @@
-/*!
+/**
  * @namespace tetris
- * @class tetris.Logger
  */
 (function (window, document, undefined) {
 
 /**
- * @class
+ * @class tetris.Logger
  */
 function Logger(name) {
 	this._name = name;
@@ -18,8 +17,7 @@ Logger.prototype.info = function (msg) { this._log('info', msg); };
 Logger.prototype.debug = function (msg) { this._log('debug', msg); };
 
 Logger.prototype._log = function (level, msg) {
-	var console = this._console,
-		output;
+	var console = this._console, output;
 	if (!console)
 		return;
 	output = this._name + ': (' + level.toUpperCase() + ') ' + msg;

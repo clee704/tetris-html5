@@ -1,12 +1,10 @@
-/*!
+/**
  * @namespace tetris
- * @class tetris.SoundManager
  */
 (function (window, document, undefined) {
 
 /**
- * @class
- * @singleton This class might not work when there are multiple instances
+ * @class tetris.SoundManager
  */
 function SoundManager(numChannels) {
 	var self = this, audio, i;
