@@ -55,7 +55,7 @@ a[rel~=external] {
 	-o-transition: none;
 }
 
-#panels.unhighlighted {
+#panels.unhighlight {
 	opacity: 0.5;
 	transition: opacity 1.2s linear;
 	-webkit-transition: opacity 1.2s linear;
@@ -118,16 +118,19 @@ a[rel~=external] {
 	color: #000;
 }
 
-#panels #action.unhighlighted {
+#panels #action.unhighlight {
 	color: #999;
 }
 
 #menus .menu {
-	font-size: 150%;
 	display: none;
 	position: absolute;
 	width: 100%;
 	opacity: 0.875;
+}
+
+#menus .menu.focus {
+	display: block;
 }
 
 #menus .buttons {
@@ -136,45 +139,34 @@ a[rel~=external] {
 	margin: 0;
 }
 
-#menus .buttons li {
-	position: relative;
-}
-
-#menus .buttons button {
-	color: #666;
+#menus .buttons .button {
+	color: #555;
 	background-color: #fff;
 	border: 0;
 	border-bottom: 1px solid #ccc;
 	border-radius: 5px;
 	-moz-border-radius: 5px;
 	outline: 0;
-	font: inherit;
-	position: relative;
-}
-
-#menus .buttons button::-moz-focus-inner {
-	border: 0; /* Firefox version of outline: 0 */
-}
-
-#menus .buttons button:focus {
-	color: #333;
-	background-color: #ffffe0;
-}
-
-#menus .buttons button {
+	font-size: 150%;
 	position: relative;
 	width: 8em;
 	padding: 0.25em 0;
-	margin: 0;
+	margin: 0 auto;
+	cursor: pointer;
+}
+
+#menus .buttons .button.focus {
+	color: #000;
+	background-color: #ffffe0;
 }
 
 #logo {
 	font-family: 'Sunshiney', sans-serif;
-	margin-bottom: 2em;
+	margin-bottom: 2.5em;
 }
 
 #logo .small {
-	font-size: 130%;
+	font-size: 180%;
 	line-height: 80%;
 	display: block;
 	position: relative;
@@ -182,7 +174,7 @@ a[rel~=external] {
 }
 
 #logo .big {
-	font-size: 500%;
+	font-size: 750%;
 	line-height: 100%;
 	display: block;
 }

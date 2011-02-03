@@ -8,7 +8,7 @@
 	</head>
 	<body>
 		<div id="wrapper">
-			<div id="panels" class="unhighlighted">
+			<div id="panels" class="unhighlight">
 				<div id="left" class="panel">
 					<div id="hold-tag" class="label center">HOLD</div>
 					<canvas id="hold-piece" class="piece"></canvas>
@@ -48,34 +48,38 @@
 				</div>
 			</div>
 			<div id="menus">
-				<div id="main" class="menu">
-					<div id="logo">
+				<div class="main menu">
+					<div id="logo" class="content">
 						<span class="small">HTML5</span>
 						<span class="big">Tetris</span>
 					</div>
 					<ol class="buttons">
-						<li id="play-button">PLAY</li>
-						<li id="records-button">RECORDS</li>
-						<li id="options-button">OPTIONS</li>
-						<li id="about-button">ABOUT</li>
+						<li class="button focus">PLAY</li>
+						<li class="button">RECORDS</li>
+						<li class="button">OPTIONS</li>
+						<li class="button">ABOUT</li>
 					</ol>
 				</div>
-				<div id="play" class="menu">
+				<div class="play menu">
 					<ol class="buttons">
-						<li id="marathon-button">MARATHON</li>
-						<li id="ultra-button">ULTRA</li>
-						<li id="sprint-button">SPRINT</li>
-						<li class="back">BACK</li>
+						<li class="button leaf focus">MARATHON</li>
+						<li class="button leaf">ULTRA</li>
+						<li class="button leaf">SPRINT</li>
+						<li class="button back">BACK</li>
 					</ol>
 				</div>
-				<div id="record" class="menu">
-					<div id="record-table"></div>
+				<div class="records menu">
 					<ol class="buttons">
-						<li class="back">BACK</li>
+						<li class="button back focus">BACK</li>
 					</ol>
 				</div>
-				<div id="about" class="menu">
-					<div id="description">
+				<div class="options menu">
+					<ol class="buttons">
+						<li class="button back focus">BACK</li>
+					</ol>
+				</div>
+				<div class="about menu">
+					<div id="description" class="content">
 						<p>
 							Tetris implemented in HTML5.
 							Written by Chungmin Lee
@@ -84,34 +88,25 @@
 						<p>
 							Almost compliant with
 							<a href="http://tetris.wikia.com/wiki/Tetris_Guideline"
-							 rel="external">the Tetris Guideline</a>.
+							   rel="external">the Tetris Guideline</a>.
 							T-spin recognition is nearly 3-corner T no kick,
 							but will register on a triple.
 						</p>
 						<p>It has three play modes and goals as follows:</p>
 						<ul>
-							<li>
-								Marathon
-								(score the most throughout the 15 levels)
-							</li>
-							<li>
-								Ultra
-								(score the most in 3 minutes)
-							</li>
-							<li>
-								Sprint
-								(clear 40 lines as fast as possible)
-							</li>
+							<li>Marathon (score the most throughout the 15 levels)</li>
+							<li>Ultra (score the most in 3 minutes)</li>
+							<li>Sprint (clear 40 lines as fast as possible)</li>
 						</ul>
 						<p>
 							It is currently on development.
 							You can find the source code on
 							<a href="http://github.com/clee704/tetris-html5"
-							 rel="external">GitHub</a>.
+							   rel="external">GitHub</a>.
 						</p>
 					</div>
 					<ol class="buttons">
-						<li class="back">BACK</li>
+						<li class="button back focus">BACK</li>
 					</ol>
 				</div>
 			</div>

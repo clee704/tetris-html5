@@ -101,11 +101,11 @@ Painter.prototype.drawHoldPiece = function (holdPiece) {
 
 Painter.prototype.setAction = function (action) {
 	if (!action.points) {
-		if (!this._$actionLabel.hasClass('unhighlighted'))
-			this._$actionLabel.addClass('unhighlighted');
+		if (!this._$actionLabel.hasClass('unhighlight'))
+			this._$actionLabel.addClass('unhighlight');
 		return;
 	}
-	this._$actionLabel.removeClass('unhighlighted');
+	this._$actionLabel.removeClass('unhighlight');
 	this._labels.$combo.text(action.combo > 0 ? this._TEXTS.combo + ' ' + action.combo : '');
 	this._labels.$points.text(action.points > 0 ? '+' + action.points : '');
 	this._labels.$b2b.text(action.b2b ? this._TEXTS.b2b : '');

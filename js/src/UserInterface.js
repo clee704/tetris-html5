@@ -19,11 +19,9 @@ function UserInterface() {
 
 	/* jQuery elements */
 	this._$panels = $('#panels');
-	this._$mainMenu = $('#main');
-	this._$playMenu = $('#play');
-	this._$aboutMenu = $('#about');
-	this._$current = null;
-	this._$lastFocus = null;
+	this._$mainMenu = $('#menus .menu.main');
+	this._$currentMenu = null;
+	this._$prevMenu = null;
 
 	/* Big objects */
 	this._controller = new window.tetris.Controller();
@@ -35,99 +33,89 @@ function UserInterface() {
 }
 
 UserInterface.prototype.onGameOver = function (gameMode, record) {
-	// TODO show the record and save it if needed
-	this._$panels.addClass('unhighlighted');
+	//
+	// TODO Show the record and save it if needed.
+	// The following is temporary code.
+	//
+	this._$panels.addClass('unhighlight');
 	this._showMenu(this._$mainMenu);
 };
 
 UserInterface.prototype._init = function () {
 	var self = this;
 
-	/* Make menu buttons */
-	$('.menu').each(function () {
-		var $$ = $(this);
-		$$.find('.buttons li').wrapInner('<button />');
-		$$.css('top', 0.5 * ($('#wrapper').height() - $$.height()) + 'px')
-		$$.data('focus', $$.find('.buttons li:first button'));
+	/* Set position of each menu */
+	$('#menus .menu').css('top', function () {
+		return 0.5 * ($('#wrapper').height() - $(this).height()) + 'px';
 	});
-	this._$playMenu.find('#marathon-button button').val('marathon');
-	this._$playMenu.find('#ultra-button button').val('ultra');
-	this._$playMenu.find('#sprint-button button').val('sprint');
 
-	/* Set event listeners */
-	$('button')
-		.focus(function () { self._$lastFocus = $(this); })
-		.focusout(function () {
-			/* Prevent focus out from the entire menu */
-			if (this === self._$lastFocus[0]) {
-				self._$lastFocus.focus();
-				return false;
-			}
-		})
-		.click(function () { $(this).focus(); })
-		.keydown(function ($e) {
-			if (self._$current === null)
-				return;
-			/* Traverse between buttons in the current menu */
-			switch ($e.which) {
-			case 38:  // Up
-				$(this).parent().prev().find('button').focus();
-				break;
-			case 40:  // Down
-				$(this).parent().next().find('button').focus();
-				break;
-			}
-		});
-	$('#play-button button').click(function () {
-		self._showMenu(self._$playMenu);
+	/* Add event listeners for menu and focus traversal */
+	$doc.keydown(function ($e) {
+		var $menu = self._$currentMenu, $button;
+		if ($menu === null)
+			return;
+		$button = $menu.find('.focus');
+		switch ($e.which) {
+		case 13:  // Enter
+		case 32:  // Space
+			$button.click();
+			break;
+		case 38:  // Up
+			self._focusButton($button.prev());
+			break;
+		case 40:  // Down
+			self._focusButton($button.next());
+			break;
+		default:
+			return;
+		}
 	});
-	$('#about-button button').click(function () {
-		self._showMenu(self._$aboutMenu);
+	$('.button:not(.leaf, .back)').click(function () {
+		var $button = $(this), menuName;
+		self._focusButton($button);
+		menuName = $button.text().toLowerCase();
+		self._showMenu($('#menus .menu.' + menuName));
 	});
-	$('.back button').click(function () {
-		self._showMenu(self._$mainMenu);
+	$('.button.back').click(function () {
+		self._showMenu(self._$prevMenu);
 	});
-	this._$playMenu.find('.buttons li:not(.back) button').click(function () {
-		var gameMode = $(this).val();
-		$(this).blur();
-		self._$panels.removeClass('unhighlighted');
-		self._hideMenu(self._$current);
+	$('#menus .menu.play .button.leaf').click(function () {
+		var gameMode = $(this).text().toLowerCase();
+		self._$panels.removeClass('unhighlight');
+		self._hideMenu(self._$currentMenu);
 		self._simulator.start(gameMode);
 	});
+
+	/* Make external links open a new window */
 	$('a[rel~=external]').click(function () {
 		window.open(this.href, 'tetris');
 		return false;
 	});
-
-	/* Deal with browser quirks */
-	if ($.browser.mozilla) {
-		/* Firefox tends to lose focus in menus without the following code */
-		$doc.mousedown(function () {
-			if (this._$current && this._$lastFocus) {
-				window.setTimeout(function () {
-					self._$lastFocus.focus();
-				}, 0);
-			}
-		});
-	}
 
 	/* Finally, show the main menu */
 	this._showMenu(this._$mainMenu);
 };
 
 UserInterface.prototype._showMenu = function ($menu) {
-	if (this._$current !== null)
-		this._hideMenu(this._$current);
-	$menu.show();
-	$menu.data('focus').focus();
-	this._$current = $menu;
+	if (this._$currentMenu !== null) {
+		this._hideMenu(this._$currentMenu);
+	}
+	$menu.addClass('focus');
+	this._$currentMenu = $menu;
 };
 
 UserInterface.prototype._hideMenu = function ($menu) {
-	$menu.data('focus', this._$lastFocus);
-	$menu.hide();
-	this._$lastFocus.blur();
-	this._$current = null;
+	$menu.removeClass('focus');
+	this._$prevMenu = this._$currentMenu;
+	this._$currentMenu = null;
+};
+
+UserInterface.prototype._focusButton = function ($button) {
+	var $prev = $button.parent('.buttons').find('.focus');
+	if ($prev[0] === $button[0])
+		return;
+	$prev.removeClass('focus');
+	$button.addClass('focus');
 };
 
 window.tetris.UserInterface = UserInterface;
