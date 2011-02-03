@@ -1,6 +1,6 @@
 body {
 	background-color: #eee;
-	font: 14px 'Allerta Stencil', sans-serif;
+	font: 14px 'Allerta Stencil', Arial, sans-serif;
 	text-align: center;
 	overflow: hidden;
 	position: absolute;
@@ -161,7 +161,7 @@ a[rel~=external] {
 }
 
 #logo {
-	font-family: 'Sunshiney', sans-serif;
+	font-family: 'Sunshiney', 'Comic Sans MS', sans-serif;
 	margin-bottom: 2.5em;
 }
 
