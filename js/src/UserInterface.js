@@ -10,7 +10,6 @@ var $doc = $(document);
  * @singleton This class might not work when there are multiple instances
  */
 function UserInterface() {
-	var self = this;
 
 	this._COLS = 10;
 	this._ROWS = 22;
@@ -31,6 +30,18 @@ function UserInterface() {
 	this._painter = new window.tetris.Painter(this._COLS, this._ROWS, this._SIZE);
 	this._soundManager = new window.tetris.SoundManager(this._NUM_CHANNELS);
 	this._simulator = new window.tetris.Simulator(this._COLS, this._ROWS, this._SPAWN_POINT, this._controller, this._painter, this._soundManager, this);
+
+	this._init();
+}
+
+UserInterface.prototype.onGameOver = function (gameMode, record) {
+	// TODO show the record and save it if needed
+	this._$panels.addClass('unhighlighted');
+	this._showMenu(this._$mainMenu);
+};
+
+UserInterface.prototype._init = function () {
+	var self = this;
 
 	/* Make menu buttons */
 	$('.menu').each(function () {
@@ -84,7 +95,7 @@ function UserInterface() {
 		self._simulator.start(gameMode);
 	});
 	$('a[rel~=external]').click(function () {
-		window.open(this.href, '_blank');
+		window.open(this.href, 'tetris');
 		return false;
 	});
 
@@ -100,12 +111,7 @@ function UserInterface() {
 		});
 	}
 
-	this._showMenu(this._$mainMenu);
-}
-
-UserInterface.prototype.onGameOver = function (gameMode, record) {
-	// TODO show the record and save it if needed
-	this._$panels.addClass('unhighlighted');
+	/* Finally, show the main menu */
 	this._showMenu(this._$mainMenu);
 };
 

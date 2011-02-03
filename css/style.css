@@ -1,5 +1,5 @@
 body {
-	background-color: #ddd;
+	background-color: #eee;
 	font: 14px 'Allerta Stencil', sans-serif;
 	text-align: center;
 	overflow: hidden;
@@ -38,17 +38,17 @@ a[rel~=external] {
 }
 
 #wrapper {
-	background-color: #bbb;
-	border: 0px solid #bbb;
-	border-radius: 20px;
-	-moz-border-radius: 20px;
-	overflow: hidden;
 	position: relative;
 	width: 0;
 	height: 0;
 }
 
 #panels {
+	background-color: #ccc;
+	border: 0px solid #ccc;
+	border-radius: 20px;
+	-moz-border-radius: 20px;
+	overflow: hidden;
 	transition: none;
 	-webkit-transition: none;
 	-moz-transition: none;
@@ -57,10 +57,10 @@ a[rel~=external] {
 
 #panels.unhighlighted {
 	opacity: 0.5;
-	transition: opacity 1.8s linear;
-	-webkit-transition: opacity 1.8s linear;
-	-moz-transition: opacity 1.8s linear;
-	-o-transition: opacity 1.8s linear;
+	transition: opacity 1.2s linear;
+	-webkit-transition: opacity 1.2s linear;
+	-moz-transition: opacity 1.2s linear;
+	-o-transition: opacity 1.2s linear;
 }
 
 #panels .panel {
@@ -170,7 +170,7 @@ a[rel~=external] {
 
 #logo {
 	font-family: 'Sunshiney', sans-serif;
-	margin-bottom: 1.25em;
+	margin-bottom: 2em;
 }
 
 #logo .small {
@@ -195,8 +195,8 @@ a[rel~=external] {
 	-moz-border-radius: 10px;
 	font: 14px Arial, sans-serif;
 	text-align: left;
-	padding: 0 20px;
-	margin: 0 40px 1.5em;
+	padding: 0 1.5em;
+	margin: 0 3em 1.5em;
 }
 
 #description p {

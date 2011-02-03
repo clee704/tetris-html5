@@ -8,7 +8,6 @@
  * @singleton This class might not work when there are multiple instances
  */
 function Painter(cols, rows, size) {
-	var self = this;
 
 	this._COLS = cols;
 	this._ROWS = rows;
@@ -51,11 +50,7 @@ function Painter(cols, rows, size) {
 	this._height;
 	this._state = {};
 
-	/* Initialize */
-	this._setDimensions(size);
-	this._cacheElements();
-	this._prepareBlockImages();
-	this._drawGrid();
+	this._init(size);
 }
 
 Painter.prototype.start = function () {
@@ -172,6 +167,13 @@ Painter.prototype.onGameOver = function (fps, frames, callback) {
 	window.setTimeout(callback, 1000 * frames / fps);
 };
 
+Painter.prototype._init = function (size) {
+	this._setDimensions(size);
+	this._cacheElements();
+	this._prepareBlockImages();
+	this._drawGrid();
+};
+
 Painter.prototype._drawPiece = function (ctx, piece, blocks, point, center) {
 	var i, n, q;
 	if (!point) {
@@ -224,6 +226,9 @@ Painter.prototype._setDimensions = function (size) {
 	$('#wrapper')
 		.css('margin', '0 auto')
 		.css('margin-top', (-(0.5 * actualHeight + size)) + 'px')
+		.width(actualWidth + 2 * size)
+		.height(actualHeight + 2 * size);
+	$('#panels')
 		.css('border-width', size + 'px')
 		.width(actualWidth)
 		.height(actualHeight);

@@ -21,7 +21,7 @@ function Simulator(cols, rows, spawnPoint, controller, painter, soundManager, ui
 		lineClear: 0, // frames
 		gameOver: 120  // frames
 	};
-	this._timingExpressions = {
+	this._timingFunctions = {
 		gravity: function () {
 			var n = self._figures.level - 1,
 				t = window.Math.pow(.8 - n * .007, n);
@@ -151,8 +151,7 @@ function Simulator(cols, rows, spawnPoint, controller, painter, soundManager, ui
 		self._ui.onGameOver(self._gameMode, record);
 	};
 
-	/* Initialize */
-	this._controller.link(this);
+	this._init();
 }
 
 Simulator.prototype.start = function (gameMode) {
@@ -239,6 +238,10 @@ Simulator.prototype.onBlockOut = function () {
 	this._soundManager.play('gameover');
 };
 
+Simulator.prototype._init = function () {
+	this._controller.link(this);
+};
+
 Simulator.prototype._stop = function () {
 	this._controller.stop();
 	window.clearTimeout(this._timer);
@@ -256,8 +259,8 @@ Simulator.prototype._startFreeFall = function () {
 
 Simulator.prototype._updateTimings = function () {
 	var name;
-	for (name in this._timingExpressions)
-		this._timings[name] = this._timingExpressions[name]();
+	for (name in this._timingFunctions)
+		this._timings[name] = this._timingFunctions[name]();
 };
 
 Simulator.prototype._updateState = function (lineClear, rawTspin, kick) {
