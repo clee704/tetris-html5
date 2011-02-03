@@ -123,10 +123,10 @@ SimulatorBase.prototype.hold = function () {
 		this._chargedOperations.push(this._hold);
 		return;
 	}
-	if (!this._holdReady)
+	if (!this._holdReady || this._holdPiece && this._checkCollision(this._holdPiece, this._spawnPoint)) {
+		this._simulator.onHoldPieceFail();
 		return;
-	if (this._holdPiece && this._checkCollision(this._holdPiece, this._spawnPoint))
-		return;
+	}
 	temp = this._holdPiece;
 	this._holdPiece = this._fallingPiece.rotate(0);
 	this._simulator.onHoldPiece(this._holdPiece);

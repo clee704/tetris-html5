@@ -227,6 +227,10 @@ Simulator.prototype.onHoldPiece = function (holdPiece) {
 	this._soundManager.play('hold');
 };
 
+Simulator.prototype.onHoldPieceFail = function () {
+	this._soundManager.play('hold2');
+};
+
 Simulator.prototype.onPreviewUpdate = function (preview) {
 	this._painter.drawPreview(preview);
 };
