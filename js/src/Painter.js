@@ -52,24 +52,6 @@ function Painter(cols, rows, size) {
 	this._height;
 	this._state = {};
 
-	/* Variables for functions */
-	this._clearLines = {};
-
-	/* Functions */
-	this._drawPlayfield = function () {
-		var x, y, row, name;
-		for (y = 0; y < self._ROWS; ++y) {
-			row = self._clearLines.playfield[y];
-			for (x = 0; x < self._COLS; ++x) {
-				name = row[x];
-				self._clearBlock(self._contexts.playfield, x, y);
-				if (name)
-					self._drawBlock(self._contexts.playfield, x, y, name, self._blocks.normal);
-			}
-		}
-		self._clearLines.callback();
-	}
-
 	/* Initialize */
 	this._setDimensions(size);
 	this._cacheElements();
@@ -124,12 +106,6 @@ Painter.prototype.drawHoldPiece = function (holdPiece) {
 	this._drawPiece(this._contexts.holdPiece, holdPiece, this._blocks.normal, null, true);
 };
 
-Painter.prototype.clearLines = function (fps, frames, lines, playfield, callback) {
-	this._clearLines.playfield = playfield;
-	this._clearLines.callback = callback;
-	window.setTimeout(this._drawPlayfield, 1000 * frames / fps);
-};
-
 Painter.prototype.setAction = function (action) {
 	if (!action.points) {
 		if (!this._$actionLabel.hasClass('unhighlighted'))
@@ -180,7 +156,23 @@ Painter.prototype.setScoreVisible = function (visible) {
 		this._$scoreLabel.hide();
 };
 
+Painter.prototype.onLineClear = function (fps, frames, lines, playfield, callback) {
+	/* Just remove the cleared lines immediately with no speical effect */
+	var x, y, row, name;
+	for (y = 0; y < this._ROWS; ++y) {
+		row = playfield[y];
+		for (x = 0; x < this._COLS; ++x) {
+			name = row[x];
+			this._clearBlock(this._contexts.playfield, x, y);
+			if (name)
+				this._drawBlock(this._contexts.playfield, x, y, name, this._blocks.normal);
+		}
+	}
+	window.setTimeout(callback, 1000 * frames / fps);
+};
+
 Painter.prototype.onGameOver = function (fps, frames, callback) {
+	/* Do nothing for now (some sort of visual effects may be added later) */
 	window.setTimeout(callback, 1000 * frames / fps);
 };
 

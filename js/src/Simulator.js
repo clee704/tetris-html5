@@ -8,7 +8,7 @@
  * @class
  * @singleton This class might not work when there are multiple instances
  */
-function Simulator(cols, rows, spawnPoint, ui) {
+function Simulator(cols, rows, spawnPoint, controller, painter, soundManager, ui) {
 	var self = this;
 
 	this._COLS = cols;
@@ -59,9 +59,9 @@ function Simulator(cols, rows, spawnPoint, ui) {
 
 	/* Big objects */
 	this._simulatorBase = new window.tetris.SimulatorBase(this);
-	this._controller;
-	this._painter;
-	this._soundManager;
+	this._controller = controller;
+	this._painter = painter;
+	this._soundManager = soundManager;
 	this._ui = ui;
 
 	/* Small Variables */
@@ -84,7 +84,7 @@ function Simulator(cols, rows, spawnPoint, ui) {
 	this._softDropping;
 	this._blockedOut;
 
-	/* Functions */
+	/* Functions for the controller */
 	this.softDrop = function () { self._softDropping = !self._softDropping; };
 	this.hardDrop = function () {
 		var distance = self._simulatorBase.hardDrop();
@@ -105,6 +105,8 @@ function Simulator(cols, rows, spawnPoint, ui) {
 		}
 		self._simulatorBase.spawn();
 	};
+
+	/* Functions for setTimeout */
 	this._freeFall = function () {
 		while (self._nextFallTime <= Date.now()) {
 			self._freeFallDistance += self._softDropping
@@ -140,6 +142,8 @@ function Simulator(cols, rows, spawnPoint, ui) {
 		self._timer = window.setTimeout(self._updateTime, 1000 - d % 1000);
 	};
 	this._lock = function () { self._simulatorBase.drop(); };
+
+	/* Function for the painter */
 	this._onGameOver = function () {
 		var record = self._gameMode !== 'sprint'
 			? self._figures.score
@@ -148,19 +152,10 @@ function Simulator(cols, rows, spawnPoint, ui) {
 				: self._endTime - self._startTime;
 		self._ui.onGameOver(self._gameMode, record);
 	};
+
+	/* Initialize */
+	this._controller.link(this);
 }
-
-Simulator.prototype.setController = function (controller) {
-	this._controller = controller;
-};
-
-Simulator.prototype.setPainter = function (painter) {
-	this._painter = painter;
-};
-
-Simulator.prototype.setSoundManager = function (soundManager) {
-	this._soundManager = soundManager;
-};
 
 Simulator.prototype.start = function (gameMode) {
 	var name;
@@ -220,12 +215,11 @@ Simulator.prototype.onPieceLock = function (playfield, lines, tspin, kick) {
 	this._updateState(lines.length, tspin, kick);
 	this._painter.setAction(this._action);
 	this._painter.setFigures(this._figures);
-	this._soundManager.play('land');
+	this._soundManager.play('lock');
 	if (lines.length === 0) {
 		this._spawnPiece();
 	} else {
-		this._painter.clearLines(this._fps, this._timings.lineClear, lines, playfield,
-			this._spawnPiece);
+		this._painter.onLineClear(this._fps, this._timings.lineClear, lines, playfield, this._spawnPiece);
 		this._soundManager.play('lineclear');
 	}
 };

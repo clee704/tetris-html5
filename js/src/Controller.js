@@ -57,7 +57,7 @@ function Controller() {
 	}
 }
 
-Controller.prototype.setSimulator = function (simulator) {
+Controller.prototype.link = function (simulator) {
 	this._register('SoftDrop', simulator.softDrop, simulator.softDrop);
 	this._register('HardDrop', simulator.hardDrop);
 	this._register('ShiftLeft', simulator.shiftLeft);

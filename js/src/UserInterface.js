@@ -28,18 +28,11 @@ function UserInterface() {
 	this._$lastFocus = null;
 
 	/* Big objects */
-	this._simulator = new window.tetris.Simulator(this._COLS, this._ROWS, this._SPAWN_POINT, this);
 	this._controller = new window.tetris.Controller();
 	this._painter = new window.tetris.Painter(this._COLS, this._ROWS, this._SIZE);
 	this._soundManager = new window.tetris.SoundManager(this._NUM_CHANNELS);
-
-	/**
-	 * Initialize
-	 */
-	this._simulator.setController(this._controller);
-	this._simulator.setPainter(this._painter);
-	this._simulator.setSoundManager(this._soundManager);
-	this._controller.setSimulator(this._simulator);
+	this._simulator = new window.tetris.Simulator(this._COLS, this._ROWS, this._SPAWN_POINT,
+		this._controller, this._painter, this._soundManager, this);
 
 	/* Make menu buttons */
 	$('.menu').each(function () {
