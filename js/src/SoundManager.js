@@ -57,8 +57,8 @@ SoundManager.prototype._init = function () {
 		this._suffix = '.mp3';
 	else if (audio.canPlayType('audio/ogg; codecs="vorbis"') !== '')
 		this._suffix = '.ogg';
-	else if (audio.canPlayType('audio/wav; codecs="1"') !== '')
-		this._suffix = '.wav';
+	//else if (audio.canPlayType('audio/wav; codecs="1"') !== '')
+	//	this._suffix = '.wav';
 };
 
 window.tetris.SoundManager = SoundManager;

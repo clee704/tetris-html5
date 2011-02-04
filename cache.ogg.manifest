@@ -16,20 +16,17 @@ js/src/Tetromino.js
 js/src/Arrays.js
 js/src/Logger.js
 js/src/__main__.js
-sounds/gameover.mp3
 sounds/gameover.ogg
-sounds/hold.mp3
 sounds/hold.ogg
-sounds/hold2.mp3
 sounds/hold2.ogg
-sounds/levelup.mp3
 sounds/levelup.ogg
-sounds/lineclear.mp3
 sounds/lineclear.ogg
-sounds/lock.mp3
 sounds/lock.ogg
-http://fonts.googleapis.com/css?family=Sunshiney|Allerta+Stencil
+
 http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js
+http://fonts.googleapis.com/css?family=Sunshiney|Allerta+Stencil
+http://themes.googleusercontent.com/font?kit=Qyy6HDeMPsv9ES6PzMFxeKCWcynf_cDxXwCLxiixG1c
+http://themes.googleusercontent.com/font?kit=CdSZfRtHbQrBohqmzSdDYKx4dljS8LgdW1vxXN8xI8w
 
 NETWORK:
 *

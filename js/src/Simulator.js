@@ -28,7 +28,7 @@ function Simulator(cols, rows, spawnPoint, controller, painter, soundManager, ui
 			return 1 / t / self._fps;
 		},
 		lockDelay: function () {
-			return 725 - 10 * self._figures.level;
+			return 725 - 5 * self._figures.level;
 		}
 	};
 	this._infinityLimit = 24;
