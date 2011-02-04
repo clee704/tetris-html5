@@ -1,0 +1,15 @@
+@font-face {
+	font-family: 'Allerta Stencil';
+	font-style: normal;
+	font-weight: normal;
+	src: url('fonts/Allerta-Stencil.eot');
+	src: local('Allerta Stencil'), local('Allerta-Stencil'), url('fonts/Allerta-Stencil.eot'), url('fonts/Allerta-Stencil.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'Sunshiney';
+	font-style: normal;
+	font-weight: normal;
+	src: url('fonts/Sunshiney.eot');
+	src: local('Sunshiney'), url('fonts/Sunshiney.eot') format('embedded-opentype'), url('fonts/Sunshiney.ttf') format('truetype');
+}

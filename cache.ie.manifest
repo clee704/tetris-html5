@@ -2,7 +2,12 @@ CACHE MANIFEST
 
 CACHE:
 index.html
+css/fonts.css
 css/style.css
+css/fonts/Allerta-Stencil.eot
+css/fonts/Allerta-Stencil.ttf
+css/fonts/Sunshiney.eot
+css/fonts/Sunshiney.ttf
 js/src/__all__.js
 js/src/SimulatorBase.js
 js/src/Simulator.js
@@ -22,13 +27,7 @@ sounds/hold2.mp3
 sounds/levelup.mp3
 sounds/lineclear.mp3
 sounds/lock.mp3
-
 http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js
-http://fonts.googleapis.com/css?family=Sunshiney|Allerta+Stencil
-http://themes.googleusercontent.com/font?kit=Qyy6HDeMPsv9ES6PzMFxePY6323mHUZFJMgTvxaG2iE
-http://themes.googleusercontent.com/font?kit=Qyy6HDeMPsv9ES6PzMFxeKCWcynf_cDxXwCLxiixG1c&chromeframe
-http://themes.googleusercontent.com/font?kit=CdSZfRtHbQrBohqmzSdDYKzUMVI64oN3fmj_7xTHOIo
-http://themes.googleusercontent.com/font?kit=CdSZfRtHbQrBohqmzSdDYKx4dljS8LgdW1vxXN8xI8w&chromeframe
 
 NETWORK:
 *

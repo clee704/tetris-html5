@@ -3,5 +3,3 @@ RewriteCond %{HTTP_USER_AGENT} MSIE
 RewriteRule ^cache\.manifest$ cache.ie.manifest [L]
 RewriteCond %{HTTP_USER_AGENT} Safari
 RewriteRule ^cache\.manifest$ cache.mp3.manifest [L]
-# else
-RewriteRule ^cache\.manifest$ cache.ogg.manifest [L]
