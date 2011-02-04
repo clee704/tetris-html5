@@ -95,7 +95,7 @@ a[rel~=external] {
 	-o-transform: scale(0.75);
 }
 
-#ghost-piece {
+#panels #ghost-piece {
 	opacity: 0.33;
 }
 
@@ -160,12 +160,12 @@ a[rel~=external] {
 	background-color: #ffffe0;
 }
 
-#logo {
+#menus #logo {
 	font-family: 'Sunshiney', 'Comic Sans MS', sans-serif;
 	margin: 0.5em 0 3em;
 }
 
-#logo .small {
+#menus #logo .small {
 	font-size: 180%;
 	line-height: 80%;
 	display: block;
@@ -173,13 +173,13 @@ a[rel~=external] {
 	left: -2em;
 }
 
-#logo .big {
+#menus #logo .big {
 	font-size: 750%;
 	line-height: 100%;
 	display: block;
 }
 
-#description {
+#menus #description {
 	color: #333;
 	background-color: #fff;
 	border: 1px solid #ccc;
@@ -191,10 +191,44 @@ a[rel~=external] {
 	margin: 0 3em 1.5em;
 }
 
-#description p {
+#menus #description p {
 	margin: 1em 0;
 }
 
-#description ul {
+#menus #description ul {
 	padding-left: 2em;
+}
+
+#sound-controls {
+	color: #555;
+	position: absolute;
+	top: -20px;
+	right: 20px;
+}
+
+#sound-controls .button {
+	cursor: pointer;
+}
+
+#sound-controls .button:hover {
+	color: #000;
+	text-decoration: underline;
+}
+
+#sound-controls .tooltip {
+	color: #333;
+	background-color: #fff;
+	border: 1px solid #ccc;
+	border-radius: 10px;
+	-moz-border-radius: 10px;
+	font: 14px Arial, sans-serif;
+	text-align: left;
+	display: none;
+	position: absolute;
+	top: 20px;
+	right: -20px;
+	width: 11em;
+	opacity: 0.875;
+	padding: 1em;
+	margin: 0;
 }

@@ -13,6 +13,7 @@ function SoundManager(numChannels) {
 	this._prefix = 'sounds/';
 	this._suffix = null;
 	this._readyQueue = [];
+	this._muted = false;
 	this._logger = new window.tetris.Logger('SoundManager');
 
 	this._init();
@@ -20,7 +21,7 @@ function SoundManager(numChannels) {
 
 SoundManager.prototype.play = function (name) {
 	var audio, src;
-	if (this._suffix === null)
+	if (this._suffix === null || this._muted)
 		return;
 	audio = this._readyQueue.shift();
 	if (!audio) {
@@ -32,6 +33,14 @@ SoundManager.prototype.play = function (name) {
 	audio.load();
 	audio.play();
 };
+
+SoundManager.prototype.mute = function () {
+	this._muted = true;
+}
+
+SoundManager.prototype.unmute = function () {
+	this._muted = false;
+}
 
 SoundManager.prototype._init = function () {
 	var self = this, audio, i;

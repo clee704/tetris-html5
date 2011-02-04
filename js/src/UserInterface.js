@@ -19,9 +19,9 @@ function UserInterface() {
 
 	/* jQuery elements */
 	this._$panels = $('#panels');
-	this._$mainMenu = $('#menus .menu.main');
+	this._$mainMenu = $('#menus .main.menu');
 	this._$currentMenu = null;
-	this._$prevMenu = null;
+	this._$previousMenu = null;
 
 	/* Big objects */
 	this._controller = new window.tetris.Controller();
@@ -70,21 +70,43 @@ UserInterface.prototype._init = function () {
 			return;
 		}
 	});
-	$('.button:not(.leaf, .back)').click(function () {
+	$('#menus .button:not(.leaf, .back)').click(function () {
 		var $button = $(this), menuName;
 		self._focusButton($button);
 		menuName = $button.text().toLowerCase();
 		self._showMenu($('#menus .menu.' + menuName));
 	});
-	$('.button.back').click(function () {
-		self._showMenu(self._$prevMenu);
+	$('#menus .button.back').click(function () {
+		self._showMenu(self._$previousMenu);
 	});
-	$('#menus .menu.play .button.leaf').click(function () {
+	$('#menus .play.menu .button.leaf').click(function () {
 		var gameMode = $(this).text().toLowerCase();
 		self._$panels.removeClass('unhighlight');
 		self._hideMenu(self._$currentMenu);
 		self._simulator.start(gameMode);
 	});
+
+	/* Add event listeners for sound controls */
+	$('#sound-controls .unmute.button')
+		.click(function () {
+			if ($(this).hasClass('mute'))
+				self._mute();
+			else
+				self._unmute();
+		})
+		.mouseenter(function () {
+			$('#sound-controls .tooltip').stop(true, true).fadeIn(400);
+		})
+		.mouseleave(function () {
+			$('#sound-controls .tooltip').delay(1000).fadeOut(400);
+		});
+	$('#sound-controls .tooltip')
+		.mouseenter(function () {
+			$(this).stop(true, true).show();
+		})
+		.mouseleave(function () {
+			$(this).delay(1000).fadeOut(400);
+		});
 
 	/* Make external links open a new window */
 	$('a[rel~=external]').click(function () {
@@ -92,8 +114,19 @@ UserInterface.prototype._init = function () {
 		return false;
 	});
 
+	/* Mute by default since some browsers have terrible performance */
+	this._soundManager.mute();
+
+	/* Load options, if any, which are saved on the last session */
+	this._loadOptions();
+
 	/* Finally, show the main menu */
 	this._showMenu(this._$mainMenu);
+};
+
+UserInterface.prototype._loadOptions = function () {
+	if (window.localStorage['tetris.muted'] === 'false')
+		this._unmute();
 };
 
 UserInterface.prototype._showMenu = function ($menu) {
@@ -106,7 +139,7 @@ UserInterface.prototype._showMenu = function ($menu) {
 
 UserInterface.prototype._hideMenu = function ($menu) {
 	$menu.removeClass('focus');
-	this._$prevMenu = this._$currentMenu;
+	this._$previousMenu = this._$currentMenu;
 	this._$currentMenu = null;
 };
 
@@ -116,6 +149,18 @@ UserInterface.prototype._focusButton = function ($button) {
 		return;
 	$prev.removeClass('focus');
 	$button.addClass('focus');
+};
+
+UserInterface.prototype._mute = function () {
+	this._soundManager.mute();
+	$('.mute').removeClass('mute').addClass('unmute').text('Off');
+	window.localStorage['tetris.muted'] = true;
+};
+
+UserInterface.prototype._unmute = function () {
+	this._soundManager.unmute();
+	$('.unmute').removeClass('unmute').addClass('mute').text('On');
+	window.localStorage['tetris.muted'] = false;
 };
 
 window.tetris.UserInterface = UserInterface;

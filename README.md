@@ -5,7 +5,7 @@ Almost compliant with
 [the Tetris Guidline](http://tetris.wikia.com/wiki/Tetris_Guideline).
 T-spin recognition is nearly 3-corner T no kick, but will register on a triple.
 
-It has three play modes and goals as follows:
+The game has three play modes and goals as follows:
 
  * Marathon (score the most throughout the 15 levels)
  * Ultra (score the most in 3 minutes)
