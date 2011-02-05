@@ -217,7 +217,7 @@ a[rel~=external] {
 
 #sound-controls .tooltip {
 	color: #333;
-	background-color: #fff;
+	background-color: #ffffe0;
 	border: 1px solid #ccc;
 	border-radius: 10px;
 	-moz-border-radius: 10px;

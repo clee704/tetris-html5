@@ -70,10 +70,11 @@ UserInterface.prototype._init = function () {
 			return;
 		}
 	});
+	$('#menus .button').click(function () {
+		self._focusButton($(this));
+	});
 	$('#menus .button:not(.leaf, .back)').click(function () {
-		var $button = $(this), menuName;
-		self._focusButton($button);
-		menuName = $button.text().toLowerCase();
+		var menuName = $(this).text().toLowerCase();
 		self._showMenu($('#menus .menu.' + menuName));
 	});
 	$('#menus .button.back').click(function () {
@@ -98,14 +99,14 @@ UserInterface.prototype._init = function () {
 			$('#sound-controls .tooltip').stop(true, true).fadeIn(400);
 		})
 		.mouseleave(function () {
-			$('#sound-controls .tooltip').delay(1000).fadeOut(400);
+			$('#sound-controls .tooltip').delay(1600).fadeOut(400);
 		});
 	$('#sound-controls .tooltip')
 		.mouseenter(function () {
 			$(this).stop(true, true).show();
 		})
 		.mouseleave(function () {
-			$(this).delay(1000).fadeOut(400);
+			$(this).delay(1600).fadeOut(400);
 		});
 
 	/* Make external links open a new window */

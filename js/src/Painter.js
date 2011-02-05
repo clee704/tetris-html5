@@ -323,12 +323,12 @@ Painter.prototype._renderBlockImages = function (options) {
 		color = colorFilter(this._BLOCK_COLORS[name]);
 		grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
 		grad.addColorStop(0, color.brighter(1.05).toString());
-		grad.addColorStop(1, color.brighter(.952).toString());
+		grad.addColorStop(1, color.brighter(0.952).toString());
 		Painter._clearCanvas(ctx);
 		ctx.fillStyle = grad;
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 		ctx.lineWidth = 2;
-		ctx.strokeStyle = color.brighter(.8).toString();
+		ctx.strokeStyle = color.brighter(0.8).toString();
 		ctx.beginPath();
 		ctx.moveTo(0, canvas.height);
 		ctx.lineTo(0, 0);

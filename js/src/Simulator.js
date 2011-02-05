@@ -15,20 +15,26 @@ function Simulator(cols, rows, spawnPoint, controller, painter, soundManager, ui
 
 	/* Timings */
 	this._fps = 60;
-	this._skipTime = 1000 / this._fps;
+	this._skipTicks = 1000 / this._fps; // milliseconds per frame
 	this._defaultTimings = {
-		softDrop: .5,  // G (lines per frame)
-		lineClear: 0, // frames
-		gameOver: 120  // frames
+		lineClear:   0, // frames
+		gameOver : 120, // frames
+		softDrop : 0.5, // G
+		lockDelay: 600  // milliseconds
 	};
 	this._timingFunctions = {
 		gravity: function () {
 			var n = self._figures.level - 1,
-				t = window.Math.pow(.8 - n * .007, n);
+				t = window.Math.pow(0.8 - n * 0.007, n);
+			// Level 1: 0.017 G = 1/60 G
+			// Level 2: 0.021 G
+			// ...
+			// Level 11: 0.39 G
+			// Level 12: 0.59 G
+			// Level 13: 0.92 G
+			// Level 14: 1.5 G
+			// Level 15: 2.4 G
 			return 1 / t / self._fps;
-		},
-		lockDelay: function () {
-			return 725 - 5 * self._figures.level;
 		}
 	};
 	this._infinityLimit = 24;
@@ -121,7 +127,7 @@ function Simulator(cols, rows, spawnPoint, controller, painter, soundManager, ui
 					self._painter.setFigures(self._figures);
 				}
 			}
-			self._nextFallTime += self._skipTime;
+			self._nextFallTime += self._skipTicks;
 		}
 		self._freeFallTimer = window.setTimeout(self._freeFall, self._nextFallTime - Date.now());
 	};
@@ -256,9 +262,9 @@ Simulator.prototype._stop = function () {
 };
 
 Simulator.prototype._startFreeFall = function () {
-	this._nextFallTime = Date.now() + this._skipTime;
+	this._nextFallTime = Date.now() + this._skipTicks;
 	this._freeFallDistance = 0;
-	this._freeFallTimer = window.setTimeout(this._freeFall, this._skipTime);
+	this._freeFallTimer = window.setTimeout(this._freeFall, this._skipTicks);
 };
 
 Simulator.prototype._updateTimings = function () {

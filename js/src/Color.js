@@ -93,7 +93,7 @@ Color._RGBToHSL = function (r, g, b) {
 	if (max === min)
 		return {h: 0, s: 0, l: l * 100};
 	diff = max - min;
-	s = l < .5 ? diff / sum : diff / (2 - sum);
+	s = l < 0.5 ? diff / sum : diff / (2 - sum);
 	h = r === max
 		? (g - b) / diff
 		: g === max
@@ -107,7 +107,7 @@ Color._HSLToRGB = function (h, s, l) {
 	h = (h % 360 + 360) % 360 / 360;
 	s = Color._clamp(s, 0, 100) / 100;
 	l = Color._clamp(l, 0, 100) / 100;
-	m2 = l < .5 ? l * (s + 1) : l + s - l * s;
+	m2 = l < 0.5 ? l * (s + 1) : l + s - l * s;
 	m1 = l * 2 - m2;
 	return {
 		r: Color._HueToRGB(m1, m2, h + 1 / 3),
