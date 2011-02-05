@@ -50,10 +50,6 @@ a[rel~=external] {
 	border-radius: 20px;
 	-moz-border-radius: 20px;
 	overflow: hidden;
-	transition: none;
-	-webkit-transition: none;
-	-moz-transition: none;
-	-o-transition: none;
 }
 
 #panels.unhighlight {

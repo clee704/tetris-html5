@@ -5,5 +5,5 @@
   - Soft drop speed
   - DAS speed
 * Add visual effects to hard drop, line clear, etc.
-* Add volume slider and mute/unmute button.
+* Add volume slider.
 * Add more sounds.

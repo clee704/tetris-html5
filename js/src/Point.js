@@ -40,7 +40,7 @@ Point.of = function (x, y) {
 };
 
 Point.arrayOf = function () {
-	var a = [], i;
+	var a = [], i, n;
 	for (i = 0, n = arguments.length; i < n; i += 2)
 		a.push(Point.of(arguments[i], arguments[i + 1]));
 	return a;

@@ -125,7 +125,7 @@ UserInterface.prototype._init = function () {
 	/* Mute by default since some browsers have terrible performance */
 	this._soundManager.mute();
 
-	/* Load options, if any, which are saved on the last session */
+	/* Load options, if any, which are saved on previous sessions */
 	this._loadOptions();
 
 	/* Finally, show the main menu */

@@ -344,7 +344,7 @@ Painter.prototype._renderBlockImages = function (options) {
 
 Painter.prototype._drawGrid = function () {
 	var ctx = $('#playfield-background')[0].getContext('2d'),
-		x;
+		x, y;
 	ctx.strokeStyle = '#bbb';
 	ctx.lineWidth = 1;
 	for (x = 1; x < this._COLS; ++x) {

@@ -12,7 +12,7 @@ window.tetris.Arrays = {
 
 	/** Returns an array of n given values. */
 	repeat: function (n, value) {
-		var a = [], i;
+		var a = [], i, n;
 		for (i = 0; i < n; ++i)
 			a.push(value);
 		return a;
@@ -23,7 +23,7 @@ window.tetris.Arrays = {
 	 * of the source array.
 	 */
 	copy: function (source, destination) {
-		var i;
+		var i, n;
 		for (i = 0, n = source.length; i < n; ++i)
 			destination[i] = source[i];
 		destination.length = n;
@@ -33,7 +33,7 @@ window.tetris.Arrays = {
 	 * Replaces all elements of the given array with the given value.
 	 */
 	fill: function (a, value) {
-		var i;
+		var i, n;
 		for (i = 0, n = a.length; i < n; ++i)
 			a[i] = value;
 	},

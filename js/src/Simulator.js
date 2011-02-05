@@ -111,6 +111,19 @@ function Simulator(cols, rows, spawnPoint, controller, painter, soundManager, ui
 	};
 
 	/* Functions for setTimeout */
+	this._timeUpdate = function () {
+		var current = (Date.now() - self._startTime) / 1000,
+			remaining;
+		if (self._gameMode !== 'ultra') {
+			self._painter.setTime(current);
+		} else {
+			remaining = window.Math.max(self._ultraTimeout - current, 0);
+			self._painter.setTime(remaining);
+			if (remaining === 0)
+				self._stop();
+		}
+		self._timer = window.setTimeout(self._timeUpdate, 125);
+	};
 	this._freeFall = function () {
 		while (self._nextFallTime <= Date.now()) {
 			self._freeFallDistance += self._softDropping
@@ -130,20 +143,6 @@ function Simulator(cols, rows, spawnPoint, controller, painter, soundManager, ui
 			self._nextFallTime += self._skipTicks;
 		}
 		self._freeFallTimer = window.setTimeout(self._freeFall, self._nextFallTime - Date.now());
-	};
-	this._updateTime = function () {
-		var d = Date.now() - self._startTime,
-			current = window.Math.round(d / 1000),
-			remaining;
-		if (self._gameMode !== 'ultra') {
-			self._painter.setTime(current);
-		} else {
-			remaining = window.Math.max(self._ultraTimeout - current, 0);
-			self._painter.setTime(remaining);
-			if (remaining === 0)
-				self._stop();
-		}
-		self._timer = window.setTimeout(self._updateTime, 1000 - d % 1000);
 	};
 	this._lock = function () { self._simulatorBase.drop(); };
 
@@ -184,8 +183,8 @@ Simulator.prototype.start = function (gameMode) {
 	this._controller.start();
 	this._startTime = Date.now();
 	this._endTime = null;
+	this._timeUpdate();
 	this._spawnPiece();
-	this._updateTime();
 };
 
 Simulator.prototype.onPieceSpawn = function (fallingPiece, fallingPoint, ghostPoint) {

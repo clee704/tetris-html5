@@ -97,7 +97,7 @@ Tetromino._center = function (geometry) {
 		my = -window.Infinity,
 		nx = window.Infinity,
 		ny = window.Infinity,
-		i, p;
+		i, n, p;
 	for (i = 0, n = geometry.length; i < n; ++i) {
 		p = geometry[i];
 		mx = window.Math.max(mx, p.x);
