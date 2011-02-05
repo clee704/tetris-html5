@@ -115,6 +115,13 @@ UserInterface.prototype._init = function () {
 		return false;
 	});
 
+	/* Disable selection on double-click */
+	// http://stackoverflow.com/questions/2132172/disable-text-highlighting-on-double-click-in-jquery
+	if ($.browser.msie)
+		$doc.bind('selectstart', function () { return false; });
+	else
+		$doc.mousedown(function () { return false; });
+
 	/* Mute by default since some browsers have terrible performance */
 	this._soundManager.mute();
 
