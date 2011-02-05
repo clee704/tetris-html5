@@ -184,8 +184,9 @@ a[rel~=external] {
 	-moz-border-radius: 10px;
 	font: 14px Arial, sans-serif;
 	text-align: left;
+	width: 26em;
 	padding: 0 1em;
-	margin: 0 3em 1.5em;
+	margin: 0 auto 1.5em;
 }
 
 #menus #description p {
