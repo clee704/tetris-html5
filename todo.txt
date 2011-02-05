@@ -6,3 +6,4 @@
   - DAS speed
 * Add visual effects to hard drop, line clear, etc.
 * Add volume slider and mute/unmute button.
+* Add more sounds.
