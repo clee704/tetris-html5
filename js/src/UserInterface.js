@@ -119,6 +119,8 @@ UserInterface.prototype._init = function () {
 	// http://stackoverflow.com/questions/2132172/disable-text-highlighting-on-double-click-in-jquery
 	if ($.browser.msie)
 		$doc.bind('selectstart', function () { return false; });
+	else if ($.browser.mozilla)
+		$('*').css('MozUserSelect', 'none');
 	else
 		$doc.mousedown(function () { return false; });
 
