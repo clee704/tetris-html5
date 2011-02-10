@@ -7,7 +7,7 @@
  * @class tetris.SimulatorBase
  */
 function SimulatorBase(simulator) {
-	
+
 	this._simulator = simulator;
 
 	this._cols;

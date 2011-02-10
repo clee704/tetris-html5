@@ -7,3 +7,4 @@
 * Add visual effects to hard drop, line clear, etc.
 * Add volume slider.
 * Add more sounds.
+* Add favicon.
