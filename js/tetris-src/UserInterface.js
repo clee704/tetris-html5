@@ -3,8 +3,6 @@
  */
 (function (window, document, $, undefined) {
 
-var $doc = $(document);
-
 /**
  * @class tetris.UserInterface
  * @singleton This class might not work when there are multiple instances
@@ -50,7 +48,7 @@ UserInterface.prototype._init = function () {
 	});
 
 	/* Add event listeners for menu and focus traversal */
-	$doc.keydown(function ($e) {
+	$(document).keydown(function ($e) {
 		var $menu = self._$currentMenu, $button;
 		if ($menu === null)
 			return;
@@ -118,11 +116,15 @@ UserInterface.prototype._init = function () {
 	/* Disable selection on double-click */
 	// http://stackoverflow.com/questions/2132172/disable-text-highlighting-on-double-click-in-jquery
 	if ($.browser.msie)
-		$doc.bind('selectstart', function () { return false; });
+		$(document).bind('selectstart', function () { return false; });
 	else if ($.browser.mozilla)
 		$('*').css('MozUserSelect', 'none');
 	else
-		$doc.mousedown(function () { return false; });
+		$('body *').mousedown(function () { return false; });
+
+	/* Disable Opera's Shift+arrow keys */
+	if ($.browser.opera)
+		$(document).keypress(function () { return false; });
 
 	/* Mute by default since some browsers have terrible performance */
 	this._soundManager.mute();
