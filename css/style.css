@@ -1,8 +1,11 @@
+html {
+	overflow: hidden;
+}
+
 body {
 	background-color: transparent;
 	font: 14px 'Allerta Stencil', Arial, sans-serif;
 	text-align: center;
-	overflow: hidden;
 	position: absolute;
 	top: 50%;
 	width: 100%;
