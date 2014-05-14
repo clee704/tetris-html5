@@ -5,34 +5,74 @@
  */
 (function (window, undefined) {
 
+var filetypes = {
+  'mp3': 'audio/mpeg; codecs="mp3"',
+  'ogg': 'audio/ogg; codecs="vorbis"',
+  'wav': 'audio/wav; codecs="1"'
+};
+
 /**
  * @class tetris.SoundManager
  */
-function SoundManager(numChannels) {
-
-  this._NUM_CHANNELS = numChannels;
-
-  this._prefix = 'sounds/';
-  this._suffix = null;
-  this._readyQueue = [];
-  this._muted = false;
+function SoundManager(args) {
+  var AudioContext;
+  try {
+    AudioContext = window.AudioContext || window.webkitAudioContext;
+    this._ctx = new AudioContext();
+    this._audio = window.document.createElement('audio');
+  } catch (e) {
+    this._ctx = null;
+  }
   this._logger = new window.tetris.Logger('SoundManager');
-
-  this._init();
+  this._buffers = {};
+  this._dir = args.dir;
+  this._filetypes = args.filetypes;
+  this._sounds = args.sounds;
+  this._loadSounds();
 }
 
-SoundManager.prototype.play = function (name) {
-  var audio, src;
-  if (this._suffix === null || this._muted) return;
-  audio = this._readyQueue.shift();
-  if (!audio) {
-    this._logger.warn('cannot play "' + name + '": all channels are busy');
+SoundManager.prototype._loadSounds = function () {
+  var self = this,
+      dir = this._dir,
+      ext, i, filetype;
+  for (i = 0; i < this._filetypes.length; i++) {
+    filetype = this._filetypes[i];
+    if (filetype in filetypes &&
+        this._audio.canPlayType(filetypes[filetype])) {
+      ext = '.' + filetype;
+      break;
+    }
+  }
+  if (ext === undefined) {
+    this._ctx = null;
     return;
   }
-  src = this._prefix + name + this._suffix;
-  audio.src = src;
-  audio.load();
-  audio.play();
+  function load(name) {
+    var request = new XMLHttpRequest();
+    request.open('GET', dir + name + ext, true);
+    request.responseType = 'arraybuffer';
+    request.onload = function () {
+      self._ctx.decodeAudioData(request.response, function (buffer) {
+        self._buffers[name] = buffer;
+      });
+    };
+    request.send();
+  }
+  for (i = 0; i < this._sounds.length; i++) {
+    load(this._sounds[i]);
+  }
+}
+
+SoundManager.prototype.isSupported = function () {
+  return this._ctx !== null;
+};
+
+SoundManager.prototype.play = function (name) {
+  if (this._muted) return;
+  var source = this._ctx.createBufferSource();
+  source.buffer = this._buffers[name];
+  source.connect(this._ctx.destination);
+  source.start(0);
 };
 
 SoundManager.prototype.mute = function () {
@@ -42,36 +82,6 @@ SoundManager.prototype.mute = function () {
 SoundManager.prototype.unmute = function () {
   this._muted = false;
 }
-
-SoundManager.prototype._init = function () {
-  var self = this, audio, i;
-
-  /* Make audio elements for each channel */
-  for (i = 0; i < this._NUM_CHANNELS; ++i) {
-    audio = window.document.createElement('audio');
-    audio.preload = 'none';
-    audio.autoplay = false;
-    audio.loop = false;
-    audio.controls = false;
-    audio.volume = 1;
-    audio.muted = false;
-    audio.addEventListener('ended', function () {
-      self._readyQueue.push(this);
-    }, false);
-    window.document.body.appendChild(audio);
-    this._readyQueue.push(audio);
-  }
-
-  /* Check which type of audio the browser can play */
-  if (audio.canPlayType('audio/mpeg; codecs="mp3"') !== '') {
-    this._suffix = '.mp3';
-  } else if (audio.canPlayType('audio/ogg; codecs="vorbis"') !== '') {
-    this._suffix = '.ogg';
-  }
-  // else if (audio.canPlayType('audio/wav; codecs="1"') !== '') {
-  //   this._suffix = '.wav';
-  // }
-};
 
 window.tetris.SoundManager = SoundManager;
 

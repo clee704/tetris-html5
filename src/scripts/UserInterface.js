@@ -27,8 +27,12 @@ function UserInterface() {
   /* Big objects */
   this._controller = new window.tetris.Controller();
   this._painter = new window.tetris.Painter(this._COLS, this._ROWS,
-  																					this._SIZE);
-  this._soundManager = new window.tetris.SoundManager(this._NUM_CHANNELS);
+                                            this._SIZE);
+  this._soundManager = new window.tetris.SoundManager({
+    dir: 'sounds/',
+    sounds: ['gameover', 'hold', 'hold2', 'levelup', 'lineclear', 'lock'],
+    filetypes: ['mp3', 'ogg', 'wav']
+  });
   this._simulator = new window.tetris.Simulator(
     this._COLS, this._ROWS, this._SPAWN_POINT, this._controller, this._painter,
     this._soundManager, this);
@@ -91,36 +95,31 @@ UserInterface.prototype._init = function () {
   });
 
   /* Add event listeners for sound controls */
-  $('#sound-controls .unmute.button')
-    .click(function () {
-      if ($(this).hasClass('mute')) {
-        self._mute();
-      } else {
-        self._unmute();
-      }
-    })
-    .mouseenter(function () {
-      $('#sound-controls .tooltip').stop(true, true).fadeIn(400);
-    })
-    .mouseleave(function () {
-      $('#sound-controls .tooltip').delay(1600).fadeOut(400);
-    });
-  $('#sound-controls .tooltip')
-    .mouseenter(function () {
-      $(this).stop(true, true).show();
-    })
-    .mouseleave(function () {
-      $(this).delay(1600).fadeOut(400);
-    });
+  if (this._soundManager.isSupported()) {
+    $('#sound-controls .mute.button')
+      .click(function () {
+        if ($(this).hasClass('mute')) {
+          self._mute();
+        } else {
+          self._unmute();
+        }
+      });
+  } else {
+    $('#sound-controls').addClass('disabled');
+    $('#sound-controls')
+      .mouseenter(function () {
+        $('#sound-controls .tooltip').stop(true, true).show();
+      })
+      .mouseleave(function () {
+        $('#sound-controls .tooltip').delay(1600).fadeOut(400);
+      });
+  }
 
   /* Make external links open a new window */
   $('a[rel~=external]').click(function () {
     window.open(this.href, 'tetris');
     return false;
   });
-
-  /* Mute by default since some browsers have terrible performance */
-  this._soundManager.mute();
 
   /* Load options, if any, which are saved on previous sessions */
   this._loadOptions();
