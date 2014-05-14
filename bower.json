@@ -1,0 +1,7 @@
+{
+  "name": "tetris-html5",
+  "version": "0.0.0",
+  "dependencies": {
+    "jquery": "~1.11.0"
+  }
+}

@@ -1,7 +1,0 @@
-RewriteEngine on
-RewriteCond %{HTTP_USER_AGENT} MSIE
-RewriteRule ^cache\.manifest$ manifest.php?eot=1&mp3=1 [L]
-RewriteCond %{HTTP_USER_AGENT} Safari
-RewriteRule ^cache\.manifest$ manifest.php?mp3=1 [L]
-# else
-RewriteRule ^cache\.manifest$ manifest.php [L]
