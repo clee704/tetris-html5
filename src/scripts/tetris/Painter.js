@@ -147,6 +147,13 @@ Painter.prototype.setFigures = function (figures, ignoreCache) {
 Painter.prototype.setTime = function (seconds) {
   var m = Math.floor(seconds / 60),
       s = Math.floor(seconds % 60);
+  if (this._state.time === undefined) {
+    this._state.time = [m, s];
+  } else {
+    if (this._state.time[0] === m && this._state.time[1] === s) return;
+  }
+  this._state.time[0] = m;
+  this._state.time[1] = s;
   this._labels.$minute.text(m);
   this._labels.$second.text(s < 10 ? this._DIGITS[s] : s);
 };
@@ -223,9 +230,8 @@ Painter.prototype._clearBlock = function (ctx, x, y) {
 
 Painter.prototype._setPosition = function (canvas, p) {
   var x = (p.x - 2) * this._size,
-      y = (p.y - 2) * this._size;
-  canvas.style.left = x + 'px';
-  canvas.style.bottom = y + 'px';
+      y = (this._ROWS - p.y - 3) * this._size;
+  canvas.css('transform', 'translate(' + x + 'px,' + y + 'px)');
 };
 
 Painter.prototype._setState = function (fallingPiece, fallingPoint, ghostPoint,
@@ -299,8 +305,8 @@ Painter.prototype._setDimensions = function (size) {
 
 Painter.prototype._cacheElements = function () {
   var self = this;
-  this._canvases.fallingPiece = $('#falling-piece')[0];
-  this._canvases.ghostPiece = $('#ghost-piece')[0];
+  this._canvases.fallingPiece = $('#falling-piece');
+  this._canvases.ghostPiece = $('#ghost-piece');
   this._contexts.playfield = $('#playfield')[0].getContext('2d');
   this._contexts.fallingPiece = $('#falling-piece')[0].getContext('2d');
   this._contexts.ghostPiece = $('#ghost-piece')[0].getContext('2d');

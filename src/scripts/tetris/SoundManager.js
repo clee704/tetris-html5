@@ -21,6 +21,7 @@ function SoundManager(args) {
     this._audio = document.createElement('audio');
   } catch (e) {
     this._ctx = null;
+    return;
   }
   this._logger = new Logger('SoundManager');
   this._buffers = {};
@@ -67,7 +68,7 @@ SoundManager.prototype.isSupported = function () {
 };
 
 SoundManager.prototype.play = function (name) {
-  if (this._muted) return;
+  if (this._ctx === null || this._muted) return;
   var source = this._ctx.createBufferSource();
   source.buffer = this._buffers[name];
   source.connect(this._ctx.destination);

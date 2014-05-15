@@ -4,6 +4,8 @@
 define(['./Arrays', './SimulatorBase'], function (Arrays, SimulatorBase) {
 'use strict';
 
+var perf = window.performance || Date;
+
 /**
  * @class tetris.Simulator
  */
@@ -114,7 +116,7 @@ function Simulator(cols, rows, spawnPoint, controller, painter, soundManager,
 
   /* Functions for setTimeout */
   this._timeUpdate = function () {
-    var current = (Date.now() - self._startTime) / 1000,
+    var current = (perf.now() - self._startTime) / 1000,
         remaining;
     if (self._gameMode !== 'ultra') {
       self._painter.setTime(current);
@@ -126,7 +128,7 @@ function Simulator(cols, rows, spawnPoint, controller, painter, soundManager,
     self._timer = setTimeout(self._timeUpdate, 125);
   };
   this._freeFall = function () {
-    while (self._nextFallTime <= Date.now()) {
+    while (self._nextFallTime <= perf.now()) {
       self._freeFallDistance += self._softDropping ? self._timings.softDrop :
                                                      self._timings.gravity;
       while (self._freeFallDistance >= 1) {
@@ -143,7 +145,7 @@ function Simulator(cols, rows, spawnPoint, controller, painter, soundManager,
       self._nextFallTime += self._skipTicks;
     }
     self._freeFallTimer = setTimeout(self._freeFall,
-                                     self._nextFallTime - Date.now());
+                                     self._nextFallTime - perf.now());
   };
   this._lock = function () { self._simulatorBase.drop(); };
 
@@ -183,7 +185,7 @@ Simulator.prototype.start = function (gameMode) {
   this._painter.setMode(gameMode);
   this._painter.setFigures(this._figures, true);
   this._controller.start();
-  this._startTime = Date.now();
+  this._startTime = perf.now();
   this._endTime = null;
   this._timeUpdate();
   this._spawnPiece();
@@ -249,7 +251,7 @@ Simulator.prototype.onPreviewUpdate = function (preview) {
 
 Simulator.prototype.onBlockOut = function () {
   this._blockedOut = true;
-  this._endTime = Date.now();
+  this._endTime = perf.now();
   this._stop();
   this._soundManager.play('gameover');
 };
@@ -269,7 +271,7 @@ Simulator.prototype._stop = function () {
 };
 
 Simulator.prototype._startFreeFall = function () {
-  this._nextFallTime = Date.now() + this._skipTicks;
+  this._nextFallTime = perf.now() + this._skipTicks;
   this._freeFallDistance = 0;
   this._freeFallTimer = setTimeout(this._freeFall, this._skipTicks);
 };
@@ -304,7 +306,7 @@ Simulator.prototype._updateState = function (lineClear, rawTspin, kick) {
   case 'marathon':
     level = Math.floor(this._figures.lines / 10) + 1;
     if (level > this._marathonMaxLevel) {
-      this._endTime = Date.now();
+      this._endTime = perf.now();
     } else if (level > this._figures.level) {
       this._figures.level = level;
       this._updateTimings();
@@ -313,7 +315,7 @@ Simulator.prototype._updateState = function (lineClear, rawTspin, kick) {
     break;
   case 'sprint':
     if (this._figures.lines >= this._sprintLines) {
-      this._endTime = Date.now();
+      this._endTime = perf.now();
     }
     break;
   }
