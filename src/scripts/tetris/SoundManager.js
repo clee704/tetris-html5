@@ -3,7 +3,7 @@
 /**
  * @namespace tetris
  */
-(function (window, undefined) {
+define(['./Logger'], function (Logger) {
 
 var filetypes = {
   'mp3': 'audio/mpeg; codecs="mp3"',
@@ -19,11 +19,11 @@ function SoundManager(args) {
   try {
     AudioContext = window.AudioContext || window.webkitAudioContext;
     this._ctx = new AudioContext();
-    this._audio = window.document.createElement('audio');
+    this._audio = document.createElement('audio');
   } catch (e) {
     this._ctx = null;
   }
-  this._logger = new window.tetris.Logger('SoundManager');
+  this._logger = new Logger('SoundManager');
   this._buffers = {};
   this._dir = args.dir;
   this._filetypes = args.filetypes;
@@ -83,6 +83,6 @@ SoundManager.prototype.unmute = function () {
   this._muted = false;
 }
 
-window.tetris.SoundManager = SoundManager;
+return SoundManager;
 
-})(this);
+});

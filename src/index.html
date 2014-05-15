@@ -117,25 +117,6 @@
         </p>
       </div>
     </div>
-    <!-- build:js(src) scripts/vendor.js -->
-      <script src="bower_components/jquery/dist/jquery.js"></script>
-    <!-- endbuild -->
-    <!-- build:js(src) scripts/tetris.js -->
-      <script src="scripts/__all__.js"></script>
-      <script src="scripts/SimulatorBase.js"></script>
-      <script src="scripts/Simulator.js"></script>
-      <script src="scripts/Controller.js"></script>
-      <script src="scripts/Painter.js"></script>
-      <script src="scripts/SoundManager.js"></script>
-      <script src="scripts/UserInterface.js"></script>
-      <script src="scripts/Color.js"></script>
-      <script src="scripts/Point.js"></script>
-      <script src="scripts/Tetromino.js"></script>
-      <script src="scripts/Arrays.js"></script>
-      <script src="scripts/Logger.js"></script>
-    <!-- endbuild -->
-    <script>
-      $(window).load(function () { new tetris.UserInterface(); });
-    </script>
+    <script data-main="scripts/main" src="bower_components/requirejs/require.js"></script>
   </body>
 </html>

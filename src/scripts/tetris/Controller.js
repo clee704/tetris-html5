@@ -3,9 +3,9 @@
 /**
  * @namespace tetris
  */
-(function (window, $, undefined) {
+define(['jquery'], function ($) {
 
-var $doc = $(window.document);
+var $doc = $(document);
 
 /**
  * @class tetris.Controller
@@ -102,17 +102,17 @@ Controller.prototype._register = function (name, keydownFunc, keyupFunc) {
   function repeat() {
     if (!key.pressed) return;
     keydownFunc();
-    timer = window.setTimeout(repeat, interval);
+    timer = setTimeout(repeat, interval);
   }
   key.keydown = function () {
     if (key.pressed) return;
     if (exclusiveKey && exclusiveKey.pressed) exclusiveKey.interrupt();
     key.pressed = true;
     keydownFunc();
-    if (key.frequency) timer = window.setTimeout(repeat, key.delay);
+    if (key.frequency) timer = setTimeout(repeat, key.delay);
   };
   key.keyup = function () {
-    window.clearTimeout(timer);
+    clearTimeout(timer);
     if (!key.interrupted && keyupFunc) keyupFunc();
     delete key.pressed;
     delete key.interrupted;
@@ -120,12 +120,12 @@ Controller.prototype._register = function (name, keydownFunc, keyupFunc) {
   };
   key.interrupt = function () {
     if (!key.pressed || key.interrupted) return;
-    window.clearTimeout(timer);
+    clearTimeout(timer);
     if (keyupFunc) keyupFunc();
     key.interrupted = true;
   };
 }
 
-window.tetris.Controller = Controller;
+return Controller;
 
-})(this, this.jQuery);
+});

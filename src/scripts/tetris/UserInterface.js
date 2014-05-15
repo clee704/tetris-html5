@@ -3,7 +3,9 @@
 /**
  * @namespace tetris
  */
-(function (window, $, undefined) {
+define(['jquery', './Point', './Controller', './Painter', './SoundManager',
+        './Simulator'],
+       function ($, Point, Controller, Painter, SoundManager, Simulator) {
 
 /**
  * @class tetris.UserInterface
@@ -13,7 +15,7 @@ function UserInterface() {
 
   this._COLS = 10;
   this._ROWS = 22;
-  this._SPAWN_POINT = window.tetris.Point.of(4, 20);
+  this._SPAWN_POINT = Point.of(4, 20);
   this._SIZE = 20;  // Pixels per cell's side
   this._NUM_CHANNELS = 16;  // Maximum number of sounds that can be played
                             // simultaneously
@@ -25,15 +27,14 @@ function UserInterface() {
   this._$previousMenu = null;
 
   /* Big objects */
-  this._controller = new window.tetris.Controller();
-  this._painter = new window.tetris.Painter(this._COLS, this._ROWS,
-                                            this._SIZE);
-  this._soundManager = new window.tetris.SoundManager({
+  this._controller = new Controller();
+  this._painter = new Painter(this._COLS, this._ROWS, this._SIZE);
+  this._soundManager = new SoundManager({
     dir: 'sounds/',
     sounds: ['gameover', 'hold', 'hold2', 'levelup', 'lineclear', 'lock'],
     filetypes: ['mp3', 'ogg', 'wav']
   });
-  this._simulator = new window.tetris.Simulator(
+  this._simulator = new Simulator(
     this._COLS, this._ROWS, this._SPAWN_POINT, this._controller, this._painter,
     this._soundManager, this);
 
@@ -58,7 +59,7 @@ UserInterface.prototype._init = function () {
   });
 
   /* Add event listeners for menu and focus traversal */
-  $(window.document).keydown(function ($e) {
+  $(document).keydown(function ($e) {
     var $menu = self._$currentMenu, $button;
     if ($menu === null) return;
     $button = $menu.find('.focus');
@@ -117,7 +118,7 @@ UserInterface.prototype._init = function () {
 
   /* Make external links open a new window */
   $('a[rel~=external]').click(function () {
-    window.open(this.href, 'tetris');
+    open(this.href, 'tetris');
     return false;
   });
 
@@ -129,7 +130,7 @@ UserInterface.prototype._init = function () {
 };
 
 UserInterface.prototype._loadOptions = function () {
-  if (window.localStorage['tetris.muted'] === 'false') {
+  if (localStorage['tetris.muted'] === 'false') {
     this._unmute();
   }
 };
@@ -158,15 +159,15 @@ UserInterface.prototype._focusButton = function ($button) {
 UserInterface.prototype._mute = function () {
   this._soundManager.mute();
   $('.mute').removeClass('mute').addClass('unmute').text('Off');
-  window.localStorage['tetris.muted'] = true;
+  localStorage['tetris.muted'] = true;
 };
 
 UserInterface.prototype._unmute = function () {
   this._soundManager.unmute();
   $('.unmute').removeClass('unmute').addClass('mute').text('On');
-  window.localStorage['tetris.muted'] = false;
+  localStorage['tetris.muted'] = false;
 };
 
-window.tetris.UserInterface = UserInterface;
+return UserInterface;
 
-})(this, this.jQuery);
+});

@@ -3,7 +3,7 @@
 /**
  * @namespace tetris
  */
-(function (window, undefined) {
+define(['./Point'], function (Point) {
 
 /**
  * Tetromino with a specific shape and rotation.
@@ -61,56 +61,56 @@ function rotations(base) {
 }
 
 function rotateRight(p) {
-  return window.tetris.Point.of(p.y, -p.x);
+  return Point.of(p.y, -p.x);
 };
 
 Tetromino._geometries = {
-  'I': rotations(window.tetris.Point.arrayOf(-1, 0, 0, 0, 1, 0, 2, 0)),
-  'J': rotations(window.tetris.Point.arrayOf(-1, 1,-1, 0, 0, 0, 1, 0)),
-  'L': rotations(window.tetris.Point.arrayOf( 1, 1,-1, 0, 0, 0, 1, 0)),
-  'O': rotations(window.tetris.Point.arrayOf( 0, 1, 1, 1, 0, 0, 1, 0)),
-  'S': rotations(window.tetris.Point.arrayOf( 0, 1, 1, 1,-1, 0, 0, 0)),
-  'T': rotations(window.tetris.Point.arrayOf( 0, 1,-1, 0, 0, 0, 1, 0)),
-  'Z': rotations(window.tetris.Point.arrayOf(-1, 1, 0, 1, 0, 0, 1, 0))
+  'I': rotations(Point.arrayOf(-1, 0, 0, 0, 1, 0, 2, 0)),
+  'J': rotations(Point.arrayOf(-1, 1,-1, 0, 0, 0, 1, 0)),
+  'L': rotations(Point.arrayOf( 1, 1,-1, 0, 0, 0, 1, 0)),
+  'O': rotations(Point.arrayOf( 0, 1, 1, 1, 0, 0, 1, 0)),
+  'S': rotations(Point.arrayOf( 0, 1, 1, 1,-1, 0, 0, 0)),
+  'T': rotations(Point.arrayOf( 0, 1,-1, 0, 0, 0, 1, 0)),
+  'Z': rotations(Point.arrayOf(-1, 1, 0, 1, 0, 0, 1, 0))
 };
 
 Tetromino._offsets = {
   'O': {
-    0: window.tetris.Point.arrayOf( 0, 0),
-    1: window.tetris.Point.arrayOf( 0,-1),
-    2: window.tetris.Point.arrayOf(-1,-1),
-    3: window.tetris.Point.arrayOf(-1, 0)
+    0: Point.arrayOf( 0, 0),
+    1: Point.arrayOf( 0,-1),
+    2: Point.arrayOf(-1,-1),
+    3: Point.arrayOf(-1, 0)
   },
   'I': {
-    0: window.tetris.Point.arrayOf( 0, 0,-1, 0, 2, 0,-1, 0, 0,-2),
-    1: window.tetris.Point.arrayOf(-1, 0, 0, 0, 0, 0, 0, 1, 0,-2),
-    2: window.tetris.Point.arrayOf(-1, 1, 1, 1,-2, 1, 1, 0,-2, 0),
-    3: window.tetris.Point.arrayOf( 0, 1, 0, 1, 0, 1, 0,-1, 0, 2)
+    0: Point.arrayOf( 0, 0,-1, 0, 2, 0,-1, 0, 0,-2),
+    1: Point.arrayOf(-1, 0, 0, 0, 0, 0, 0, 1, 0,-2),
+    2: Point.arrayOf(-1, 1, 1, 1,-2, 1, 1, 0,-2, 0),
+    3: Point.arrayOf( 0, 1, 0, 1, 0, 1, 0,-1, 0, 2)
   },
   'others': {
-    0: window.tetris.Point.arrayOf( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-    1: window.tetris.Point.arrayOf( 0, 0, 1, 0, 1,-1, 0, 2, 1, 2),
-    2: window.tetris.Point.arrayOf( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-    3: window.tetris.Point.arrayOf( 0, 0,-1, 0,-1,-1, 0, 2,-1, 2)
+    0: Point.arrayOf( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+    1: Point.arrayOf( 0, 0, 1, 0, 1,-1, 0, 2, 1, 2),
+    2: Point.arrayOf( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+    3: Point.arrayOf( 0, 0,-1, 0,-1,-1, 0, 2,-1, 2)
   }
 };
 
 Tetromino._center = function (geometry) {
-  var mx = -window.Infinity,
-      my = -window.Infinity,
-      nx = window.Infinity,
-      ny = window.Infinity,
+  var mx = -Infinity,
+      my = -Infinity,
+      nx = Infinity,
+      ny = Infinity,
       i, n, p;
   for (i = 0, n = geometry.length; i < n; ++i) {
     p = geometry[i];
-    mx = window.Math.max(mx, p.x);
-    my = window.Math.max(my, p.y);
-    nx = window.Math.min(nx, p.x);
-    ny = window.Math.min(ny, p.y);
+    mx = Math.max(mx, p.x);
+    my = Math.max(my, p.y);
+    nx = Math.min(nx, p.x);
+    ny = Math.min(ny, p.y);
   }
-  return window.tetris.Point.of((mx + nx) / 2, (my + ny) / 2);
+  return Point.of((mx + nx) / 2, (my + ny) / 2);
 };
 
-window.tetris.Tetromino = Tetromino;
+return Tetromino;
 
-})(this);
+});

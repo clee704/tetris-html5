@@ -8,19 +8,19 @@ module.exports = function(config) {
     basePath: '',
 
     // testing framework to use (jasmine/mocha/qunit/...)
-    frameworks: ['jasmine'],
+    frameworks: ['jasmine', 'requirejs'],
 
     // list of files / patterns to load in the browser
     files: [
-      'app/bower_components/jquery/dist/jquery.js',
-      '.tmp/scripts/*.js',
-      '.tmp/scripts/**/*.js',
-      // 'test/mock/**/*.js',
-      'test/spec/**/*.js'
+      {pattern: 'src/scripts/**/*.js', included: false},
+      {pattern: 'test/spec/**/*.js', included: false},
+      'test/test-main.js'
     ],
 
     // list of files / patterns to exclude
-    exclude: [],
+    exclude: [
+      'src/scripts/main.js'
+    ],
 
     // web server port
     port: buildConfig.testPort,

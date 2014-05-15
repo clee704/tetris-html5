@@ -107,6 +107,47 @@ module.exports = function (grunt) {
       }
     },
 
+    requirejs: {
+      dist: {
+        options: {
+          baseUrl: '<%= config.srcDir %>/scripts',
+          mainConfigFile: '<%= config.srcDir %>/scripts/config.js',
+          name: '../bower_components/almond/almond',
+          include: ['main'],
+          out: '<%= config.tempDir %>/scripts/optimized.js',
+          optimize: 'none'
+        }
+      }
+    },
+
+    uglify: {
+      requirejs: {
+        files: [{
+          expand: true,
+          cwd: '<%= config.tempDir %>/scripts',
+          dest: '<%= config.buildDir %>/scripts',
+          src: 'optimized.js'
+        }]
+      }
+    },
+
+    replace: {
+      requirejs: {
+        files: [{
+          expand: true,
+          cwd: '<%= config.buildDir %>',
+          dest: '<%= config.buildDir %>',
+          src: 'index.html'
+        }],
+        options: {
+          patterns: [{
+            match: /<script data-main="scripts\/main" src="bower_components\/requirejs\/require.js"><\/script>/,
+            replacement: '<script src="scripts/optimized.js"></script>'
+          }]
+        }
+      }
+    },
+
     // Reads HTML for usemin blocks to enable smart builds that automatically
     // concat, minify and revision files. Creates configurations in memory so
     // additional tasks can operate on them
@@ -149,8 +190,8 @@ module.exports = function (grunt) {
         files: [{
           expand: true,
           cwd: '<%= config.srcDir %>',
-          src: ['*.html'],
-          dest: '<%= config.buildDir %>'
+          dest: '<%= config.buildDir %>',
+          src: '*.html'
         }]
       }
     },
@@ -184,8 +225,7 @@ module.exports = function (grunt) {
         background: true
       },
       continuous: {
-        singleRun: true,
-        browsers: ['Firefox']
+        singleRun: true
       }
     },
 
@@ -243,15 +283,6 @@ module.exports = function (grunt) {
         ],
         dest: '<%= config.buildDir %>/manifest.appcache'
       }
-    },
-
-    // Run some tasks in parallel to speed up the build process
-    concurrent: {
-      dist: [
-        'css:dist',
-        'imagemin',
-        'htmlmin'
-      ]
     }
 
   });
@@ -263,7 +294,9 @@ module.exports = function (grunt) {
     ]);
   });
 
-  grunt.registerTask('livereload', 'Spawn a separate process for LiveReload', function () {
+  grunt.registerTask('livereload',
+                     'Spawn a separate process for LiveReload',
+                     function () {
     grunt.util.spawn({
       grunt: true,
       args: ['--gruntfile', 'Gruntfile-LR.js']
@@ -272,17 +305,17 @@ module.exports = function (grunt) {
     });
   });
 
-  grunt.registerTask('serve', function (target) {
-    grunt.task.run(target !== 'dist' ? [
-      'clean:temp',
-      'css:dev',
-      'karma:background',
-      'livereload',
-      'watch'
-    ] : [
-      'connect:dist:keepalive'
-    ]);
-  });
+  grunt.registerTask('serve', [
+    'clean:temp',
+    'css:dev',
+    'karma:background',
+    'livereload',
+    'watch'
+  ]);
+
+  grunt.registerTask('serve:dist', [
+    'connect:dist:keepalive'
+  ]);
 
   grunt.registerTask('test', [
     'clean:temp',
@@ -292,15 +325,16 @@ module.exports = function (grunt) {
 
   grunt.registerTask('build', [
     'clean:dist',
-    'concurrent:dist',
-      // 'css:dist',
-      // 'copy:dev',
-      // 'imagemin',
+    'css:dist',
+    'imagemin',
+    'htmlmin',
     'useminPrepare',
     'concat',
     'copy:dist',
     'cssmin',
+    'requirejs',
     'uglify',
+    'replace',
     'rev',
     'usemin',
     'manifest'

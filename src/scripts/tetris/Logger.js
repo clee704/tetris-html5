@@ -3,7 +3,7 @@
 /**
  * @namespace tetris
  */
-(function (window, undefined) {
+define(function () {
 
 /**
  * @class tetris.Logger
@@ -29,6 +29,6 @@ Logger.prototype._log = function (level, msg) {
   }
 }
 
-window.tetris.Logger = Logger;
+return Logger;
 
-})(this);
+});

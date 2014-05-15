@@ -3,7 +3,7 @@
 /**
  * @namespace tetris
  */
-(function (window, undefined) {
+define(function () {
 
 /**
  * Location in (x, y) coordinate space.
@@ -51,6 +51,6 @@ Point.arrayOf = function () {
 
 Point._cache = {};
 
-window.tetris.Point = Point;
+return Point;
 
-})(this);
+});

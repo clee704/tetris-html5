@@ -3,7 +3,7 @@
 /**
  * @namespace tetris
  */
-(function (window, undefined) {
+define(function () {
 
 /**
  * Color in both RGB and HSL values, with an optional alpha-channel.
@@ -22,9 +22,9 @@ function Color(r, g, b, h, s, l, a) {
   this.s = Color._clamp(s, 0, 100);
   this.l = Color._clamp(l, 0, 100);
   this.a = a === undefined ? 1 : Color._clamp(a, 0, 1);
-  r = window.Math.round(this.r);
-  g = window.Math.round(this.g);
-  b = window.Math.round(this.b);
+  r = Math.round(this.r);
+  g = Math.round(this.g);
+  b = Math.round(this.b);
   this.string = 'rgba(' + [r, g, b, this.a].join(',') + ')';
 }
 
@@ -88,8 +88,8 @@ Color._RGBToHSL = function (r, g, b) {
   r = Color._clamp(r, 0, 255) / 255;
   g = Color._clamp(g, 0, 255) / 255;
   b = Color._clamp(b, 0, 255) / 255;
-  max = window.Math.max(r, g, b);
-  min = window.Math.min(r, g, b);
+  max = Math.max(r, g, b);
+  min = Math.min(r, g, b);
   sum = max + min;
   l = sum / 2;
   if (max === min) return {h: 0, s: 0, l: l * 100};
@@ -128,6 +128,6 @@ Color._HueToRGB = function (m1, m2, h) {
   return x * 255;
 };
 
-window.tetris.Color = Color;
+return Color;
 
-})(this);
+});

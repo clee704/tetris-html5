@@ -3,7 +3,7 @@
 /**
  * @namespace tetris
  */
-(function (window, undefined) {
+define(['./Arrays', './SimulatorBase'], function (Arrays, SimulatorBase) {
 
 /**
  * @class tetris.Simulator
@@ -28,7 +28,7 @@ function Simulator(cols, rows, spawnPoint, controller, painter, soundManager,
   this._timingFunctions = {
     gravity: function () {
       var n = self._figures.level - 1,
-          t = window.Math.pow(0.8 - n * 0.007, n);
+          t = Math.pow(0.8 - n * 0.007, n);
       // Level 1: 0.017 G = 1/60 G
       // Level 2: 0.021 G
       // ...
@@ -65,7 +65,7 @@ function Simulator(cols, rows, spawnPoint, controller, painter, soundManager,
   this._sprintLines = 40;
 
   /* Big objects */
-  this._simulatorBase = new window.tetris.SimulatorBase(this);
+  this._simulatorBase = new SimulatorBase(this);
   this._controller = controller;
   this._painter = painter;
   this._soundManager = soundManager;
@@ -85,7 +85,7 @@ function Simulator(cols, rows, spawnPoint, controller, painter, soundManager,
   this._freeFallDistance;
   this._nextFallTime;
   this._lockTimer;
-  this._infinityCounter = window.tetris.Arrays.repeat(rows, 0);
+  this._infinityCounter = Arrays.repeat(rows, 0);
 
   /* Flags */
   this._softDropping;
@@ -120,11 +120,11 @@ function Simulator(cols, rows, spawnPoint, controller, painter, soundManager,
     if (self._gameMode !== 'ultra') {
       self._painter.setTime(current);
     } else {
-      remaining = window.Math.max(self._ultraTimeout - current, 0);
+      remaining = Math.max(self._ultraTimeout - current, 0);
       self._painter.setTime(remaining);
       if (remaining === 0) self._stop();
     }
-    self._timer = window.setTimeout(self._timeUpdate, 125);
+    self._timer = setTimeout(self._timeUpdate, 125);
   };
   this._freeFall = function () {
     while (self._nextFallTime <= Date.now()) {
@@ -143,8 +143,8 @@ function Simulator(cols, rows, spawnPoint, controller, painter, soundManager,
       }
       self._nextFallTime += self._skipTicks;
     }
-    self._freeFallTimer = window.setTimeout(self._freeFall,
-                                            self._nextFallTime - Date.now());
+    self._freeFallTimer = setTimeout(self._freeFall,
+                                     self._nextFallTime - Date.now());
   };
   this._lock = function () { self._simulatorBase.drop(); };
 
@@ -192,8 +192,8 @@ Simulator.prototype.start = function (gameMode) {
 
 Simulator.prototype.onPieceSpawn = function (fallingPiece, fallingPoint,
                                              ghostPoint) {
-  window.clearTimeout(this._freeFallTimer);
-  window.clearTimeout(this._lockTimer);
+  clearTimeout(this._freeFallTimer);
+  clearTimeout(this._lockTimer);
   this._painter.drawFallingPiece(fallingPiece, fallingPoint, ghostPoint);
   this._controller.interrupt();
   this._resetInfinityCounter();
@@ -203,7 +203,7 @@ Simulator.prototype.onPieceSpawn = function (fallingPiece, fallingPoint,
 Simulator.prototype.onPieceMove = function (fallingPiece, fallingPoint,
                                             ghostPoint, landed) {
   var y;
-  window.clearTimeout(this._lockTimer);
+  clearTimeout(this._lockTimer);
   this._painter.drawFallingPiece(fallingPiece, fallingPoint, ghostPoint,
                                  landed);
   if (!landed) return;
@@ -213,7 +213,7 @@ Simulator.prototype.onPieceMove = function (fallingPiece, fallingPoint,
   if (this._infinityCounter[fallingPoint.y] > this._infinityLimit) {
     this._simulatorBase.drop();
   } else {
-    this._lockTimer = window.setTimeout(this._lock, this._timings.lockDelay);
+    this._lockTimer = setTimeout(this._lock, this._timings.lockDelay);
   }
 };
 
@@ -233,7 +233,7 @@ Simulator.prototype.onPieceLock = function (playfield, lines, tspin, kick) {
 };
 
 Simulator.prototype.onHoldPiece = function (holdPiece) {
-  window.clearTimeout(this._lockTimer);
+  clearTimeout(this._lockTimer);
   this._painter.drawHoldPiece(holdPiece);
   this._controller.interrupt();
   this._resetInfinityCounter();
@@ -261,9 +261,9 @@ Simulator.prototype._init = function () {
 
 Simulator.prototype._stop = function () {
   this._controller.stop();
-  window.clearTimeout(this._timer);
-  window.clearTimeout(this._freeFallTimer);
-  window.clearTimeout(this._lockTimer);
+  clearTimeout(this._timer);
+  clearTimeout(this._freeFallTimer);
+  clearTimeout(this._lockTimer);
   this._painter.drawLockedPiece();
   this._painter.onGameOver(this._fps, this._timings.gameOver,
                            this._onGameOver);
@@ -272,7 +272,7 @@ Simulator.prototype._stop = function () {
 Simulator.prototype._startFreeFall = function () {
   this._nextFallTime = Date.now() + this._skipTicks;
   this._freeFallDistance = 0;
-  this._freeFallTimer = window.setTimeout(this._freeFall, this._skipTicks);
+  this._freeFallTimer = setTimeout(this._freeFall, this._skipTicks);
 };
 
 Simulator.prototype._updateTimings = function () {
@@ -303,7 +303,7 @@ Simulator.prototype._updateState = function (lineClear, rawTspin, kick) {
   this._figures.lines += lineClear;
   switch (this._gameMode) {
   case 'marathon':
-    level = window.Math.floor(this._figures.lines / 10) + 1;
+    level = Math.floor(this._figures.lines / 10) + 1;
     if (level > this._marathonMaxLevel) {
       this._endTime = Date.now();
     } else if (level > this._figures.level) {
@@ -327,6 +327,6 @@ Simulator.prototype._resetInfinityCounter = function () {
   }
 };
 
-window.tetris.Simulator = Simulator;
+return Simulator;
 
-})(this);
+});

@@ -3,7 +3,8 @@
 /**
  * @namespace tetris
  */
-(function (window, undefined) {
+define(['./Arrays', './Point', './Tetromino'],
+       function (Arrays, Point, Tetromino) {
 
 /**
  * @class tetris.SimulatorBase
@@ -30,7 +31,7 @@ function SimulatorBase(simulator) {
   this._uncharging;
 
   /* The following is needed to implement T-spin detection */
-  this._diagonalPoints = window.tetris.Point.arrayOf(1, 1, 1,-1,-1, 1,-1,-1);
+  this._diagonalPoints = Point.arrayOf(1, 1, 1,-1,-1, 1,-1,-1);
   this._lastAttemptedMove;
   this._lastSuccessfulMove;
   this._kick;
@@ -40,9 +41,9 @@ SimulatorBase.prototype.start = function (cols, rows, spawnPoint) {
   this._cols = cols;
   this._rows = rows;
   this._spawnPoint = spawnPoint;
-  this._playfield = window.tetris.Arrays.repeat(rows + 4, cols).map(
+  this._playfield = Arrays.repeat(rows + 4, cols).map(
     function (cols) {
-      return window.tetris.Arrays.repeat(cols, 0);
+      return Arrays.repeat(cols, 0);
     });
   this._bag.length = 0;
   this._fillBag();
@@ -151,9 +152,9 @@ SimulatorBase.prototype._fillBag = function () {
   var remainders = new Array('I', 'J', 'L', 'O', 'S', 'Z', 'T'),
       i;
   while (remainders.length > 0) {
-    i = window.Math.floor(window.Math.random() * remainders.length);
-    this._bag.push(window.tetris.Tetromino.of(remainders[i], 0));
-    window.tetris.Arrays.remove(remainders, i);
+    i = Math.floor(Math.random() * remainders.length);
+    this._bag.push(Tetromino.of(remainders[i], 0));
+    Arrays.remove(remainders, i);
   }
 };
 
@@ -309,10 +310,10 @@ SimulatorBase.prototype._clearLines = function () {
       j += 1;
       k += 1;
     }
-    window.tetris.Arrays.copy(this._playfield[j], this._playfield[j - k]);
+    Arrays.copy(this._playfield[j], this._playfield[j - k]);
   }
   for (i = j - k; i < j; ++i) {
-    window.tetris.Arrays.fill(this._playfield[i], 0);
+    Arrays.fill(this._playfield[i], 0);
   }
   return lines;
 };
@@ -325,6 +326,6 @@ SimulatorBase._nonZero = function (x) {
   return x !== 0;
 };
 
-window.tetris.SimulatorBase = SimulatorBase;
+return SimulatorBase;
 
-})(this);
+});

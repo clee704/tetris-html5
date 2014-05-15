@@ -3,14 +3,14 @@
 /**
  * @namespace tetris
  */
-(function (window, undefined) {
+define(function () {
 
 /**
  * Various functions for arrays
  *
  * @object tetris.Arrays
  */
-window.tetris.Arrays = {
+return {
 
   /** Returns an array of n given values. */
   repeat: function (n, value) {
@@ -57,6 +57,7 @@ window.tetris.Arrays = {
     --a.length;
     return temp;
   }
+
 };
 
-})(this);
+});

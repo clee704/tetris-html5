@@ -3,7 +3,7 @@
 /**
  * @namespace tetris
  */
-(function (window, $, undefined) {
+define(['jquery', './Color', './Point'], function ($, Color, Point) {
 
 /**
  * @class tetris.Painter
@@ -14,13 +14,13 @@ function Painter(cols, rows, size) {
   this._COLS = cols;
   this._ROWS = rows;
   this._BLOCK_COLORS = {
-    'I': window.tetris.Color.fromHSL(180, 100, 47.5),
-    'O': window.tetris.Color.fromHSL(55, 100, 50),
-    'T': window.tetris.Color.fromHSL(285, 100, 50),
-    'S': window.tetris.Color.fromHSL(105, 100, 45),
-    'Z': window.tetris.Color.fromHSL(5, 100, 45),
-    'J': window.tetris.Color.fromHSL(240, 100, 50),
-    'L': window.tetris.Color.fromHSL(35, 100, 47.5)
+    'I': Color.fromHSL(180, 100, 47.5),
+    'O': Color.fromHSL(55, 100, 50),
+    'T': Color.fromHSL(285, 100, 50),
+    'S': Color.fromHSL(105, 100, 45),
+    'Z': Color.fromHSL(5, 100, 45),
+    'J': Color.fromHSL(240, 100, 50),
+    'L': Color.fromHSL(35, 100, 47.5)
   };
   this._TEXTS = {
     lineClear: {1: 'SINGLE', 2: 'DOUBLE', 3: 'TRIPLE', 4: 'TETRIS'},
@@ -99,7 +99,7 @@ Painter.prototype.drawLockedPiece = function () {
 };
 
 Painter.prototype.drawPreview = function (preview) {
-  var i, n = window.Math.min(preview.length, this._previewContexts.length);
+  var i, n = Math.min(preview.length, this._previewContexts.length);
   for (i = 0; i < n; ++i) {
     this._drawPiece(this._previewContexts[i], preview[i], this._blocks.normal,
                     null, true);
@@ -146,8 +146,8 @@ Painter.prototype.setFigures = function (figures, ignoreCache) {
 };
 
 Painter.prototype.setTime = function (seconds) {
-  var m = window.Math.floor(seconds / 60),
-      s = window.Math.floor(seconds % 60);
+  var m = Math.floor(seconds / 60),
+      s = Math.floor(seconds % 60);
   this._labels.$minute.text(m);
   this._labels.$second.text(s < 10 ? this._DIGITS[s] : s);
 };
@@ -183,12 +183,12 @@ Painter.prototype.onLineClear = function (fps, frames, lines, playfield,
       }
     }
   }
-  window.setTimeout(callback, 1000 * frames / fps);
+  setTimeout(callback, 1000 * frames / fps);
 };
 
 Painter.prototype.onGameOver = function (fps, frames, callback) {
   /* Do nothing for now (some sort of visual effects may be added later) */
-  window.setTimeout(callback, 1000 * frames / fps);
+  setTimeout(callback, 1000 * frames / fps);
 };
 
 Painter.prototype._init = function (size) {
@@ -201,7 +201,7 @@ Painter.prototype._init = function (size) {
 Painter.prototype._drawPiece = function (ctx, piece, blocks, point, center) {
   var i, n, q;
   if (!point) {
-    point = window.tetris.Point.of(2, 2);
+    point = Point.of(2, 2);
     Painter._clearCanvas(ctx);
   }
   for (i = 0, n = piece.geometry.length; i < n; ++i) {
@@ -331,7 +331,7 @@ Painter.prototype._prepareBlockImages = function () {
 };
 
 Painter.prototype._renderBlockImages = function (options) {
-  var canvas = window.document.createElement('canvas'),
+  var canvas = document.createElement('canvas'),
       ctx = canvas.getContext('2d'),
       options = options || {},
       colorFilter = options.bright ?
@@ -398,6 +398,6 @@ Painter._setFigure = function ($label, n, ref, ignoreCache) {
   }
 };
 
-window.tetris.Painter = Painter;
+return Painter;
 
-})(this, this.jQuery);
+});
