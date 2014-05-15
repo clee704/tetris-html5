@@ -1,9 +1,8 @@
-'use strict';
-
 /**
  * @namespace tetris
  */
 define(function () {
+'use strict';
 
 /**
  * Location in (x, y) coordinate space.
@@ -28,7 +27,7 @@ Point.prototype.addX = function (x) {
 };
 
 Point.prototype.addY = function (y) {
-  return Point.of(this.x, this.y + y)
+  return Point.of(this.x, this.y + y);
 };
 
 Point.prototype.subtract = function (p) {

@@ -1,6 +1,6 @@
-'use strict';
-
 define(['tetris/Point'], function (Point) {
+  'use strict';
+
   describe('Point', function () {
     describe('of', function () {
       it('should return a cached object', function () {

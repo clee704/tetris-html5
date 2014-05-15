@@ -1,9 +1,8 @@
-'use strict';
-
 /**
  * @namespace tetris
  */
 define(['./Point'], function (Point) {
+'use strict';
 
 /**
  * Tetromino with a specific shape and rotation.
@@ -40,7 +39,7 @@ Tetromino.of = function (name, rotation) {
   b = a ? a[rotation] : (Tetromino._cache[name] = {}, null);
   if (b) return b;
   g = Tetromino._geometries[name][rotation];
-  o = (Tetromino._offsets[name] || Tetromino._offsets['others'])[rotation];
+  o = (Tetromino._offsets[name] || Tetromino._offsets.others)[rotation];
   c = Tetromino._center(g);
   return (Tetromino._cache[name][rotation] =
           new Tetromino(name, rotation, g, o, c));
@@ -49,20 +48,20 @@ Tetromino.of = function (name, rotation) {
 Tetromino._cache = {};
 
 function rotations(base) {
-  var rotations = {0: base},
+  var ret = {0: base},
       i, j, n = base.length;
   for (i = 1; i <= 3; ++i) {
-    rotations[i] = [];
+    ret[i] = [];
     for (j = 0; j < n; ++j) {
-      rotations[i][j] = rotateRight(rotations[i - 1][j]);
+      ret[i][j] = rotateRight(ret[i - 1][j]);
     }
   }
-  return rotations;
+  return ret;
 }
 
 function rotateRight(p) {
   return Point.of(p.y, -p.x);
-};
+}
 
 Tetromino._geometries = {
   'I': rotations(Point.arrayOf(-1, 0, 0, 0, 1, 0, 2, 0)),

@@ -1,9 +1,8 @@
-'use strict';
-
 /**
  * @namespace tetris
  */
 define(['./Logger'], function (Logger) {
+'use strict';
 
 var filetypes = {
   'mp3': 'audio/mpeg; codecs="mp3"',
@@ -61,7 +60,7 @@ SoundManager.prototype._loadSounds = function () {
   for (i = 0; i < this._sounds.length; i++) {
     load(this._sounds[i]);
   }
-}
+};
 
 SoundManager.prototype.isSupported = function () {
   return this._ctx !== null;
@@ -77,11 +76,11 @@ SoundManager.prototype.play = function (name) {
 
 SoundManager.prototype.mute = function () {
   this._muted = true;
-}
+};
 
 SoundManager.prototype.unmute = function () {
   this._muted = false;
-}
+};
 
 return SoundManager;
 

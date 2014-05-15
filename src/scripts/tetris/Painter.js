@@ -1,9 +1,8 @@
-'use strict';
-
 /**
  * @namespace tetris
  */
 define(['jquery', './Color', './Point'], function ($, Color, Point) {
+'use strict';
 
 /**
  * @class tetris.Painter
@@ -42,14 +41,14 @@ function Painter(cols, rows, size) {
 
   /* jQuery elements */
   this._labels = {};
-  this._$actionLabel;
-  this._$levelLabel;
-  this._$scoreLabel;
+  this._$actionLabel = null;
+  this._$levelLabel = null;
+  this._$scoreLabel = null;
 
   /* Small variables */
-  this._size;
-  this._width;
-  this._height;
+  this._size = null;
+  this._width = null;
+  this._height = null;
   this._state = {};
 
   this._init(size);
@@ -212,9 +211,9 @@ Painter.prototype._drawPiece = function (ctx, piece, blocks, point, center) {
 };
 
 Painter.prototype._drawBlock = function (ctx, x, y, pieceName, blocks) {
-  var x = x * this._size,
-      y = ctx.canvas.height - (y + 1) * this._size;
-  ctx.putImageData(blocks[pieceName], x, y);
+  var px = x * this._size,
+      py = ctx.canvas.height - (y + 1) * this._size;
+  ctx.putImageData(blocks[pieceName], px, py);
 };
 
 Painter.prototype._clearBlock = function (ctx, x, y) {
@@ -307,7 +306,7 @@ Painter.prototype._cacheElements = function () {
   this._contexts.ghostPiece = $('#ghost-piece')[0].getContext('2d');
   this._contexts.holdPiece = $('#hold-piece')[0].getContext('2d');
   $('.preview').each(function (i) {
-    return self._previewContexts[i] = this.getContext('2d');
+    return (self._previewContexts[i] = this.getContext('2d'));
   });
   this._labels.$combo = $('#combo');
   this._labels.$points = $('#points');
@@ -331,9 +330,9 @@ Painter.prototype._prepareBlockImages = function () {
 };
 
 Painter.prototype._renderBlockImages = function (options) {
+  options = options || {};
   var canvas = document.createElement('canvas'),
       ctx = canvas.getContext('2d'),
-      options = options || {},
       colorFilter = options.bright ?
                     function (c) { return c.brighter(options.bright); } :
                     function (c) { return c; },

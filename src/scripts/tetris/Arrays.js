@@ -1,9 +1,8 @@
-'use strict';
-
 /**
  * @namespace tetris
  */
 define(function () {
+'use strict';
 
 /**
  * Various functions for arrays
@@ -14,7 +13,7 @@ return {
 
   /** Returns an array of n given values. */
   repeat: function (n, value) {
-    var a = [], i, n;
+    var a = [], i;
     for (i = 0; i < n; ++i) {
       a.push(value);
     }

@@ -1,11 +1,10 @@
-'use strict';
-
 /**
  * @namespace tetris
  */
 define(['jquery', './Point', './Controller', './Painter', './SoundManager',
         './Simulator'],
        function ($, Point, Controller, Painter, SoundManager, Simulator) {
+'use strict';
 
 /**
  * @class tetris.UserInterface
@@ -46,6 +45,7 @@ UserInterface.prototype.onGameOver = function (gameMode, record) {
   // TODO Show the record and save it if needed.
   // The following is temporary code.
   //
+  console.log('Mode: ' + gameMode + ', Score: ' + record);
   this._$panels.addClass('unhighlight');
   this._showMenu(this._$mainMenu);
 };

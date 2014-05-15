@@ -1,10 +1,9 @@
-'use strict';
-
 /**
  * @namespace tetris
  */
 define(['./Arrays', './Point', './Tetromino'],
        function (Arrays, Point, Tetromino) {
+'use strict';
 
 /**
  * @class tetris.SimulatorBase
@@ -13,28 +12,28 @@ function SimulatorBase(simulator) {
 
   this._simulator = simulator;
 
-  this._cols;
-  this._rows;
-  this._spawnPoint;
+  this._cols = null;
+  this._rows = null;
+  this._spawnPoint = null;
 
-  this._playfield;
+  this._playfield = null;
   this._bag = [];
-  this._fallingPiece;
-  this._fallingPoint;
-  this._ghostPoint;
-  this._holdPiece;
-  this._holdReady;
+  this._fallingPiece = null;
+  this._fallingPoint = null;
+  this._ghostPoint = null;
+  this._holdPiece = null;
+  this._holdReady = null;
   this._stopped = true;
 
   /* The following is needed to implement IRS, IHS */
   this._chargedOperations = [];
-  this._uncharging;
+  this._uncharging = null;
 
   /* The following is needed to implement T-spin detection */
   this._diagonalPoints = Point.arrayOf(1, 1, 1,-1,-1, 1,-1,-1);
-  this._lastAttemptedMove;
-  this._lastSuccessfulMove;
-  this._kick;
+  this._lastAttemptedMove = null;
+  this._lastSuccessfulMove = null;
+  this._kick = null;
 }
 
 SimulatorBase.prototype.start = function (cols, rows, spawnPoint) {
@@ -192,6 +191,7 @@ SimulatorBase.prototype._shift = function (dir) {
 SimulatorBase.prototype._rotate = (function () {
   var rotatedPiece, offset = [];
   function resolve() {
+    // jshint validthis:true
     var i, n, p;
     this._kick = true;
     for (i = 1, n = offset.length; i < n; ++i) {

@@ -1,9 +1,8 @@
-'use strict';
-
 /**
  * @namespace tetris
  */
 define(function () {
+'use strict';
 
 /**
  * Color in both RGB and HSL values, with an optional alpha-channel.

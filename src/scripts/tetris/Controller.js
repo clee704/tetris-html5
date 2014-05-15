@@ -1,9 +1,8 @@
-'use strict';
-
 /**
  * @namespace tetris
  */
 define(['jquery'], function ($) {
+'use strict';
 
 var $doc = $(document);
 
@@ -55,7 +54,7 @@ function Controller() {
       key = self._keys[name];
       key.keyup();
     }
-  }
+  };
 }
 
 Controller.prototype.link = function (simulator) {
@@ -124,7 +123,7 @@ Controller.prototype._register = function (name, keydownFunc, keyupFunc) {
     if (keyupFunc) keyupFunc();
     key.interrupted = true;
   };
-}
+};
 
 return Controller;
 

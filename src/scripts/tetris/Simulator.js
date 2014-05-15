@@ -1,9 +1,8 @@
-'use strict';
-
 /**
  * @namespace tetris
  */
 define(['./Arrays', './SimulatorBase'], function (Arrays, SimulatorBase) {
+'use strict';
 
 /**
  * @class tetris.Simulator
@@ -72,24 +71,24 @@ function Simulator(cols, rows, spawnPoint, controller, painter, soundManager,
   this._ui = ui;
 
   /* Small Variables */
-  this._gameMode;
+  this._gameMode = null;
   this._timings = {};
   this._figures = {};
   this._action = {};
 
   /* Timers and counters */
-  this._timer;
-  this._startTime;
-  this._endTime;
-  this._freeFallTimer;
-  this._freeFallDistance;
-  this._nextFallTime;
-  this._lockTimer;
+  this._timer = null;
+  this._startTime = null;
+  this._endTime = null;
+  this._freeFallTimer = null;
+  this._freeFallDistance = null;
+  this._nextFallTime = null;
+  this._lockTimer = null;
   this._infinityCounter = Arrays.repeat(rows, 0);
 
   /* Flags */
-  this._softDropping;
-  this._blockedOut;
+  this._softDropping = null;
+  this._blockedOut = null;
 
   /* Functions for the controller */
   this.softDrop = function () { self._softDropping = !self._softDropping; };

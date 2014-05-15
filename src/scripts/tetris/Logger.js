@@ -1,9 +1,8 @@
-'use strict';
-
 /**
  * @namespace tetris
  */
 define(function () {
+'use strict';
 
 /**
  * @class tetris.Logger
@@ -27,7 +26,7 @@ Logger.prototype._log = function (level, msg) {
   } else if ('log' in console) {
     console.log(output);
   }
-}
+};
 
 return Logger;
 
