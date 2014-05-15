@@ -17,8 +17,8 @@ function Controller() {
   this._keys = {
     'SoftDrop': {interruptable: true},
     'HardDrop': {},
-    'ShiftLeft': {delay: 150, frequency: 30, exclude: 'ShiftRight'},
-    'ShiftRight': {delay: 150, frequency: 30, exclude: 'ShiftLeft'},
+    'ShiftLeft': {delay: 183, frequency: 30, exclude: 'ShiftRight'},
+    'ShiftRight': {delay: 183, frequency: 30, exclude: 'ShiftLeft'},
     'RotateLeft': {exclude: 'RotateRight'},
     'RotateRight': {exclude: 'RotateLeft'},
     'Hold' : {}
