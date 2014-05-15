@@ -1,6 +1,5 @@
-'use strict';
-
 module.exports = function (grunt) {
+  'use strict';
 
   // Load grunt tasks automatically.
   require('load-grunt-tasks')(grunt);
@@ -12,9 +11,6 @@ module.exports = function (grunt) {
 
     config: require('./build.config.js'),
 
-    //
-    // File manipulation
-    //
     clean: {
       temp: '<%= config.tempDir %>',
       dist: {
@@ -29,7 +25,7 @@ module.exports = function (grunt) {
       }
     },
 
-    // Copy remaining files
+    // Copy remaining files that are not processed by other tasks.
     copy: {
       dist: {
         files: [{
@@ -47,9 +43,7 @@ module.exports = function (grunt) {
       }
     },
 
-    //
-    // CSS
-    //
+    // Compile LESS files to CSS.
     less: {
       options: {
         paths: '<%= config.srcDir %>/styles'
@@ -75,7 +69,7 @@ module.exports = function (grunt) {
       }
     },
 
-    // Add vendor prefixed styles
+    // Add vendor prefixes to cutting-edge properties.
     autoprefixer: {
       options: {
         browsers: ['last 2 version', 'ie >= 9']
@@ -90,80 +84,7 @@ module.exports = function (grunt) {
       }
     },
 
-    //
-    // Web optimization
-    //
-    // Renames files for browser caching purposes
-    rev: {
-      dist: {
-        files: {
-          src: [
-            '<%= config.buildDir %>/fonts/**/*.{eot,ttf}',
-            '<%= config.buildDir %>/images/**/*.{png,jpg,jpeg,gif,webp,svg}',
-            '<%= config.buildDir %>/scripts/**/*.js',
-            '<%= config.buildDir %>/styles/**/*.css',
-          ]
-        }
-      }
-    },
-
-    requirejs: {
-      dist: {
-        options: {
-          baseUrl: '<%= config.srcDir %>/scripts',
-          mainConfigFile: '<%= config.srcDir %>/scripts/config.js',
-          name: '../bower_components/almond/almond',
-          include: ['main'],
-          out: '<%= config.tempDir %>/scripts/optimized.js',
-          optimize: 'none'
-        }
-      }
-    },
-
-    uglify: {
-      requirejs: {
-        files: [{
-          expand: true,
-          cwd: '<%= config.tempDir %>/scripts',
-          dest: '<%= config.buildDir %>/scripts',
-          src: 'optimized.js'
-        }]
-      }
-    },
-
-    replace: {
-      requirejs: {
-        files: [{
-          expand: true,
-          cwd: '<%= config.buildDir %>',
-          dest: '<%= config.buildDir %>',
-          src: 'index.html'
-        }],
-        options: {
-          patterns: [{
-            match: /<script data-main="scripts\/main" src="bower_components\/requirejs\/require.js"><\/script>/,
-            replacement: '<script src="scripts/optimized.js"></script>'
-          }]
-        }
-      }
-    },
-
-    // Reads HTML for usemin blocks to enable smart builds that automatically
-    // concat, minify and revision files. Creates configurations in memory so
-    // additional tasks can operate on them
-    useminPrepare: {
-      html: '<%= config.srcDir %>/index.html',
-      options: {
-        dest: '<%= config.buildDir %>'
-      }
-    },
-
-    // Performs rewrites based on rev and the useminPrepare configuration
-    usemin: {
-      html: ['<%= config.buildDir %>/**/*.html'],
-      css: ['<%= config.buildDir %>/styles/**/*.css']
-    },
-
+    // Minify image files without losing quiality.
     imagemin: {
       dist: {
         files: [{
@@ -175,6 +96,7 @@ module.exports = function (grunt) {
       }
     },
 
+    // Minify HTML files. Also serve as to just copying files.
     htmlmin: {
       dist: {
         options: {
@@ -196,17 +118,92 @@ module.exports = function (grunt) {
       }
     },
 
-    //
-    // Code quality & testing
-    //
+    // Do RequireJS optimization.
+    requirejs: {
+      dist: {
+        options: {
+          baseUrl: '<%= config.srcDir %>/scripts',
+          mainConfigFile: '<%= config.srcDir %>/scripts/config.js',
+          name: '../bower_components/almond/almond',
+          include: ['main'],
+          out: '<%= config.tempDir %>/scripts/optimized.js',
+          optimize: 'none'
+        }
+      }
+    },
+
+    // Modify the RequireJS script tag to use the optimized file.
+    replace: {
+      requirejs: {
+        files: [{
+          expand: true,
+          cwd: '<%= config.buildDir %>',
+          dest: '<%= config.buildDir %>',
+          src: 'index.html'
+        }],
+        options: {
+          patterns: [{
+            match: /<script data-main="scripts\/main" src="bower_components\/requirejs\/require.js"><\/script>/,
+            replacement: '<script src="scripts/optimized.js"></script>'
+          }]
+        }
+      }
+    },
+
+    // Read HTML for usemin blocks to enable smart builds that automatically
+    // concat, minify and revision files. Create configurations in memory so
+    // additional tasks can operate on them.
+    useminPrepare: {
+      html: '<%= config.srcDir %>/index.html',
+      options: {
+        dest: '<%= config.buildDir %>',
+        staging: '<%= config.tempDir %>'
+      }
+    },
+
+    // Minify JavaScript files. Files in usemin blocks are automatically added
+    // by useminPrepare.
+    uglify: {
+      requirejs: {
+        files: [{
+          expand: true,
+          cwd: '<%= config.tempDir %>/scripts',
+          dest: '<%= config.buildDir %>/scripts',
+          src: 'optimized.js'
+        }]
+      }
+    },
+
+    // Rename files for browser caching purposes.
+    // Sound files are not renamed as it seems not worth the trouble.
+    rev: {
+      dist: {
+        files: {
+          src: [
+            '<%= config.buildDir %>/fonts/**/*.{eot,ttf}',
+            '<%= config.buildDir %>/images/**/*.{png,jpg,jpeg,gif,webp,svg}',
+            '<%= config.buildDir %>/scripts/**/*.js',
+            '<%= config.buildDir %>/styles/**/*.css',
+          ]
+        }
+      }
+    },
+
+    // Perform rewrites based on rev and the useminPrepare configuration.
+    usemin: {
+      html: ['<%= config.buildDir %>/**/*.html'],
+      css: ['<%= config.buildDir %>/styles/**/*.css']
+    },
+
+    // Lint JavaScript files.
     jshint: {
       options: {
         jshintrc: '.jshintrc',
         reporter: require('jshint-stylish')
       },
-      all: [
+      src: [
         'Gruntfile.js',
-        '<%= config.tempDir %>/scripts/**/*.js'
+        '<%= config.srcDir %>/scripts/**/*.js'
       ],
       test: {
         options: {
@@ -216,22 +213,21 @@ module.exports = function (grunt) {
       }
     },
 
+    // Run a single run of tests or continuously in background.
     karma: {
       options: {
         configFile: 'karma.conf.js'
       },
+      single: {
+        singleRun: true
+      },
       background: {
         singleRun: false,
         background: true
-      },
-      continuous: {
-        singleRun: true
       }
     },
 
-    //
-    // Web servers
-    //
+    // Run a local webserver.
     connect: {
       options: {
         port: '<%= config.devPort %>',
@@ -244,30 +240,29 @@ module.exports = function (grunt) {
       }
     },
 
-    //
-    // Etc
-    //
+    // Watch files for changes and run corresponding tasks.
     watch: {
       options: {
         spawn: false
       },
       js: {
         files: ['<%= config.srcDir %>/scripts/{,*/,*/*/}*.js'],
-        tasks: ['newer:jshint:all', 'karma:background:run']
+        tasks: ['newer:jshint:src', 'karma:background:run']
       },
-      jsTest: {
+      test: {
         files: ['test/spec/{,*/}*.js'],
         tasks: ['newer:jshint:test', 'karma:background:run']
       },
       less: {
         files: ['<%= config.srcDir %>/styles/{,*/}*.less'],
-        tasks: ['less:dev', 'autoprefixer']
+        tasks: ['css:dev']
       },
       gruntfile: {
         files: ['Gruntfile.js']
       }
     },
 
+    // Create a cache manifest so that the app can be used offline.
     manifest: {
       generate: {
         options: {
@@ -287,6 +282,8 @@ module.exports = function (grunt) {
 
   });
 
+  // Generate CSS files by first compiling LESS and then adding vendor
+  // prefixes to cutting-edge CSS properties.
   grunt.registerTask('css', function (target) {
     grunt.task.run([
       'less:' + target,
@@ -320,21 +317,21 @@ module.exports = function (grunt) {
   grunt.registerTask('test', [
     'clean:temp',
     'css:dev',
-    'karma:continuous'
+    'karma:single'
   ]);
 
   grunt.registerTask('build', [
     'clean:dist',
+    'copy:dist',
     'css:dist',
     'imagemin',
     'htmlmin',
+    'requirejs',
+    'replace',
     'useminPrepare',
     'concat',
-    'copy:dist',
     'cssmin',
-    'requirejs',
     'uglify',
-    'replace',
     'rev',
     'usemin',
     'manifest'
