@@ -180,7 +180,6 @@ module.exports = function (grunt) {
       dist: {
         files: {
           src: [
-            '<%= config.buildDir %>/fonts/**/*.{eot,ttf}',
             '<%= config.buildDir %>/images/**/*.{png,jpg,jpeg,gif,webp,svg}',
             '<%= config.buildDir %>/scripts/**/*.js',
             '<%= config.buildDir %>/styles/**/*.css',
